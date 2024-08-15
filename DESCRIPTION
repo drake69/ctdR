@@ -1,0 +1,15 @@
+Package: ctdR
+Type: Package
+Title: ctdR: An R package for the analysis Comparative Toxycogenomics data
+Version: 0.1.2
+Author: Luigi Corsaro [aut, cre]
+Maintainer: Luigi Corsaro <lcorsaro69@gmail.com>
+Description: ctdR is an R package for the analysis of gene set data. It executes the GSEA of Chemicals as defined by the Comparative Toxicogenomics Database (CTD) website. It also parses the CTD donwloaded data.
+License: Apache License 2.0
+Encoding: UTF-8
+LazyData: true
+Imports:
+  fgsea,readr,rappdirs,org.Hs.eg.db
+RoxygenNote: 7.3.2
+Suggests:
+  testthat, knitr, rmarkdown
