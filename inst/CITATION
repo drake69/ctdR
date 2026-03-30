@@ -1,0 +1,43 @@
+bibentry(
+  bibtype  = "Manual",
+  title    = "ctdR: Enrichment Analysis of Chemical-Gene Interactions from the Comparative Toxicogenomics Database",
+  author   = person("Luigi", "Corsaro",
+                    comment = c(ORCID = "0000-0003-1218-230X")),
+  year     = "2024",
+  note     = "R package version 0.1.2",
+  url      = "https://github.com/drake69/ctdR",
+  textVersion = paste(
+    "Corsaro L (2024).",
+    "ctdR: Enrichment Analysis of Chemical-Gene Interactions",
+    "from the Comparative Toxicogenomics Database.",
+    "R package version 0.1.2.",
+    "https://github.com/drake69/ctdR"
+  )
+)
+
+bibentry(
+  bibtype  = "Article",
+  title    = "Comparative Toxicogenomics Database (CTD): update 2023",
+  author   = c(
+    person("Allan P", "Davis"),
+    person("Tanya C", "Wiegers"),
+    person("Robin J", "Johnson"),
+    person("Daniela", "Sciaky"),
+    person("Jolene", "Wiegers"),
+    person("Carolyn J", "Mattingly")
+  ),
+  journal  = "Nucleic Acids Research",
+  year     = "2023",
+  volume   = "51",
+  number   = "D1",
+  pages    = "D1257--D1262",
+  doi      = "10.1093/nar/gkac833",
+  textVersion = paste(
+    "Davis AP, Wiegers TC, Johnson RJ, Sciaky D, Wiegers J, Mattingly CJ (2023).",
+    "Comparative Toxicogenomics Database (CTD): update 2023.",
+    "Nucleic Acids Research, 51(D1), D1257-D1262.",
+    "doi: 10.1093/nar/gkac833.",
+    "https://ctdbase.org"
+  ),
+  header   = "Please also cite CTD as required by their Terms of Service:"
+)

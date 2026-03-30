@@ -1,15 +1,49 @@
 Package: ctdR
 Type: Package
-Title: ctdR: An R package for the analysis Comparative Toxycogenomics data
+Title: Enrichment Analysis of Chemical-Gene Interactions from the
+    Comparative Toxicogenomics Database
 Version: 0.1.2
-Author: Luigi Corsaro [aut, cre]
-Maintainer: Luigi Corsaro <lcorsaro69@gmail.com>
-Description: ctdR is an R package for the analysis of gene set data. It executes the GSEA of Chemicals as defined by the Comparative Toxicogenomics Database (CTD) website. It also parses the CTD donwloaded data.
-License: Apache License 2.0
+Authors@R: person(
+    given = "Luigi",
+    family = "Corsaro",
+    role = c("aut", "cre"),
+    email = "lcorsaro69@gmail.com",
+    comment = c(ORCID = "0000-0003-1218-230X"))
+Description: Identifies chemicals significantly associated with a set of genes
+    using data from the Comparative Toxicogenomics Database (CTD,
+    <https://ctdbase.org>). Supports two enrichment methods: Over-Representation
+    Analysis (ORA) via 'clusterProfiler' and Gene Set Enrichment Analysis (GSEA)
+    via 'fgsea'. Users download the CTD chemical-gene interactions file once,
+    import it with import_CTD(), and then run enrichment_CTD() on any gene list.
+    This package does not bundle or redistribute CTD data. Users must download
+    the required data files directly from <https://ctdbase.org> and comply with
+    the CTD data licensing terms (see <https://ctdbase.org/about/legal.jsp>).
+License: Apache License (>= 2)
+URL: https://github.com/drake69/ctdR
+BugReports: https://github.com/drake69/ctdR/issues
 Encoding: UTF-8
-LazyData: true
+Depends:
+    R (>= 4.0)
 Imports:
-  fgsea,readr,rappdirs,org.Hs.eg.db,clusterProfiler,DOSE,AnnotationDbi
-RoxygenNote: 7.3.2
+    fgsea,
+    readr,
+    rappdirs,
+    org.Hs.eg.db,
+    clusterProfiler,
+    DOSE,
+    AnnotationDbi,
+    plyr
 Suggests:
-  testthat, knitr, rmarkdown
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown,
+    BiocStyle
+biocViews:
+    GeneSetEnrichment,
+    Pathways,
+    Annotation,
+    GeneExpression,
+    DataImport
+VignetteBuilder: knitr
+RoxygenNote: 7.3.3
+Config/testthat/edition: 3
