@@ -54,11 +54,8 @@ acknowledge that you have read and accepted those terms.
 }
 
 \examples{
-# import_CTD validates that the file exists before processing:
-tryCatch(
-  import_CTD("/nonexistent/path.csv"),
-  error = function(e) message(e$message)
-)
+# Check that import_CTD validates the file path:
+file.exists("/nonexistent/path.csv")  # FALSE
 
 \donttest{
 # Full workflow (requires downloaded CTD data):

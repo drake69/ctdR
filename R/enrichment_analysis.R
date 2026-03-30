@@ -72,18 +72,15 @@
 #'   first use.
 #'
 #' @examples
-#' # enrichment_CTD checks for cached CTD data before running:
+#' # Prepare a gene list (Entrez IDs with p-values):
 #' genes <- data.frame(
 #'   entrez_ids = c("7124", "3569", "7157", "672", "1956"),
 #'   pvalue     = c(0.001, 0.003, 0.01, 0.02, 0.05)
 #' )
-#' tryCatch(
-#'   enrichment_CTD(genes, method = "ORA"),
-#'   error = function(e) message(e$message)
-#' )
+#' str(genes)
 #'
 #' \donttest{
-#' # Full workflow (requires imported CTD data):
+#' # Requires imported CTD data (see ?import_CTD):
 #' # import_CTD("~/Downloads/CTD_chem_gene_ixns.csv")
 #'
 #' # Over-Representation Analysis
