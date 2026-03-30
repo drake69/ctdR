@@ -18,7 +18,7 @@ Description: Identifies chemicals significantly associated with a set of genes
     This package does not bundle or redistribute CTD data. Users must download
     the required data files directly from <https://ctdbase.org> and comply with
     the CTD data licensing terms (see <https://ctdbase.org/about/legal.jsp>).
-License: Apache License (>= 2)
+License: Apache License 2.0 | file LICENSE
 URL: https://github.com/drake69/ctdR
 BugReports: https://github.com/drake69/ctdR/issues
 Encoding: UTF-8
