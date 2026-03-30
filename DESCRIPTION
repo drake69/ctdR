@@ -9,7 +9,7 @@ License: Apache License 2.0
 Encoding: UTF-8
 LazyData: true
 Imports:
-  fgsea,readr,rappdirs,org.Hs.eg.db
+  fgsea,readr,rappdirs,org.Hs.eg.db,clusterProfiler,DOSE,AnnotationDbi
 RoxygenNote: 7.3.2
 Suggests:
   testthat, knitr, rmarkdown

@@ -77,7 +77,7 @@ enrichment_CTD <- function(entrez_ids, method="ORA")
     load(file = file.path(cache_dir, "ChemicalName_GeneSymbols.rda"))
     gene_symbols <- AnnotationDbi::select(
       org.Hs.eg.db::org.Hs.eg.db,
-      keys = entrez_ids,
+      keys = entrez_ids$entrez_ids,
       column = "SYMBOL",
       keytype = "ENTREZID",
       multiVals = "first")
@@ -85,6 +85,10 @@ enrichment_CTD <- function(entrez_ids, method="ORA")
     fgsea_results <- ora(ChemicalName_GeneSymbols,gene_symbols)
     # Add ChemicalName
     fgsea_results <- merge(fgsea_results, chemicals, by.y="ChemicalID", by.x="ID")
+    # rename ID as ChemicalID
+    colnames(fgsea_results)[colnames(fgsea_results)=="ID"] <- "ChemicalID"
+    # remove Description column
+    fgsea_results <- fgsea_results[,!colnames(fgsea_results) %in% c("Description")]
   }
   else
   {
@@ -97,7 +101,7 @@ enrichment_CTD <- function(entrez_ids, method="ORA")
     fgsea_results <- merge(fgsea_results, chemicals, by="ChemicalID")
   }
 
-  browser()
+  # browser()
 
   return(fgsea_results)
 }
