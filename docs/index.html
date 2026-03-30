@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ctdR - Chemical-Gene Enrichment Analysis</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --text-light: #64748b;
+      --border: #e2e8f0;
+      --code-bg: #f1f5f9;
+      --accent-ora: #059669;
+      --accent-gsea: #7c3aed;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Header */
+    header {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      padding: 60px 0 48px;
+    }
+
+    header h1 {
+      font-size: 2.8em;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    header p {
+      font-size: 1.2em;
+      opacity: 0.9;
+      max-width: 640px;
+      margin-bottom: 24px;
+    }
+
+    .badges {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    .badges img { height: 20px; }
+
+    .header-links a {
+      color: white;
+      text-decoration: none;
+      background: rgba(255,255,255,0.15);
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 500;
+      margin-right: 12px;
+      display: inline-block;
+      transition: background 0.2s;
+    }
+
+    .header-links a:hover {
+      background: rgba(255,255,255,0.25);
+    }
+
+    /* Sections */
+    section { padding: 48px 0; }
+
+    section h2 {
+      font-size: 1.8em;
+      margin-bottom: 24px;
+      color: var(--text);
+    }
+
+    section h3 {
+      font-size: 1.2em;
+      margin-bottom: 12px;
+    }
+
+    /* Feature cards */
+    .features {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 640px) {
+      .features { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+    }
+
+    .card h3 { margin-bottom: 8px; }
+
+    .card p { color: var(--text-light); font-size: 0.95em; }
+
+    .card.ora { border-top: 4px solid var(--accent-ora); }
+    .card.gsea { border-top: 4px solid var(--accent-gsea); }
+
+    /* Code blocks */
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      overflow-x: auto;
+      font-size: 0.9em;
+      line-height: 1.7;
+      margin-bottom: 24px;
+    }
+
+    code {
+      font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+    }
+
+    .inline-code {
+      background: var(--code-bg);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.9em;
+    }
+
+    .comment { color: #6b7280; }
+    .string { color: #059669; }
+    .func { color: #2563eb; }
+    .keyword { color: #7c3aed; }
+
+    /* Steps */
+    .steps {
+      counter-reset: step;
+      list-style: none;
+      padding: 0;
+    }
+
+    .steps li {
+      counter-increment: step;
+      padding: 16px 0 16px 56px;
+      position: relative;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .steps li:last-child { border-bottom: none; }
+
+    .steps li::before {
+      content: counter(step);
+      position: absolute;
+      left: 0;
+      top: 16px;
+      width: 36px;
+      height: 36px;
+      background: var(--primary);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.9em;
+    }
+
+    .steps li strong { display: block; margin-bottom: 4px; }
+
+    /* Disclaimer */
+    .disclaimer {
+      background: #fef3c7;
+      border: 1px solid #f59e0b;
+      border-radius: 12px;
+      padding: 24px;
+      margin-top: 24px;
+    }
+
+    .disclaimer h3 { color: #92400e; margin-bottom: 8px; }
+    .disclaimer p { color: #78350f; font-size: 0.95em; }
+    .disclaimer a { color: #92400e; }
+
+    /* Example section */
+    .example-block {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+      margin-bottom: 24px;
+    }
+
+    .example-block h3 {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tag {
+      font-size: 0.7em;
+      padding: 2px 10px;
+      border-radius: 20px;
+      color: white;
+      font-weight: 600;
+    }
+
+    .tag.ora { background: var(--accent-ora); }
+    .tag.gsea { background: var(--accent-gsea); }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 0;
+      color: var(--text-light);
+      font-size: 0.9em;
+      text-align: center;
+    }
+
+    footer a { color: var(--primary); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <h1>ctdR</h1>
+    <p>Identify chemicals associated with your genes using enrichment analysis
+      and data from the Comparative Toxicogenomics Database.</p>
+    <div class="badges">
+      <img src="https://img.shields.io/github/r-package/v/drake69/ctdR" alt="version">
+      <img src="https://img.shields.io/badge/R-%E2%89%A5%204.0-blue" alt="R version">
+      <img src="https://img.shields.io/badge/License-Apache_2.0-blue" alt="license">
+      <img src="https://img.shields.io/github/actions/workflow/status/drake69/ctdR/R-CMD-check.yaml?label=R-CMD-check" alt="CI">
+      <img src="https://img.shields.io/badge/lifecycle-experimental-orange" alt="lifecycle">
+    </div>
+    <div class="header-links">
+      <a href="https://github.com/drake69/ctdR">GitHub</a>
+      <a href="https://github.com/drake69/ctdR#installation">Install</a>
+      <a href="https://github.com/drake69/ctdR/issues">Report Issues</a>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="container">
+    <h2>What does ctdR do?</h2>
+    <p style="color: var(--text-light); margin-bottom: 32px; max-width: 720px;">
+      Given a list of genes (e.g. from a differential expression analysis),
+      ctdR tells you which chemicals are significantly associated with those
+      genes according to the CTD database. Two complementary methods are available:
+    </p>
+    <div class="features">
+      <div class="card ora">
+        <h3>Over-Representation Analysis</h3>
+        <p>Tests whether your gene list overlaps significantly with each
+          chemical's known targets. Best when you have a defined gene set
+          with a clear significance cutoff.</p>
+        <p style="margin-top: 12px;">
+          Powered by <code class="inline-code">clusterProfiler::enricher</code>
+        </p>
+      </div>
+      <div class="card gsea">
+        <h3>Gene Set Enrichment Analysis</h3>
+        <p>Uses your full ranked gene list to find chemicals whose targets
+          cluster at the extremes. No arbitrary cutoff needed.</p>
+        <p style="margin-top: 12px;">
+          Powered by <code class="inline-code">fgsea::fgsea</code>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="background: white;">
+  <div class="container">
+    <h2>Getting Started</h2>
+    <ol class="steps">
+      <li>
+        <strong>Install ctdR</strong>
+        <pre><code><span class="func">devtools</span>::<span class="func">install_github</span>(<span class="string">"drake69/ctdR"</span>)</code></pre>
+      </li>
+      <li>
+        <strong>Download CTD data</strong>
+        Download <code class="inline-code">CTD_chem_gene_ixns.csv.gz</code>
+        from <a href="https://ctdbase.org/reports/CTD_chem_gene_ixns.csv.gz">ctdbase.org</a>
+        and decompress it.
+      </li>
+      <li>
+        <strong>Import the data (once)</strong>
+        <pre><code><span class="func">library</span>(ctdR)
+<span class="func">import_CTD</span>(<span class="string">"~/Downloads/CTD_chem_gene_ixns.csv"</span>)</code></pre>
+      </li>
+      <li>
+        <strong>Run enrichment analysis</strong>
+        <pre><code>results &lt;- <span class="func">enrichment_CTD</span>(my_genes, method = <span class="string">"ORA"</span>)
+<span class="func">head</span>(results)</code></pre>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>Examples</h2>
+
+    <div class="example-block">
+      <h3>Example 1: Identifying chemicals linked to inflammatory genes
+        <span class="tag ora">ORA</span>
+      </h3>
+      <p style="color: var(--text-light); margin-bottom: 16px;">
+        You have a set of genes involved in inflammation and want to find which
+        chemicals are known to interact with them.
+      </p>
+      <pre><code><span class="func">library</span>(ctdR)
+
+<span class="comment"># A set of inflammatory genes (Entrez IDs)</span>
+<span class="comment"># TNF, IL6, IL1B, PTGS2, CXCL8, CCL2, NFKB1, STAT3, MMP9, ICAM1</span>
+genes &lt;- <span class="func">data.frame</span>(
+  entrez_ids = <span class="func">c</span>(<span class="string">"7124"</span>, <span class="string">"3569"</span>, <span class="string">"3553"</span>, <span class="string">"5743"</span>, <span class="string">"3576"</span>,
+                 <span class="string">"6347"</span>, <span class="string">"4790"</span>, <span class="string">"6774"</span>, <span class="string">"4318"</span>, <span class="string">"3383"</span>),
+  pvalue     = <span class="func">c</span>(0.001, 0.002, 0.003, 0.005, 0.007,
+                 0.01,  0.015, 0.02,  0.03,  0.04)
+)
+
+<span class="comment"># Find chemicals enriched for these genes</span>
+ora_results &lt;- <span class="func">enrichment_CTD</span>(genes, method = <span class="string">"ORA"</span>)
+
+<span class="comment"># View top hits</span>
+<span class="func">head</span>(ora_results[, <span class="func">c</span>(<span class="string">"ChemicalName"</span>, <span class="string">"padj"</span>,
+                      <span class="string">"foldEnrichment"</span>, <span class="string">"Count"</span>)])
+<span class="comment">#&gt;       ChemicalName         padj foldEnrichment Count</span>
+<span class="comment">#&gt; 1  Lipopolysaccharides  1.2e-15          8.3      9</span>
+<span class="comment">#&gt; 2  Dexamethasone        3.4e-12          6.1      8</span>
+<span class="comment">#&gt; 3  Acetaminophen        7.8e-10          5.4      7</span>
+<span class="comment">#&gt; ...</span></code></pre>
+    </div>
+
+    <div class="example-block">
+      <h3>Example 2: Ranked analysis of a full gene expression profile
+        <span class="tag gsea">GSEA</span>
+      </h3>
+      <p style="color: var(--text-light); margin-bottom: 16px;">
+        You have differential expression results and want to use the full
+        ranking (not just significant genes) to discover chemical associations.
+      </p>
+      <pre><code><span class="func">library</span>(ctdR)
+
+<span class="comment"># Load your DEG results (Entrez IDs + p-values)</span>
+deg_results &lt;- <span class="func">read.csv</span>(<span class="string">"my_deg_results.csv"</span>)
+
+<span class="comment"># Prepare input: must have 'entrez_ids' column + numeric column</span>
+genes &lt;- <span class="func">data.frame</span>(
+  entrez_ids = deg_results$entrez_id,
+  pvalue     = deg_results$pvalue
+)
+
+<span class="comment"># Run GSEA — uses full ranking, no cutoff needed</span>
+gsea_results &lt;- <span class="func">enrichment_CTD</span>(genes, method = <span class="string">"GSEA"</span>)
+
+<span class="comment"># View top enriched chemicals</span>
+<span class="func">head</span>(gsea_results[, <span class="func">c</span>(<span class="string">"ChemicalName"</span>, <span class="string">"NES"</span>,
+                       <span class="string">"padj"</span>, <span class="string">"size"</span>)])
+<span class="comment">#&gt;        ChemicalName   NES      padj size</span>
+<span class="comment">#&gt; 1  Benzo(a)pyrene    2.41   0.001   312</span>
+<span class="comment">#&gt; 2  Valproic Acid     2.18   0.003   287</span>
+<span class="comment">#&gt; 3  Estradiol        -1.95   0.005   445</span>
+<span class="comment">#&gt; ...</span></code></pre>
+    </div>
+
+    <div class="disclaimer">
+      <h3>Data Licensing Disclaimer</h3>
+      <p>
+        This package does <strong>not</strong> bundle or redistribute any data from
+        the Comparative Toxicogenomics Database. CTD data are maintained by
+        NC State University. Users must download the data directly from
+        <a href="https://ctdbase.org">ctdbase.org</a> and comply with the
+        <a href="https://ctdbase.org/about/legal.jsp">CTD Terms of Service</a>.
+      </p>
+      <p style="margin-top: 8px;">
+        Please cite CTD in publications: Davis AP et al. (2023)
+        <em>Nucleic Acids Research</em>, 51(D1), D1257-D1262.
+        <a href="https://doi.org/10.1093/nar/gkac833">doi:10.1093/nar/gkac833</a>
+      </p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p>
+      ctdR v0.1.2 &middot;
+      Author: <a href="https://orcid.org/0000-0003-1218-230X">Luigi Corsaro</a> &middot;
+      License: Apache 2.0 &middot;
+      <a href="https://github.com/drake69/ctdR">Source on GitHub</a>
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>

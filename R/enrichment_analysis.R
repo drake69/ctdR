@@ -93,6 +93,11 @@
 #' }
 #'
 #' @importFrom rappdirs user_cache_dir
+# Variables loaded from cached .rda files via load()
+utils::globalVariables(c(
+    "chemicals", "ChemicalName_GeneSymbols", "ChemicalName_GeneEntrezIds"
+))
+
 #' @export
 enrichment_CTD <- function(entrez_ids, method="ORA")
 {
