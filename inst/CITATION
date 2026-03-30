@@ -4,13 +4,13 @@ bibentry(
   author   = person("Luigi", "Corsaro",
                     comment = c(ORCID = "0000-0003-1218-230X")),
   year     = "2024",
-  note     = "R package version 0.1.2",
+  note     = "R package version 0.1.3",
   url      = "https://github.com/drake69/ctdR",
   textVersion = paste(
     "Corsaro L (2024).",
     "ctdR: Enrichment Analysis of Chemical-Gene Interactions",
     "from the Comparative Toxicogenomics Database.",
-    "R package version 0.1.2.",
+    "R package version 0.1.3.",
     "https://github.com/drake69/ctdR"
   )
 )
