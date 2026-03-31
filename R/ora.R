@@ -10,6 +10,8 @@
 #'   This serves as the TERM2GENE input for \code{clusterProfiler::enricher}.
 #' @param entrez_ids Character vector of HGNC gene symbols to test for
 #'   enrichment.
+#' @param pAdjustMethod Character. Method for multiple testing correction
+#'   (default \code{"BH"}). Passed to \code{\link[clusterProfiler]{enricher}}.
 #'
 #' @return A data frame with columns: \code{ID}, \code{GeneRatio},
 #'   \code{BgRatio}, \code{pvalue}, \code{padj}, \code{qvalue}, \code{geneID},
@@ -17,28 +19,33 @@
 #'   the same structure if no enrichment is found.
 #'
 #' @keywords internal
-ora <- function(ChemicalName_GeneSymbols, entrez_ids) {
+ora <- function(ChemicalName_GeneSymbols, entrez_ids, pAdjustMethod = "BH") {
+    gene_list <- entrez_ids
+    gene2pathway <- ChemicalName_GeneSymbols
 
-  gene_list <- entrez_ids
-  gene2pathway <- ChemicalName_GeneSymbols
+    # Utilizza l'enricher per l'analisi ORA
+    ora_results <- clusterProfiler::enricher(
+        gene = gene_list, TERM2GENE = gene2pathway,
+        pAdjustMethod = pAdjustMethod
+    )
 
-  # Utilizza l'enricher per l'analisi ORA
-  ora_results <- clusterProfiler::enricher(gene = gene_list, TERM2GENE = gene2pathway)
+    if (is.null(ora_results)) {
+        return(data.frame(
+            ID = character(), GeneRatio = character(), BgRatio = character(),
+            pvalue = numeric(), padj = numeric(), qvalue = numeric(),
+            geneID = character(), Count = integer(), foldEnrichment = numeric()
+        ))
+    }
 
-  if (is.null(ora_results)) {
-    return(data.frame(ID = character(), GeneRatio = character(), BgRatio = character(),
-                      pvalue = numeric(), padj = numeric(), qvalue = numeric(),
-                      geneID = character(), Count = integer(), foldEnrichment = numeric()))
-  }
+    ora_results <- ora_results@result
 
-  ora_results <- ora_results@result
+    # rename p.adjust as padj
+    colnames(ora_results)[colnames(ora_results) == "p.adjust"] <- "padj"
 
-  # rename p.adjust as padj
-  colnames(ora_results)[colnames(ora_results)=="p.adjust"] <- "padj"
+    # calculate foldEnrichment using BgRatio and GeneRatio
+    gr <- DOSE::parse_ratio(ora_results$GeneRatio)
+    br <- DOSE::parse_ratio(ora_results$BgRatio)
+    ora_results$foldEnrichment <- gr / br
 
-  # calculate foldEnrichment using BgRatio and GeneRatio
-  # dplyr::mutate(ora_results, foldEnrichment = DOSE::parse_ratio(GeneRatio) / DOSE::parse_ratio(BgRatio))
-  ora_results$foldEnrichment <- DOSE::parse_ratio(ora_results$GeneRatio) / DOSE::parse_ratio(ora_results$BgRatio)
-
-  return(ora_results)
+    return(ora_results)
 }
