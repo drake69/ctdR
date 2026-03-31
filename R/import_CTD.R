@@ -27,9 +27,10 @@
 #'   \item Filters interactions to \strong{Homo sapiens} only (OrganismID 9606).
 #'   \item For each chemical, collects the associated Entrez gene IDs.
 #'   \item Maps Entrez IDs to HGNC gene symbols via \pkg{org.Hs.eg.db}.
-#'   \item Saves three cached objects (\code{chemicals}, \code{ChemicalName_GeneEntrezIds},
-#'         \code{ChemicalName_GeneSymbols}) to the user cache directory
-#'         (see \code{\link[rappdirs]{user_cache_dir}}).
+#'   \item Saves three cached objects (\code{chemicals},
+#'     \code{ChemicalName_GeneEntrezIds},
+#'     \code{ChemicalName_GeneSymbols}) to the user cache
+#'     directory (\code{\link[rappdirs]{user_cache_dir}}).
 #' }
 #'
 #' The cache is stored under \code{rappdirs::user_cache_dir("ctdR")}. To
@@ -47,76 +48,142 @@
 #'   import.
 #'
 #' @examples
-#' # Check that import_CTD validates the file path:
-#' file.exists("/nonexistent/path.csv")  # FALSE
-#'
-#' \donttest{
-#' # Full workflow (requires downloaded CTD data):
-#' # 1. Download CTD_chem_gene_ixns.csv.gz from:
-#' #    https://ctdbase.org/reports/CTD_chem_gene_ixns.csv.gz
-#' # 2. Decompress: gunzip CTD_chem_gene_ixns.csv.gz
-#' # 3. Import:
-#' import_CTD("~/Downloads/CTD_chem_gene_ixns.csv")
-#' }
+#' # Import the bundled sample data:
+#' sample_file <- system.file(
+#'     "extdata", "CTD_chem_gene_ixns_sample.csv",
+#'     package = "ctdR"
+#' )
+#' import_CTD(sample_file)
 #'
 #' @importFrom rappdirs user_cache_dir
 #' @export
 import_CTD <- function(file_path) {
-  if (!file.exists(file_path)) {
-    stop("File not found: ", file_path, "\n",
-         "Please download CTD_chem_gene_ixns.csv.gz from:\n",
-         "  https://ctdbase.org/reports/CTD_chem_gene_ixns.csv.gz\n",
-         "Decompress it (gunzip CTD_chem_gene_ixns.csv.gz) and provide the path to the .csv file.\n",
-         call. = FALSE)
-  }
+    if (!file.exists(file_path)) {
+        stop("File not found: ", file_path, "\n",
+            "Please download CTD_chem_gene_ixns.csv.gz from:\n",
+            "  https://ctdbase.org/reports/",
+            "CTD_chem_gene_ixns.csv.gz\n",
+            "Decompress and provide the .csv path.\n",
+            call. = FALSE
+        )
+    }
 
-  cache_dir <- rappdirs::user_cache_dir("ctdR")
-  dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
+    cache_dir <- rappdirs::user_cache_dir("ctdR")
+    dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
 
-  message("Reading CTD chemical-gene interactions from: ", file_path)
-  CTD_chem_gene_ixns <- readr::read_csv(file_path, skip = 27)
-  CTD_chem_gene_ixns <- CTD_chem_gene_ixns[-1, ]
+    CTD_chem_gene_ixns <- .read_and_validate_ctd(file_path)
 
-  # rename first column to ChemicalName
-  names(CTD_chem_gene_ixns)[1] <- "ChemicalName"
+    chemicals_ids <- unique(CTD_chem_gene_ixns$ChemicalID)
+    gene_maps <- .map_chemical_genes(
+        CTD_chem_gene_ixns, chemicals_ids
+    )
+    chemicals <- unique(
+        CTD_chem_gene_ixns[, c("ChemicalID", "ChemicalName")]
+    )
 
-  # Filter only human (OrganismID 9606)
-  CTD_chem_gene_ixns <- subset(CTD_chem_gene_ixns, CTD_chem_gene_ixns$OrganismID == 9606)
-  message("Filtered to ", nrow(CTD_chem_gene_ixns), " human interactions")
+    .save_ctd_cache(
+        cache_dir, chemicals,
+        gene_maps$entrez, gene_maps$symbols
+    )
+    message("CTD data cached successfully in: ", cache_dir)
+    invisible(NULL)
+}
 
-  chemicals_ids <- unique(CTD_chem_gene_ixns$ChemicalID)
+#' Map chemicals to gene IDs and symbols
+#' @param ctd_data Filtered CTD interaction data frame.
+#' @param chemicals_ids Character vector of chemical IDs.
+#' @return A list with \code{entrez} (named list) and
+#'   \code{symbols} (data frame).
+#' @keywords internal
+.map_chemical_genes <- function(ctd_data, chemicals_ids) {
+    entrez_map <- list()
+    symbols_df <- data.frame()
+    message(
+        "Mapping genes for ", length(chemicals_ids),
+        " chemicals (this may take a while)..."
+    )
+    for (i in seq_along(chemicals_ids)) {
+        chemical <- chemicals_ids[i]
+        rows <- ctd_data$ChemicalID == chemical
+        gene_ids <- unique(ctd_data[rows, "GeneID"])
+        gene_ids <- as.data.frame(gene_ids)[, 1]
+        entrez_map[[chemical]] <- gene_ids
+        gene_ids <- as.character(gene_ids)
+        tryCatch(
+            {
+                syms <- AnnotationDbi::mapIds(
+                    org.Hs.eg.db::org.Hs.eg.db,
+                    keys = gene_ids,
+                    column = "SYMBOL",
+                    keytype = "ENTREZID",
+                    multiVals = "first"
+                )
+                tt <- expand.grid(term = chemical, gene = syms)
+                symbols_df <- plyr::rbind.fill(tt, symbols_df)
+            },
+            error = function(e) {}
+        )
+    }
+    list(entrez = entrez_map, symbols = symbols_df)
+}
 
-  ChemicalName_GeneEntrezIds <- list()
-  ChemicalName_GeneSymbols <- data.frame()
+#' Read and validate a CTD CSV file
+#' @param file_path Path to the CTD CSV file.
+#' @return A filtered data frame of human CTD interactions.
+#' @keywords internal
+.read_and_validate_ctd <- function(file_path) {
+    message("Reading CTD chemical-gene interactions from: ", file_path)
+    ctd <- readr::read_csv(file_path,
+        skip = 27, show_col_types = FALSE
+    )
+    if (nrow(ctd) < 2) {
+        stop("File appears empty or has too few rows. ",
+            "Use CTD_chem_gene_ixns.csv",
+            call. = FALSE
+        )
+    }
+    required_cols <- c(
+        "ChemicalID", "CasRN", "GeneSymbol", "GeneID",
+        "GeneForms", "Organism", "OrganismID",
+        "Interaction", "InteractionActions", "PubMedIDs"
+    )
+    missing <- setdiff(required_cols, colnames(ctd))
+    if (length(missing) > 0) {
+        stop("Not a valid CTD file. Missing columns: ",
+            paste(missing, collapse = ", "),
+            call. = FALSE
+        )
+    }
+    ctd <- ctd[-1, ]
+    names(ctd)[1] <- "ChemicalName"
+    ctd <- subset(ctd, ctd$OrganismID == 9606)
+    message("Filtered to ", nrow(ctd), " human interactions")
+    ctd
+}
 
-  message("Mapping genes for ", length(chemicals_ids), " chemicals (this may take a while)...")
-  for (i in seq_along(chemicals_ids)) {
-    chemical <- chemicals_ids[i]
-    gene_entrezids <- unique(CTD_chem_gene_ixns[CTD_chem_gene_ixns$ChemicalID == chemical, "GeneID"])
-    gene_entrezids <- as.data.frame(gene_entrezids)[, 1]
-    ChemicalName_GeneEntrezIds[[chemical]] <- gene_entrezids
-
-    gene_entrezids <- as.character(gene_entrezids)
-    tryCatch({
-      gene_symbols <- AnnotationDbi::mapIds(
-        org.Hs.eg.db::org.Hs.eg.db,
-        keys = gene_entrezids,
-        column = "SYMBOL",
-        keytype = "ENTREZID",
-        multiVals = "first")
-      tt <- expand.grid(term = chemical, gene = gene_symbols)
-      ChemicalName_GeneSymbols <- plyr::rbind.fill(tt, ChemicalName_GeneSymbols)
-    }, error = function(e) {
-      # skip chemicals with unmappable genes
-    })
-  }
-
-  chemicals <- unique(CTD_chem_gene_ixns[, c("ChemicalID", "ChemicalName")])
-
-  save(chemicals, file = file.path(cache_dir, "chemicals.rda"))
-  save(ChemicalName_GeneEntrezIds, file = file.path(cache_dir, "ChemicalName_GeneEntrezIds.rda"))
-  save(ChemicalName_GeneSymbols, file = file.path(cache_dir, "ChemicalName_GeneSymbols.rda"))
-
-  message("CTD data cached successfully in: ", cache_dir)
-  invisible(NULL)
+#' Save CTD cache files
+#' @param cache_dir Path to the cache directory.
+#' @param chemicals Data frame of chemical IDs and names.
+#' @param entrez Named list of Entrez IDs per chemical.
+#' @param symbols Data frame of term-gene symbol mappings.
+#' @return Invisible \code{NULL}. Called for its side effect of saving
+#'   cache files.
+#' @keywords internal
+.save_ctd_cache <- function(cache_dir, chemicals,
+    entrez, symbols) {
+    ChemicalName_GeneEntrezIds <- entrez
+    ChemicalName_GeneSymbols <- symbols
+    save(chemicals,
+        file = file.path(cache_dir, "chemicals.rda")
+    )
+    save(ChemicalName_GeneEntrezIds,
+        file = file.path(
+            cache_dir, "ChemicalName_GeneEntrezIds.rda"
+        )
+    )
+    save(ChemicalName_GeneSymbols,
+        file = file.path(
+            cache_dir, "ChemicalName_GeneSymbols.rda"
+        )
+    )
 }

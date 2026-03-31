@@ -1,14 +1,15 @@
-# ctdR 0.1.3
+# Changes in version 0.99.0
 
 ## Improvements
 
+* Bumped version to 0.99.0 for Bioconductor submission.
 * Fixed R CMD check to pass with 0 errors, 0 warnings, 0 notes.
 * Fixed CI workflows for macOS, Ubuntu, and Windows.
 * Added Codecov integration for coverage reporting.
 * Added GitHub Pages site with usage examples.
 * Fixed broken README badges.
 
-# ctdR 0.1.2
+# Changes in version 0.1.2
 
 ## New features
 
@@ -50,12 +51,12 @@
 * Added GitHub Actions CI for macOS, Ubuntu, and Windows.
 * Added test coverage workflow with Codecov integration.
 
-# ctdR 0.1.1
+# Changes in version 0.1.1
 
 * Added GSEA analysis via `fgsea::fgsea`.
 * Initial caching mechanism using `rappdirs`.
 
-# ctdR 0.1.0
+# Changes in version 0.1.0
 
 * Initial package skeleton.
 * Basic gene-chemical interaction parsing from CTD CSV files.

@@ -4,7 +4,7 @@
 \alias{ora}
 \title{Over-Representation Analysis (ORA)}
 \usage{
-ora(ChemicalName_GeneSymbols, entrez_ids)
+ora(ChemicalName_GeneSymbols, entrez_ids, pAdjustMethod = "BH")
 }
 \arguments{
 \item{ChemicalName_GeneSymbols}{A data frame with two columns
@@ -13,6 +13,9 @@ This serves as the TERM2GENE input for \code{clusterProfiler::enricher}.}
 
 \item{entrez_ids}{Character vector of HGNC gene symbols to test for
 enrichment.}
+
+\item{pAdjustMethod}{Character. Method for multiple testing correction
+(default \code{"BH"}). Passed to \code{\link[clusterProfiler]{enricher}}.}
 }
 \value{
 A data frame with columns: \code{ID}, \code{GeneRatio},
