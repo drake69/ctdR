@@ -1,19 +1,17 @@
-# ctdR <img src="man/figures/logo.png" align="right" height="139" />
+# ctdR
 
 <!-- badges: start -->
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![R-CMD-check](https://github.com/drake69/ctdR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/drake69/ctdR/actions/workflows/R-CMD-check.yaml)
-[![test-coverage](https://github.com/drake69/ctdR/actions/workflows/test-coverage.yaml/badge.svg)](https://github.com/drake69/ctdR/actions/workflows/test-coverage.yaml)
+[![R-CMD-check](https://github.com/drake69/ctdR/actions/workflows/R-CMD-check.yaml/badge.svg?branch=main)](https://github.com/drake69/ctdR/actions/workflows/R-CMD-check.yaml)
+[![test-coverage](https://github.com/drake69/ctdR/actions/workflows/test-coverage.yaml/badge.svg?branch=main)](https://github.com/drake69/ctdR/actions/workflows/test-coverage.yaml)
 [![Codecov](https://codecov.io/gh/drake69/ctdR/branch/main/graph/badge.svg)](https://codecov.io/gh/drake69/ctdR)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![CRAN status](https://www.r-pkg.org/badges/version/ctdR)](https://CRAN.R-project.org/package=ctdR)
-[![CRAN downloads](https://cranlogs.r-pkg.org/badges/grand-total/ctdR)](https://CRAN.R-project.org/package=ctdR)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19344201.svg)](https://doi.org/10.5281/zenodo.19344201)
 [![GitHub issues](https://img.shields.io/github/issues/drake69/ctdR)](https://github.com/drake69/ctdR/issues)
 [![GitHub stars](https://img.shields.io/github/stars/drake69/ctdR)](https://github.com/drake69/ctdR/stargazers)
 [![GitHub last commit](https://img.shields.io/github/last-commit/drake69/ctdR)](https://github.com/drake69/ctdR/commits/main)
 [![R version](https://img.shields.io/badge/R-%3E%3D%204.0-blue.svg)](https://www.r-project.org/)
 [![Bioconductor dependencies](https://img.shields.io/badge/Bioconductor-dependencies-green.svg)](https://www.bioconductor.org/)
-[![DOI](https://img.shields.io/badge/DOI-pending-lightgrey.svg)]()
 <!-- badges: end -->
 
 **ctdR** is an R package that identifies chemicals significantly associated with a set of genes using data from the [Comparative Toxicogenomics Database (CTD)](https://ctdbase.org).
@@ -169,8 +167,8 @@ If you use ctdR in your research, please cite:
 
 ```
 Corsaro L (2024). ctdR: Enrichment Analysis of Chemical-Gene Interactions
-from the Comparative Toxicogenomics Database. R package version 0.1.2.
-https://github.com/drake69/ctdR
+from the Comparative Toxicogenomics Database. R package version 0.1.3.
+doi: 10.5281/zenodo.19344201. https://github.com/drake69/ctdR
 ```
 
 Additionally, please cite CTD as required by their [Terms of Service](https://ctdbase.org/about/legal.jsp):
