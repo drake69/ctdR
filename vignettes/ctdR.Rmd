@@ -17,59 +17,47 @@ vignette: >
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  eval = FALSE
+    collapse = TRUE,
+    comment = "#>"
 )
 ```
 
 # Overview
 
-**ctdR** identifies chemicals significantly associated with a set of genes
-using data from the
+**ctdR** identifies chemicals significantly associated
+with a set of genes using data from the
 [Comparative Toxicogenomics Database (CTD)](https://ctdbase.org).
 
 Two enrichment methods are supported:
 
-- **ORA** (Over-Representation Analysis) — tests whether the overlap between
-  your gene list and each chemical's target genes is larger than expected by
-  chance. Powered by
-  [`clusterProfiler::enricher`](https://bioconductor.org/packages/clusterProfiler/).
-- **GSEA** (Gene Set Enrichment Analysis) — detects chemicals whose targets
-  cluster toward the extremes of a ranked gene list. Powered by
-  [`fgsea::fgsea`](https://bioconductor.org/packages/fgsea/).
+- **ORA** (Over-Representation Analysis) -- tests whether
+    the overlap between your gene list and each chemical's
+    target genes is larger than expected by chance.
+    Powered by `clusterProfiler::enricher`.
+- **GSEA** (Gene Set Enrichment Analysis) -- detects
+    chemicals whose targets cluster toward the extremes
+    of a ranked gene list. Powered by `fgsea::fgsea`.
 
 # Data licensing disclaimer
 
-> **This package does NOT bundle, redistribute, or embed any data from the
-> Comparative Toxicogenomics Database.** CTD data are created and maintained
-> by NC State University and are subject to specific licensing terms. Users
-> must download the data directly from <https://ctdbase.org> and comply with
-> the [CTD Terms of Service](https://ctdbase.org/about/legal.jsp).
+> **This package does NOT bundle, redistribute, or embed
+> any data from the Comparative Toxicogenomics Database.**
+> CTD data are created and maintained by NC State
+> University and are subject to specific licensing terms.
+> Users must download the data directly from
+> <https://ctdbase.org> and comply with the
+> [CTD Terms of Service](https://ctdbase.org/about/legal.jsp).
 
 # Installation
 
-## From GitHub
+## From Bioconductor
 
-```{r install-github}
-# install.packages("devtools")
-devtools::install_github("drake69/ctdR")
-```
+    BiocManager::install("ctdR")
 
-## Bioconductor dependencies
+## From GitHub (development version)
 
-ctdR depends on several Bioconductor packages. If they are not installed
-automatically:
-
-```{r install-bioc}
-if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-
-BiocManager::install(c(
-  "fgsea", "org.Hs.eg.db", "clusterProfiler",
-  "DOSE", "AnnotationDbi"
-))
-```
+    # install.packages("devtools")
+    devtools::install_github("drake69/ctdR")
 
 # Quick start
 
@@ -79,64 +67,89 @@ The ctdR workflow has three steps:
 2. **Import** the data into ctdR (once)
 3. **Analyse** your gene list (as many times as needed)
 
-## Step 1 — Download CTD data
+## Step 1 -- Download CTD data
 
-Download **`CTD_chem_gene_ixns.csv.gz`** from:
-
-<https://ctdbase.org/reports/CTD_chem_gene_ixns.csv.gz>
+Download **`CTD_chem_gene_ixns.csv.gz`** from
+<https://ctdbase.org/reports/CTD_chem_gene_ixns.csv.gz>.
 
 Then decompress it:
+
 ```bash
 gunzip CTD_chem_gene_ixns.csv.gz
 ```
 
-This produces `CTD_chem_gene_ixns.csv` (several GB uncompressed).
+This produces `CTD_chem_gene_ixns.csv` (several GB
+uncompressed).
 
-## Step 2 — Import into ctdR
+## Step 2 -- Import into ctdR
 
-```{r import}
+In production you would run:
+
+```{r import-real, eval=FALSE}
 library(ctdR)
-
 import_CTD("~/Downloads/CTD_chem_gene_ixns.csv")
+```
+
+For this vignette we use a small **synthetic** dataset
+bundled with the package:
+
+```{r import-sample}
+library(ctdR)
+sample_file <- system.file(
+    "extdata", "CTD_chem_gene_ixns_sample.csv",
+    package = "ctdR"
+)
+import_CTD(sample_file)
 ```
 
 `import_CTD()` performs the following:
 
 1. Reads the CSV (skipping the 27 CTD header lines).
-2. Filters interactions to **Homo sapiens** only (OrganismID 9606).
+2. Filters interactions to **Homo sapiens** only
+    (OrganismID 9606).
 3. Collects Entrez gene IDs for each chemical.
-4. Maps Entrez IDs to HGNC gene symbols via `org.Hs.eg.db`.
-5. Caches the processed data locally (under `rappdirs::user_cache_dir("ctdR")`).
+4. Maps Entrez IDs to HGNC gene symbols via
+    `org.Hs.eg.db`.
+5. Caches the processed data locally
+    (under `rappdirs::user_cache_dir("ctdR")`).
 
-This step takes several minutes depending on the CTD release size. You only
-need to run it once — or again when you download a newer CTD release.
+This step takes several minutes with the full CTD file.
+You only need to run it once -- or again when you
+download a newer CTD release.
 
-## Step 3 — Run enrichment analysis
+## Step 3 -- Run enrichment analysis
 
 ### Prepare your gene list
 
-Your input must be a data frame with at least two columns:
+Your input must be a data frame with at least two
+columns:
 
-| Column         | Description                                                      |
-|----------------|------------------------------------------------------------------|
-| `entrez_ids`   | Character or numeric Entrez gene IDs                             |
-| *(2nd column)* | Numeric value per gene (e.g. p-value, log fold-change)           |
+| Column | Description |
+|---|---|
+| `entrez_ids` | Character or numeric Entrez gene IDs |
+| *(2nd column)* | Numeric value per gene (e.g. p-value) |
 
-The second column is used for ranking in GSEA and is ignored in ORA.
+The second column is used for ranking in GSEA and is
+ignored in ORA.
 
 ```{r prepare-genes}
 genes <- data.frame(
-  entrez_ids = c("7124", "3569", "7157", "672", "1956",
-                 "4609", "3845", "207", "5290", "3553"),
-  pvalue     = c(0.001, 0.003, 0.005, 0.008, 0.01,
-                 0.02,  0.03,  0.04,  0.05,  0.06)
+    entrez_ids = c(
+        "7124", "3569", "7157", "672", "1956",
+        "4609", "3845", "207", "5290", "3553"
+    ),
+    pvalue = c(
+        0.001, 0.003, 0.005, 0.008, 0.01,
+        0.02, 0.03, 0.04, 0.05, 0.06
+    )
 )
 ```
 
 ### Over-Representation Analysis (ORA)
 
-ORA tests whether the overlap between your gene list and each chemical's
-known gene targets is significantly larger than expected by chance.
+ORA tests whether the overlap between your gene list
+and each chemical's known gene targets is significantly
+larger than expected by chance.
 
 ```{r ora}
 ora_results <- enrichment_CTD(genes, method = "ORA")
@@ -145,22 +158,23 @@ head(ora_results)
 
 **ORA output columns:**
 
-| Column           | Description                                    |
-|------------------|------------------------------------------------|
-| `ChemicalID`     | CTD chemical identifier (e.g. `"D000082"`)     |
-| `ChemicalName`   | Human-readable chemical name                   |
-| `GeneRatio`      | Proportion of input genes in the chemical's set|
-| `BgRatio`        | Background ratio                               |
-| `pvalue`         | Raw p-value                                    |
-| `padj`           | Adjusted p-value (BH method)                   |
-| `foldEnrichment` | GeneRatio / BgRatio                            |
-| `geneID`         | Enriched gene symbols                          |
-| `Count`          | Number of overlapping genes                    |
+| Column | Description |
+|---|---|
+| `ChemicalID` | CTD chemical identifier |
+| `ChemicalName` | Human-readable chemical name |
+| `GeneRatio` | Proportion of input genes in the set |
+| `BgRatio` | Background ratio |
+| `pvalue` | Raw p-value |
+| `padj` | Adjusted p-value (BH method) |
+| `foldEnrichment` | GeneRatio / BgRatio |
+| `geneID` | Enriched gene symbols |
+| `Count` | Number of overlapping genes |
 
 ### Gene Set Enrichment Analysis (GSEA)
 
-GSEA uses the full ranked gene list (ranked by the numeric column) to detect
-chemicals whose targets cluster toward the top or bottom of the ranking.
+GSEA uses the full ranked gene list (ranked by the
+numeric column) to detect chemicals whose targets
+cluster toward the top or bottom of the ranking.
 
 ```{r gsea}
 gsea_results <- enrichment_CTD(genes, method = "GSEA")
@@ -169,46 +183,48 @@ head(gsea_results)
 
 **GSEA output columns:**
 
-| Column           | Description                                |
-|------------------|--------------------------------------------|
-| `ChemicalID`     | CTD chemical identifier                    |
-| `ChemicalName`   | Human-readable chemical name               |
-| `pval`           | Raw p-value                                |
-| `padj`           | Adjusted p-value                           |
-| `ES`             | Enrichment score                           |
-| `NES`            | Normalized enrichment score                |
-| `size`           | Size of the gene set                       |
-| `leadingEdge`    | Leading-edge gene subset                   |
-| `foldEnrichment` | |ES| / mean(ES)                           |
-| `Enriched_GENE`  | Comma-separated enriched gene symbols      |
+| Column | Description |
+|---|---|
+| `ChemicalID` | CTD chemical identifier |
+| `ChemicalName` | Human-readable chemical name |
+| `pval` | Raw p-value |
+| `padj` | Adjusted p-value |
+| `ES` | Enrichment score |
+| `NES` | Normalized enrichment score |
+| `size` | Size of the gene set |
+| `leadingEdge` | Leading-edge gene subset |
+| `foldEnrichment` | abs(ES) / mean(ES) |
+| `Enriched_GENE` | Comma-separated enriched genes |
 
 # Choosing between ORA and GSEA
 
-| Aspect        | ORA                              | GSEA                              |
-|---------------|----------------------------------|-----------------------------------|
-| **Input**     | Gene list (no ranking needed)    | Ranked gene list                  |
-| **Question**  | Are these genes over-represented?| Do targets cluster at the extremes?|
-| **Threshold** | Requires a significance cutoff   | Uses full ranking, no cutoff      |
-| **Best for**  | DEG lists with clear cutoff      | Exploratory, ranked data          |
+| Aspect | ORA | GSEA |
+|---|---|---|
+| **Input** | Gene list (no ranking) | Ranked gene list |
+| **Question** | Over-represented? | Cluster at extremes? |
+| **Threshold** | Requires cutoff | No cutoff needed |
+| **Best for** | DEG lists | Exploratory, ranked |
 
-Use **ORA** when you have a well-defined gene list (e.g. differentially
-expressed genes above a significance threshold). Use **GSEA** when you want
-to leverage the full ranking without imposing an arbitrary threshold.
+Use **ORA** when you have a well-defined gene list
+(e.g. differentially expressed genes above a significance
+threshold). Use **GSEA** when you want to leverage the
+full ranking without imposing an arbitrary threshold.
 
 # Updating the CTD data
 
 CTD releases updated data periodically. To update:
 
 1. Download the latest `CTD_chem_gene_ixns.csv.gz` from
-   <https://ctdbase.org/reports/CTD_chem_gene_ixns.csv.gz>.
-2. Decompress and re-run `import_CTD()` — existing cache files are overwritten.
+    <https://ctdbase.org/reports/CTD_chem_gene_ixns.csv.gz>.
+2. Decompress and re-run `import_CTD()` -- existing
+    cache files are overwritten.
 
-```{r reimport}
+```{r reimport, eval=FALSE}
 import_CTD("~/Downloads/CTD_chem_gene_ixns.csv")
 ```
 
 # Session info
 
-```{r session-info, eval=TRUE}
+```{r session-info}
 sessionInfo()
 ```

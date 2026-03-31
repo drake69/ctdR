@@ -4,7 +4,7 @@
 \alias{gsea}
 \title{Gene Set Enrichment Analysis (GSEA)}
 \usage{
-gsea(ChemicalName_GeneSymbols, entrez_ids, chemicals)
+gsea(ChemicalName_GeneSymbols, entrez_ids, chemicals, pAdjustMethod = "BH")
 }
 \arguments{
 \item{ChemicalName_GeneSymbols}{A named list where each element is a
@@ -15,11 +15,16 @@ are CTD chemical IDs.}
 \describe{
   \item{\code{entrez_ids}}{Entrez gene IDs (character).}
   \item{(second column)}{Numeric values used for ranking (e.g. p-values).
-    Converted internally to \code{-log10(value)} for the ranking statistic.}
+    Converted internally to \code{-log10(value)}
+    for the ranking statistic.}
 }}
 
 \item{chemicals}{A data frame with columns \code{ChemicalID} and
 \code{ChemicalName}, used to annotate results with human-readable names.}
+
+\item{pAdjustMethod}{Character. Method for multiple testing correction
+(default \code{"BH"}). Passed to \code{\link[stats]{p.adjust}} to
+recalculate the \code{padj} column returned by \code{fgsea}.}
 }
 \value{
 A data frame with columns: \code{ChemicalID}, \code{pval},

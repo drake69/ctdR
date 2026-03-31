@@ -4,7 +4,7 @@
 \alias{enrichment_CTD}
 \title{Chemical Enrichment Analysis Using CTD}
 \usage{
-enrichment_CTD(entrez_ids, method = "ORA")
+enrichment_CTD(entrez_ids, method = "ORA", pAdjustMethod = "BH")
 }
 \arguments{
 \item{entrez_ids}{A data frame with at least two columns:
@@ -17,6 +17,12 @@ enrichment_CTD(entrez_ids, method = "ORA")
 \item{method}{Character. Enrichment method to use: \code{"ORA"} (default) for
 Over-Representation Analysis or \code{"GSEA"} for Gene Set Enrichment
 Analysis.}
+
+\item{pAdjustMethod}{Character. Method for multiple testing correction.
+One of \code{"BH"} (Benjamini-Hochberg, default), \code{"bonferroni"},
+\code{"fdr"} (alias for BH), or \code{"none"}.
+Passed to \code{\link[clusterProfiler]{enricher}} for ORA and to
+\code{\link[stats]{p.adjust}} for GSEA.}
 }
 \value{
 A data frame of enrichment results (see Details for columns).
@@ -30,7 +36,8 @@ Two methods are available:
 \describe{
   \item{\strong{ORA}}{Over-Representation Analysis (default). Tests whether
     the overlap between your gene list and each chemical's target genes is
-    larger than expected by chance. Uses \code{\link[clusterProfiler]{enricher}}.
+    larger than expected by chance.
+    Uses \code{\link[clusterProfiler]{enricher}}.
     Input genes are mapped from Entrez IDs to HGNC symbols internally.}
   \item{\strong{GSEA}}{Gene Set Enrichment Analysis. Uses a ranked gene list
     (ranked by the numeric column in \code{entrez_ids}, e.g. p-values or fold
@@ -53,12 +60,12 @@ of Service (\url{https://ctdbase.org/about/legal.jsp}).
 
 \strong{ORA output columns:}
 \tabular{ll}{
-  \code{ChemicalID}     \tab CTD chemical identifier (e.g. \code{"D000082"}) \cr
+  \code{ChemicalID} \tab CTD chemical identifier \cr
   \code{ChemicalName}   \tab Human-readable chemical name \cr
-  \code{GeneRatio}      \tab Proportion of input genes in the chemical's set \cr
+  \code{GeneRatio} \tab Proportion of input genes in set \cr
   \code{BgRatio}        \tab Background ratio \cr
   \code{pvalue}         \tab Raw p-value \cr
-  \code{padj}           \tab Adjusted p-value (BH method) \cr
+  \code{padj} \tab Adjusted p-value \cr
   \code{foldEnrichment} \tab GeneRatio / BgRatio \cr
   \code{geneID}         \tab Enriched gene symbols \cr
   \code{Count}          \tab Number of overlapping genes \cr
@@ -80,16 +87,18 @@ of Service (\url{https://ctdbase.org/about/legal.jsp}).
 }
 
 \examples{
+# Import the bundled sample data first:
+sample_file <- system.file(
+    "extdata", "CTD_chem_gene_ixns_sample.csv",
+    package = "ctdR"
+)
+import_CTD(sample_file)
+
 # Prepare a gene list (Entrez IDs with p-values):
 genes <- data.frame(
-  entrez_ids = c("7124", "3569", "7157", "672", "1956"),
-  pvalue     = c(0.001, 0.003, 0.01, 0.02, 0.05)
+    entrez_ids = c("7124", "3569", "7157", "672", "1956"),
+    pvalue = c(0.001, 0.003, 0.01, 0.02, 0.05)
 )
-str(genes)
-
-\donttest{
-# Requires imported CTD data (see ?import_CTD):
-# import_CTD("~/Downloads/CTD_chem_gene_ixns.csv")
 
 # Over-Representation Analysis
 ora_results <- enrichment_CTD(genes, method = "ORA")
@@ -98,7 +107,6 @@ head(ora_results)
 # Gene Set Enrichment Analysis
 gsea_results <- enrichment_CTD(genes, method = "GSEA")
 head(gsea_results)
-}
 
 }
 \seealso{

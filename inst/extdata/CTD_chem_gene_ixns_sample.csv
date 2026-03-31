@@ -1,0 +1,65 @@
+# CTD Chemical-Gene Interactions (sample)
+# Synthetic data for package examples only
+# This is NOT real CTD data
+# Format mimics CTD_chem_gene_ixns.csv
+# See https://ctdbase.org for real data
+# Fields:
+# ChemicalName
+# ChemicalID
+# CasRN
+# GeneSymbol
+# GeneID
+# GeneForms
+# Organism
+# OrganismID
+# Interaction
+# InteractionActions
+# PubMedIDs
+# Data generated for ctdR vignette
+# Not for research use
+# License: Apache 2.0
+# Version: synthetic-1.0
+# Date: 2024-01-01
+# Species: Homo sapiens (9606)
+# Chemicals: 3
+# Genes: 20
+# Rows: 40
+# Contact: ctdR package maintainer
+ChemicalName,ChemicalID,CasRN,GeneSymbol,GeneID,GeneForms,Organism,OrganismID,Interaction,InteractionActions,PubMedIDs
+ChemicalName,ChemicalID,CasRN,GeneSymbol,GeneID,GeneForms,Organism,OrganismID,Interaction,InteractionActions,PubMedIDs
+Acetaminophen,D000082,103-90-2,TNF,7124,gene,Homo sapiens,9606,Acetaminophen affects expression of TNF,increases^expression,12345678
+Acetaminophen,D000082,103-90-2,IL6,3569,gene,Homo sapiens,9606,Acetaminophen affects expression of IL6,increases^expression,12345679
+Acetaminophen,D000082,103-90-2,TP53,7157,gene,Homo sapiens,9606,Acetaminophen affects expression of TP53,decreases^expression,12345680
+Acetaminophen,D000082,103-90-2,BRCA1,672,gene,Homo sapiens,9606,Acetaminophen affects expression of BRCA1,decreases^expression,12345681
+Acetaminophen,D000082,103-90-2,EGFR,1956,gene,Homo sapiens,9606,Acetaminophen affects expression of EGFR,increases^expression,12345682
+Acetaminophen,D000082,103-90-2,MYC,4609,gene,Homo sapiens,9606,Acetaminophen affects expression of MYC,increases^expression,12345683
+Acetaminophen,D000082,103-90-2,KRAS,3845,gene,Homo sapiens,9606,Acetaminophen affects expression of KRAS,decreases^expression,12345684
+Acetaminophen,D000082,103-90-2,AKT1,207,gene,Homo sapiens,9606,Acetaminophen affects expression of AKT1,increases^expression,12345685
+Acetaminophen,D000082,103-90-2,PIK3CA,5290,gene,Homo sapiens,9606,Acetaminophen affects expression of PIK3CA,decreases^expression,12345686
+Acetaminophen,D000082,103-90-2,IL1B,3553,gene,Homo sapiens,9606,Acetaminophen affects expression of IL1B,increases^expression,12345687
+Acetaminophen,D000082,103-90-2,VEGFA,7422,gene,Homo sapiens,9606,Acetaminophen affects expression of VEGFA,increases^expression,12345688
+Acetaminophen,D000082,103-90-2,STAT3,6774,gene,Homo sapiens,9606,Acetaminophen affects expression of STAT3,decreases^expression,12345689
+Benzo(a)pyrene,D001564,50-32-8,EGFR,1956,gene,Homo sapiens,9606,Benzo(a)pyrene affects expression of EGFR,increases^expression,23456789
+Benzo(a)pyrene,D001564,50-32-8,MYC,4609,gene,Homo sapiens,9606,Benzo(a)pyrene affects expression of MYC,increases^expression,23456790
+Benzo(a)pyrene,D001564,50-32-8,KRAS,3845,gene,Homo sapiens,9606,Benzo(a)pyrene affects expression of KRAS,increases^expression,23456791
+Benzo(a)pyrene,D001564,50-32-8,TNF,7124,gene,Homo sapiens,9606,Benzo(a)pyrene affects expression of TNF,decreases^expression,23456792
+Benzo(a)pyrene,D001564,50-32-8,TP53,7157,gene,Homo sapiens,9606,Benzo(a)pyrene affects expression of TP53,increases^expression,23456793
+Benzo(a)pyrene,D001564,50-32-8,AKT1,207,gene,Homo sapiens,9606,Benzo(a)pyrene affects expression of AKT1,decreases^expression,23456794
+Benzo(a)pyrene,D001564,50-32-8,PIK3CA,5290,gene,Homo sapiens,9606,Benzo(a)pyrene affects expression of PIK3CA,increases^expression,23456795
+Benzo(a)pyrene,D001564,50-32-8,IL1B,3553,gene,Homo sapiens,9606,Benzo(a)pyrene affects expression of IL1B,increases^expression,23456796
+Benzo(a)pyrene,D001564,50-32-8,VEGFA,7422,gene,Homo sapiens,9606,Benzo(a)pyrene affects expression of VEGFA,decreases^expression,23456797
+Benzo(a)pyrene,D001564,50-32-8,STAT3,6774,gene,Homo sapiens,9606,Benzo(a)pyrene affects expression of STAT3,increases^expression,23456798
+Benzo(a)pyrene,D001564,50-32-8,IL6,3569,gene,Homo sapiens,9606,Benzo(a)pyrene affects expression of IL6,increases^expression,23456799
+Benzo(a)pyrene,D001564,50-32-8,BRCA1,672,gene,Homo sapiens,9606,Benzo(a)pyrene affects expression of BRCA1,decreases^expression,23456800
+Cadmium,D002104,7440-43-9,TP53,7157,gene,Homo sapiens,9606,Cadmium affects expression of TP53,increases^expression,34567890
+Cadmium,D002104,7440-43-9,AKT1,207,gene,Homo sapiens,9606,Cadmium affects expression of AKT1,increases^expression,34567891
+Cadmium,D002104,7440-43-9,PIK3CA,5290,gene,Homo sapiens,9606,Cadmium affects expression of PIK3CA,decreases^expression,34567892
+Cadmium,D002104,7440-43-9,IL1B,3553,gene,Homo sapiens,9606,Cadmium affects expression of IL1B,increases^expression,34567893
+Cadmium,D002104,7440-43-9,TNF,7124,gene,Homo sapiens,9606,Cadmium affects expression of TNF,increases^expression,34567894
+Cadmium,D002104,7440-43-9,IL6,3569,gene,Homo sapiens,9606,Cadmium affects expression of IL6,decreases^expression,34567895
+Cadmium,D002104,7440-43-9,VEGFA,7422,gene,Homo sapiens,9606,Cadmium affects expression of VEGFA,increases^expression,34567896
+Cadmium,D002104,7440-43-9,STAT3,6774,gene,Homo sapiens,9606,Cadmium affects expression of STAT3,increases^expression,34567897
+Cadmium,D002104,7440-43-9,EGFR,1956,gene,Homo sapiens,9606,Cadmium affects expression of EGFR,decreases^expression,34567898
+Cadmium,D002104,7440-43-9,MYC,4609,gene,Homo sapiens,9606,Cadmium affects expression of MYC,increases^expression,34567899
+Cadmium,D002104,7440-43-9,KRAS,3845,gene,Homo sapiens,9606,Cadmium affects expression of KRAS,decreases^expression,34567900
+Cadmium,D002104,7440-43-9,BRCA1,672,gene,Homo sapiens,9606,Cadmium affects expression of BRCA1,increases^expression,34567901

@@ -33,9 +33,10 @@ Processing steps performed by \code{import_CTD}:
   \item Filters interactions to \strong{Homo sapiens} only (OrganismID 9606).
   \item For each chemical, collects the associated Entrez gene IDs.
   \item Maps Entrez IDs to HGNC gene symbols via \pkg{org.Hs.eg.db}.
-  \item Saves three cached objects (\code{chemicals}, \code{ChemicalName_GeneEntrezIds},
-        \code{ChemicalName_GeneSymbols}) to the user cache directory
-        (see \code{\link[rappdirs]{user_cache_dir}}).
+  \item Saves three cached objects (\code{chemicals},
+    \code{ChemicalName_GeneEntrezIds},
+    \code{ChemicalName_GeneSymbols}) to the user cache
+    directory (\code{\link[rappdirs]{user_cache_dir}}).
 }
 
 The cache is stored under \code{rappdirs::user_cache_dir("ctdR")}. To
@@ -54,17 +55,12 @@ acknowledge that you have read and accepted those terms.
 }
 
 \examples{
-# Check that import_CTD validates the file path:
-file.exists("/nonexistent/path.csv")  # FALSE
-
-\donttest{
-# Full workflow (requires downloaded CTD data):
-# 1. Download CTD_chem_gene_ixns.csv.gz from:
-#    https://ctdbase.org/reports/CTD_chem_gene_ixns.csv.gz
-# 2. Decompress: gunzip CTD_chem_gene_ixns.csv.gz
-# 3. Import:
-import_CTD("~/Downloads/CTD_chem_gene_ixns.csv")
-}
+# Import the bundled sample data:
+sample_file <- system.file(
+    "extdata", "CTD_chem_gene_ixns_sample.csv",
+    package = "ctdR"
+)
+import_CTD(sample_file)
 
 }
 \seealso{
