@@ -20,7 +20,8 @@ test_that("import_CTD errors on wrong file format (missing columns)", {
     data_rows <- "val1,val2,val3"
 
     tmp_file <- tempfile(fileext = ".csv")
-    writeLines(c(header_lines, paste(col_names, collapse = ","), dummy_row, data_rows), tmp_file)
+    writeLines(c(header_lines, paste(col_names, collapse = ","),
+        dummy_row, data_rows), tmp_file)
     on.exit(unlink(tmp_file))
 
     expect_error(
@@ -51,43 +52,6 @@ test_that("import_CTD errors on empty file", {
     )
 })
 
-test_that("import_CTD errors on wrong file format (missing columns)", {
-  # Create a CSV with wrong columns (e.g. a different CTD file)
-  header_lines <- paste0("# line ", seq_len(27))
-  col_names <- c("WrongCol1", "WrongCol2", "WrongCol3")
-  dummy_row <- paste(rep("dummy", length(col_names)), collapse = ",")
-  data_rows <- "val1,val2,val3"
-
-  tmp_file <- tempfile(fileext = ".csv")
-  writeLines(c(header_lines, paste(col_names, collapse = ","), dummy_row, data_rows), tmp_file)
-  on.exit(unlink(tmp_file))
-
-  expect_error(
-    import_CTD(tmp_file),
-    "does not match the expected CTD"
-  )
-  expect_error(
-    import_CTD(tmp_file),
-    "Missing columns"
-  )
-})
-
-test_that("import_CTD errors on empty file", {
-  header_lines <- paste0("# line ", seq_len(27))
-  col_names <- c("ChemicalName", "ChemicalID", "CasRN", "GeneSymbol", "GeneID",
-                 "GeneForms", "Organism", "OrganismID", "Interaction",
-                 "InteractionActions", "PubMedIDs")
-
-  tmp_file <- tempfile(fileext = ".csv")
-  writeLines(c(header_lines, paste(col_names, collapse = ",")), tmp_file)
-  on.exit(unlink(tmp_file))
-
-  expect_error(
-    import_CTD(tmp_file),
-    "empty or does not contain enough data"
-  )
-})
-
 test_that("import_CTD caches data correctly", {
     skip_on_cran()
     skip_if_not_installed("readr")
@@ -111,7 +75,8 @@ test_that("import_CTD caches data correctly", {
     )
 
     tmp_file <- tempfile(fileext = ".csv")
-    writeLines(c(header_lines, paste(col_names, collapse = ","), dummy_row, data_rows), tmp_file)
+    writeLines(c(header_lines, paste(col_names, collapse = ","),
+        dummy_row, data_rows), tmp_file)
 
     # Temporarily override user_cache_dir to use a temp location
     tmp_cache <- file.path(tempdir(), "ctdR_test_cache")

@@ -58,47 +58,15 @@
 #' @importFrom rappdirs user_cache_dir
 #' @export
 import_CTD <- function(file_path) {
-  if (!file.exists(file_path)) {
-    stop("File not found: ", file_path, "\n",
-         "Please download CTD_chem_gene_ixns.csv.gz from:\n",
-         "  https://ctdbase.org/reports/CTD_chem_gene_ixns.csv.gz\n",
-         "Decompress it (gunzip CTD_chem_gene_ixns.csv.gz) and provide the path to the .csv file.\n",
-         call. = FALSE)
-  }
-
-  cache_dir <- rappdirs::user_cache_dir("ctdR")
-  dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
-
-  message("Reading CTD chemical-gene interactions from: ", file_path)
-  CTD_chem_gene_ixns <- readr::read_csv(file_path, skip = 27,
-                                         show_col_types = FALSE)
-
-  if (nrow(CTD_chem_gene_ixns) < 2) {
-    stop("The file appears to be empty or does not contain enough data rows. ",
-         "Ensure you are using the correct CTD file: CTD_chem_gene_ixns.csv",
-         call. = FALSE)
-  }
-
-  # Validate expected CTD columns are present
-  required_cols <- c("ChemicalID", "CasRN", "GeneSymbol", "GeneID",
-                     "GeneForms", "Organism", "OrganismID", "Interaction",
-                     "InteractionActions", "PubMedIDs")
-  found_cols <- colnames(CTD_chem_gene_ixns)
-  missing_cols <- setdiff(required_cols, found_cols)
-  if (length(missing_cols) > 0) {
-    stop("The input file does not match the expected CTD chemical-gene ",
-         "interactions format.\n",
-         "  Missing columns: ", paste(missing_cols, collapse = ", "), "\n",
-         "  Found columns: ", paste(found_cols, collapse = ", "), "\n",
-         "Please ensure you downloaded 'CTD_chem_gene_ixns.csv.gz' from:\n",
-         "  https://ctdbase.org/reports/CTD_chem_gene_ixns.csv.gz",
-         call. = FALSE)
-  }
-
-  CTD_chem_gene_ixns <- CTD_chem_gene_ixns[-1, ]
-
-  # rename first column to ChemicalName
-  names(CTD_chem_gene_ixns)[1] <- "ChemicalName"
+    if (!file.exists(file_path)) {
+        stop("File not found: ", file_path, "\n",
+            "Please download CTD_chem_gene_ixns.csv.gz from:\n",
+            "  https://ctdbase.org/reports/",
+            "CTD_chem_gene_ixns.csv.gz\n",
+            "Decompress and provide the .csv path.\n",
+            call. = FALSE
+        )
+    }
 
     cache_dir <- rappdirs::user_cache_dir("ctdR")
     dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
