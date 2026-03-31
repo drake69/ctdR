@@ -24,8 +24,10 @@ Two enrichment methods are supported:
   \item Download \strong{CTD_chem_gene_ixns.csv.gz} from
     \url{https://ctdbase.org/reports/CTD_chem_gene_ixns.csv.gz} and
     decompress it (\code{gunzip CTD_chem_gene_ixns.csv.gz}).
-  \item Import the data once: \code{import_CTD("path/to/CTD_chem_gene_ixns.csv")}
-  \item Run enrichment analysis: \code{enrichment_CTD(my_genes, method = "ORA")}
+  \item Import the data once:
+    \code{import_CTD("path/to/CTD_chem_gene_ixns.csv")}
+  \item Run enrichment analysis:
+    \code{enrichment_CTD(my_genes, method = "ORA")}
 }
 }
 
