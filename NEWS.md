@@ -1,3 +1,13 @@
+# ctdR 0.1.3
+
+## Improvements
+
+* Fixed R CMD check to pass with 0 errors, 0 warnings, 0 notes.
+* Fixed CI workflows for macOS, Ubuntu, and Windows.
+* Added Codecov integration for coverage reporting.
+* Added GitHub Pages site with usage examples.
+* Fixed broken README badges.
+
 # ctdR 0.1.2
 
 ## New features
