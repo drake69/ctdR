@@ -5,6 +5,7 @@
 [![R-CMD-check](https://github.com/drake69/ctdR/actions/workflows/R-CMD-check.yaml/badge.svg?branch=main)](https://github.com/drake69/ctdR/actions/workflows/R-CMD-check.yaml)
 [![test-coverage](https://github.com/drake69/ctdR/actions/workflows/test-coverage.yaml/badge.svg?branch=main)](https://github.com/drake69/ctdR/actions/workflows/test-coverage.yaml)
 [![Codecov](https://codecov.io/gh/drake69/ctdR/branch/main/graph/badge.svg)](https://codecov.io/gh/drake69/ctdR)
+[![security-scan](https://github.com/drake69/ctdR/actions/workflows/security.yaml/badge.svg?branch=main)](https://github.com/drake69/ctdR/actions/workflows/security.yaml)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19344201.svg)](https://doi.org/10.5281/zenodo.19344201)
 [![GitHub issues](https://img.shields.io/github/issues/drake69/ctdR)](https://github.com/drake69/ctdR/issues)
@@ -156,6 +157,23 @@ The `entrez_ids` parameter must be a data frame with at least two columns:
 - [DOSE](https://bioconductor.org/packages/DOSE/) — ratio parsing utilities
 - [AnnotationDbi](https://bioconductor.org/packages/AnnotationDbi/) — gene ID mapping
 - [org.Hs.eg.db](https://bioconductor.org/packages/org.Hs.eg.db/) — human gene annotation
+
+## Continuous Integration & Security
+
+ctdR uses GitHub Actions for continuous integration and automated security auditing:
+
+| Workflow | Purpose |
+|---|---|
+| **R-CMD-check** | Package build & check on macOS, Ubuntu, Windows |
+| **test-coverage** | Code coverage via `covr` + Codecov |
+| **security-scan** | Automated cybersecurity pipeline (see below) |
+
+The **security-scan** workflow runs on every push/PR and weekly, and includes four jobs:
+
+1. **Dependency vulnerability audit** — scans all installed R packages against the [Sonatype OSS Index](https://ossindex.sonatype.org/) via [`oysteR`](https://cran.r-project.org/package=oysteR), flagging packages with known CVEs.
+2. **Static code analysis** — runs [`lintr`](https://cran.r-project.org/package=lintr) on the entire package source to detect code quality and potential security issues.
+3. **Dependency review** (PR only) — uses GitHub's [dependency-review-action](https://github.com/actions/dependency-review-action) to flag new dependencies with high-severity vulnerabilities before merging.
+4. **Secret & credential scan** — uses [TruffleHog](https://github.com/trufflesecurity/trufflehog) to detect accidentally committed secrets or API keys in the repository history.
 
 ## Contributing
 
