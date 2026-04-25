@@ -196,6 +196,39 @@ head(gsea_results)
 | `foldEnrichment` | abs(ES) / mean(ES) |
 | `Enriched_GENE` | Comma-separated enriched genes |
 
+## Visualizing results
+
+`plot_CTD()` creates publication-ready plots from enrichment
+results. It automatically detects whether the input comes
+from ORA or GSEA.
+
+```{r plot-bar, fig.width=7, fig.height=5}
+# Bar plot of top enriched chemicals
+plot_CTD(ora_results, type = "bar")
+```
+
+```{r plot-dot, fig.width=7, fig.height=5}
+# Dot plot (size = gene count, color = adjusted p-value)
+plot_CTD(ora_results, type = "dot", n = 10)
+```
+
+## Adjusting for multiple testing
+
+By default, `enrichment_CTD()` uses the Benjamini-Hochberg
+(`"BH"`) method for p-value adjustment. You can change this
+via the `pAdjustMethod` parameter:
+
+```{r padj-methods, eval=FALSE}
+# Bonferroni correction (more conservative)
+enrichment_CTD(genes, method = "ORA", pAdjustMethod = "bonferroni")
+
+# No adjustment
+enrichment_CTD(genes, method = "ORA", pAdjustMethod = "none")
+```
+
+Available methods: `"BH"` (default), `"bonferroni"`,
+`"fdr"` (alias for BH), `"none"`.
+
 # Choosing between ORA and GSEA
 
 | Aspect | ORA | GSEA |
