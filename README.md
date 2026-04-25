@@ -11,7 +11,7 @@
 [![GitHub issues](https://img.shields.io/github/issues/drake69/ctdR)](https://github.com/drake69/ctdR/issues)
 [![GitHub stars](https://img.shields.io/github/stars/drake69/ctdR)](https://github.com/drake69/ctdR/stargazers)
 [![GitHub last commit](https://img.shields.io/github/last-commit/drake69/ctdR)](https://github.com/drake69/ctdR/commits/main)
-[![R version](https://img.shields.io/badge/R-%3E%3D%204.0-blue.svg)](https://www.r-project.org/)
+[![R version](https://img.shields.io/badge/R-%3E%3D%204.5-blue.svg)](https://www.r-project.org/)
 [![Bioconductor dependencies](https://img.shields.io/badge/Bioconductor-dependencies-green.svg)](https://www.bioconductor.org/)
 <!-- badges: end -->
 
@@ -38,7 +38,16 @@
 
 ## Installation
 
-### From GitHub
+### From Bioconductor
+
+```r
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("ctdR")
+```
+
+### From GitHub (development version)
 
 ```r
 # install.packages("devtools")
@@ -50,9 +59,6 @@ devtools::install_github("drake69/ctdR")
 ctdR depends on several Bioconductor packages. If they are not installed automatically, run:
 
 ```r
-if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-
 BiocManager::install(c("fgsea", "org.Hs.eg.db", "clusterProfiler", "DOSE", "AnnotationDbi"))
 ```
 
@@ -100,6 +106,22 @@ head(ora_results)
 # Gene Set Enrichment Analysis
 gsea_results <- enrichment_CTD(genes, method = "GSEA")
 head(gsea_results)
+
+# Customize multiple testing correction (default is "BH")
+ora_bonf <- enrichment_CTD(genes, method = "ORA", pAdjustMethod = "bonferroni")
+```
+
+### Step 4 -- Visualize results
+
+```r
+# Bar plot of top enriched chemicals
+plot_CTD(ora_results, type = "bar")
+
+# Dot plot (size = gene count, color = adjusted p-value)
+plot_CTD(ora_results, type = "dot", n = 10)
+
+# GSEA results work too
+plot_CTD(gsea_results, type = "bar")
 ```
 
 ## Input Format
@@ -139,13 +161,14 @@ The `entrez_ids` parameter must be a data frame with at least two columns:
 | `NES` | Normalized enrichment score |
 | `size` | Size of the gene set |
 | `leadingEdge` | Leading-edge gene subset |
-| `foldEnrichment` | \|ES\| / mean(ES) |
+| `foldEnrichment` | |ES| / mean(ES) |
 | `Enriched_GENE` | Comma-separated enriched gene symbols |
 
 ## Dependencies
 
 ### CRAN
 
+- [ggplot2](https://cran.r-project.org/package=ggplot2) — publication-quality plots
 - [readr](https://cran.r-project.org/package=readr) — fast CSV reading
 - [rappdirs](https://cran.r-project.org/package=rappdirs) — cross-platform cache directory
 - [plyr](https://cran.r-project.org/package=plyr) — data manipulation
@@ -185,7 +208,7 @@ If you use ctdR in your research, please cite:
 
 ```
 Corsaro L (2024). ctdR: Enrichment Analysis of Chemical-Gene Interactions
-from the Comparative Toxicogenomics Database. R package version 0.1.3.
+from the Comparative Toxicogenomics Database. R package version 0.99.0.
 doi: 10.5281/zenodo.19344201. https://github.com/drake69/ctdR
 ```
 
