@@ -4,10 +4,10 @@
 \alias{gsea}
 \title{Gene Set Enrichment Analysis (GSEA)}
 \usage{
-gsea(ChemicalName_GeneSymbols, entrez_ids, chemicals, pAdjustMethod = "BH")
+gsea(ChemicalName_GeneEntrezIds, entrez_ids, chemicals, pAdjustMethod = "BH")
 }
 \arguments{
-\item{ChemicalName_GeneSymbols}{A named list where each element is a
+\item{ChemicalName_GeneEntrezIds}{A named list where each element is a
 character vector of Entrez gene IDs associated with a CTD chemical. Names
 are CTD chemical IDs.}
 

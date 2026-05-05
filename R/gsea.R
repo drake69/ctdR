@@ -5,7 +5,7 @@
 #' \code{\link[fgsea]{fgsea}}. Detects chemicals whose known target genes
 #' cluster toward the extremes of a ranked gene list.
 #'
-#' @param ChemicalName_GeneSymbols A named list where each element is a
+#' @param ChemicalName_GeneEntrezIds A named list where each element is a
 #'   character vector of Entrez gene IDs associated with a CTD chemical. Names
 #'   are CTD chemical IDs.
 #' @param entrez_ids A data frame with at least two columns:
@@ -27,14 +27,14 @@
 #'   Results are sorted by \code{padj} in ascending order.
 #'
 #' @keywords internal
-gsea <- function(ChemicalName_GeneSymbols, entrez_ids,
+gsea <- function(ChemicalName_GeneEntrezIds, entrez_ids,
     chemicals, pAdjustMethod = "BH") {
     stats <- -log10(entrez_ids[, 2] + 1e-10)
     names(stats) <- entrez_ids$entrez_ids
     stats <- sort(stats, decreasing = TRUE)
 
     fgsea_results <- fgsea::fgsea(
-        pathways = ChemicalName_GeneSymbols, stats = stats
+        pathways = ChemicalName_GeneEntrezIds, stats = stats
     )
     fgsea_results <- as.data.frame(fgsea_results)
     fgsea_results$padj <- stats::p.adjust(
@@ -50,7 +50,7 @@ gsea <- function(ChemicalName_GeneSymbols, entrez_ids,
     )
     entrez_ids$Symbol <- rownames(entrez_ids)
     fgsea_results$Enriched_GENE <- .annotate_genes(
-        fgsea_results, entrez_ids, ChemicalName_GeneSymbols
+        fgsea_results, entrez_ids, ChemicalName_GeneEntrezIds
     )
     fgsea_results
 }

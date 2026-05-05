@@ -102,6 +102,8 @@
 #' @importFrom rappdirs user_cache_dir
 #' @export
 enrichment_CTD <- function(entrez_ids, method = "ORA", pAdjustMethod = "BH") {
+    method <- match.arg(method, c("ORA", "GSEA"))
+
     valid_methods <- c("BH", "bonferroni", "fdr", "none")
     if (!pAdjustMethod %in% valid_methods) {
         stop("'pAdjustMethod' must be one of: ",
