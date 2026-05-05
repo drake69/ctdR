@@ -43,9 +43,19 @@ ora <- function(ChemicalName_GeneSymbols, entrez_ids, pAdjustMethod = "BH") {
     colnames(ora_results)[colnames(ora_results) == "p.adjust"] <- "padj"
 
     # calculate foldEnrichment using BgRatio and GeneRatio
-    gr <- DOSE::parse_ratio(ora_results$GeneRatio)
-    br <- DOSE::parse_ratio(ora_results$BgRatio)
+    gr <- .parse_ratio(ora_results$GeneRatio)
+    br <- .parse_ratio(ora_results$BgRatio)
     ora_results$foldEnrichment <- gr / br
 
     return(ora_results)
+}
+
+#' Parse "n/d" ratio strings into numeric values
+#' @param x Character vector of strings of the form "n/d".
+#' @return Numeric vector of n/d ratios.
+#' @keywords internal
+.parse_ratio <- function(x) {
+    parts <- strsplit(as.character(x), "/", fixed = TRUE)
+    vapply(parts, function(p) as.numeric(p[1]) / as.numeric(p[2]),
+        numeric(1))
 }

@@ -31,7 +31,6 @@ Imports:
     rappdirs,
     org.Hs.eg.db,
     clusterProfiler,
-    DOSE,
     AnnotationDbi,
     plyr
 Suggests:
