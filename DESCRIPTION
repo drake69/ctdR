@@ -26,11 +26,11 @@ Depends:
     R (>= 4.5.0)
 Imports:
     fgsea,
+    ggplot2,
     readr,
     rappdirs,
     org.Hs.eg.db,
     clusterProfiler,
-    DOSE,
     AnnotationDbi,
     plyr
 Suggests:

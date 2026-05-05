@@ -5,12 +5,13 @@
 [![R-CMD-check](https://github.com/drake69/ctdR/actions/workflows/R-CMD-check.yaml/badge.svg?branch=main)](https://github.com/drake69/ctdR/actions/workflows/R-CMD-check.yaml)
 [![test-coverage](https://github.com/drake69/ctdR/actions/workflows/test-coverage.yaml/badge.svg?branch=main)](https://github.com/drake69/ctdR/actions/workflows/test-coverage.yaml)
 [![Codecov](https://codecov.io/gh/drake69/ctdR/branch/main/graph/badge.svg)](https://codecov.io/gh/drake69/ctdR)
+[![security-scan](https://github.com/drake69/ctdR/actions/workflows/security.yaml/badge.svg?branch=main)](https://github.com/drake69/ctdR/actions/workflows/security.yaml)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19344201.svg)](https://doi.org/10.5281/zenodo.19344201)
 [![GitHub issues](https://img.shields.io/github/issues/drake69/ctdR)](https://github.com/drake69/ctdR/issues)
 [![GitHub stars](https://img.shields.io/github/stars/drake69/ctdR)](https://github.com/drake69/ctdR/stargazers)
 [![GitHub last commit](https://img.shields.io/github/last-commit/drake69/ctdR)](https://github.com/drake69/ctdR/commits/main)
-[![R version](https://img.shields.io/badge/R-%3E%3D%204.0-blue.svg)](https://www.r-project.org/)
+[![R version](https://img.shields.io/badge/R-%3E%3D%204.5-blue.svg)](https://www.r-project.org/)
 [![Bioconductor dependencies](https://img.shields.io/badge/Bioconductor-dependencies-green.svg)](https://www.bioconductor.org/)
 <!-- badges: end -->
 
@@ -37,7 +38,16 @@
 
 ## Installation
 
-### From GitHub
+### From Bioconductor
+
+```r
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("ctdR")
+```
+
+### From GitHub (development version)
 
 ```r
 # install.packages("devtools")
@@ -49,9 +59,6 @@ devtools::install_github("drake69/ctdR")
 ctdR depends on several Bioconductor packages. If they are not installed automatically, run:
 
 ```r
-if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-
 BiocManager::install(c("fgsea", "org.Hs.eg.db", "clusterProfiler", "DOSE", "AnnotationDbi"))
 ```
 
@@ -99,6 +106,22 @@ head(ora_results)
 # Gene Set Enrichment Analysis
 gsea_results <- enrichment_CTD(genes, method = "GSEA")
 head(gsea_results)
+
+# Customize multiple testing correction (default is "BH")
+ora_bonf <- enrichment_CTD(genes, method = "ORA", pAdjustMethod = "bonferroni")
+```
+
+### Step 4 -- Visualize results
+
+```r
+# Bar plot of top enriched chemicals
+plot_CTD(ora_results, type = "bar")
+
+# Dot plot (size = gene count, color = adjusted p-value)
+plot_CTD(ora_results, type = "dot", n = 10)
+
+# GSEA results work too
+plot_CTD(gsea_results, type = "bar")
 ```
 
 ## Input Format
@@ -138,13 +161,14 @@ The `entrez_ids` parameter must be a data frame with at least two columns:
 | `NES` | Normalized enrichment score |
 | `size` | Size of the gene set |
 | `leadingEdge` | Leading-edge gene subset |
-| `foldEnrichment` | \|ES\| / mean(ES) |
+| `foldEnrichment` | |ES| / mean(ES) |
 | `Enriched_GENE` | Comma-separated enriched gene symbols |
 
 ## Dependencies
 
 ### CRAN
 
+- [ggplot2](https://cran.r-project.org/package=ggplot2) — publication-quality plots
 - [readr](https://cran.r-project.org/package=readr) — fast CSV reading
 - [rappdirs](https://cran.r-project.org/package=rappdirs) — cross-platform cache directory
 - [plyr](https://cran.r-project.org/package=plyr) — data manipulation
@@ -157,6 +181,23 @@ The `entrez_ids` parameter must be a data frame with at least two columns:
 - [AnnotationDbi](https://bioconductor.org/packages/AnnotationDbi/) — gene ID mapping
 - [org.Hs.eg.db](https://bioconductor.org/packages/org.Hs.eg.db/) — human gene annotation
 
+## Continuous Integration & Security
+
+ctdR uses GitHub Actions for continuous integration and automated security auditing:
+
+| Workflow | Purpose |
+|---|---|
+| **R-CMD-check** | Package build & check on macOS, Ubuntu, Windows |
+| **test-coverage** | Code coverage via `covr` + Codecov |
+| **security-scan** | Automated cybersecurity pipeline (see below) |
+
+The **security-scan** workflow runs on every push/PR and weekly, and includes four jobs:
+
+1. **Dependency vulnerability audit** — scans all installed R packages against the [Sonatype OSS Index](https://ossindex.sonatype.org/) via [`oysteR`](https://cran.r-project.org/package=oysteR), flagging packages with known CVEs.
+2. **Static code analysis** — runs [`lintr`](https://cran.r-project.org/package=lintr) on the entire package source to detect code quality and potential security issues.
+3. **Dependency review** (PR only) — uses GitHub's [dependency-review-action](https://github.com/actions/dependency-review-action) to flag new dependencies with high-severity vulnerabilities before merging.
+4. **Secret & credential scan** — uses [TruffleHog](https://github.com/trufflesecurity/trufflehog) to detect accidentally committed secrets or API keys in the repository history.
+
 ## Contributing
 
 Contributions are welcome! Please open an [issue](https://github.com/drake69/ctdR/issues) or submit a pull request.
@@ -167,7 +208,7 @@ If you use ctdR in your research, please cite:
 
 ```
 Corsaro L (2024). ctdR: Enrichment Analysis of Chemical-Gene Interactions
-from the Comparative Toxicogenomics Database. R package version 0.1.3.
+from the Comparative Toxicogenomics Database. R package version 0.99.0.
 doi: 10.5281/zenodo.19344201. https://github.com/drake69/ctdR
 ```
 

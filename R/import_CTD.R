@@ -118,7 +118,10 @@ import_CTD <- function(file_path) {
                     keytype = "ENTREZID",
                     multiVals = "first"
                 )
-                tt <- expand.grid(term = chemical, gene = syms)
+                tt <- expand.grid(
+                    term = chemical, gene = syms,
+                    stringsAsFactors = FALSE
+                )
                 symbols_df <- plyr::rbind.fill(tt, symbols_df)
             },
             error = function(e) {}

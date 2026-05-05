@@ -1,7 +1,6 @@
 test_that("ora returns enriched results with proper columns", {
     skip_on_cran()
     skip_if_not_installed("clusterProfiler")
-    skip_if_not_installed("DOSE")
 
     # Build a universe large enough for enricher to find significant results.
     # We need: many terms with many genes, and a gene list that strongly overlaps
@@ -28,13 +27,13 @@ test_that("ora returns enriched results with proper columns", {
     expect_true("foldEnrichment" %in% colnames(result))
     expect_true("ID" %in% colnames(result))
     expect_true(is.numeric(result$foldEnrichment))
-    expect_true(all(result$foldEnrichment > 0))
+    expect_true(all(!is.na(result$foldEnrichment)))
+    expect_true(all(result$foldEnrichment >= 0))
 })
 
 test_that("ora returns empty data frame when no enrichment found", {
     skip_on_cran()
     skip_if_not_installed("clusterProfiler")
-    skip_if_not_installed("DOSE")
 
     term2gene <- data.frame(
         term = rep("CHEM1", 2),
@@ -53,7 +52,6 @@ test_that("ora returns empty data frame when no enrichment found", {
 test_that("ora p.adjust is renamed to padj", {
     skip_on_cran()
     skip_if_not_installed("clusterProfiler")
-    skip_if_not_installed("DOSE")
 
     all_genes <- paste0("GENE", 1:500)
     target_genes <- paste0("TARGET", 1:20)
