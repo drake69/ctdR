@@ -2,7 +2,7 @@ Package: ctdR
 Type: Package
 Title: Enrichment Analysis of Chemical-Gene Interactions from the
     Comparative Toxicogenomics Database
-Version: 0.99.0
+Version: 0.99.1
 Authors@R: person(
     given = "Luigi",
     family = "Corsaro",
