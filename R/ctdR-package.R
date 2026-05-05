@@ -57,7 +57,9 @@
 "_PACKAGE"
 
 # Variables loaded from cached .rda files via load()
+# and column references inside ggplot2 aes() in plot_CTD().
 utils::globalVariables(c(
     "chemicals", "ChemicalName_GeneSymbols",
-    "ChemicalName_GeneEntrezIds"
+    "ChemicalName_GeneEntrezIds",
+    "ChemicalName", "foldEnrichment", "padj", "Count"
 ))

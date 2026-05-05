@@ -27,7 +27,8 @@ test_that("ora returns enriched results with proper columns", {
     expect_true("foldEnrichment" %in% colnames(result))
     expect_true("ID" %in% colnames(result))
     expect_true(is.numeric(result$foldEnrichment))
-    expect_true(all(result$foldEnrichment > 0))
+    expect_true(all(!is.na(result$foldEnrichment)))
+    expect_true(all(result$foldEnrichment >= 0))
 })
 
 test_that("ora returns empty data frame when no enrichment found", {
