@@ -1,3 +1,32 @@
+# Changes in version 0.99.1
+
+## Bioconductor reviewer feedback
+
+* Removed `renv` from the package. Dependencies are managed via
+  `DESCRIPTION` and installed by `r-lib/actions/setup-r-dependencies`
+  (pak-based) in CI.
+
+## Bug fixes
+
+* `import_CTD()` now stores `ChemicalName_GeneSymbols$gene` as a
+  character vector instead of a factor, fixing
+  "universe must be a character vector" in `clusterProfiler::enricher()`.
+* Inlined `parse_ratio()` as a private helper because `DOSE::parse_ratio`
+  is no longer exported. `DOSE` is dropped from `Imports`.
+* Aligned `man/gsea.Rd` parameter name with `R/gsea.R`
+  (`ChemicalName_GeneEntrezIds`), removing a codoc-mismatch WARNING.
+* Declared `plot_CTD()` ggplot2 NSE column references in
+  `utils::globalVariables()`, removing "no visible binding" NOTEs.
+
+## Infrastructure
+
+* Pinned `trufflesecurity/trufflehog` to a concrete version; the bare
+  `@v3` tag does not exist in the action repo.
+* Made `oysteR` audit fail-soft when OSS Index credentials are missing
+  (still fails the build on real vulnerabilities).
+* Removed the `dependency-review` job: GitHub's Dependency Graph does
+  not support R `DESCRIPTION` files.
+
 # Changes in version 0.99.0
 
 ## Improvements
