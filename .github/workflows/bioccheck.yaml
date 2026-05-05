@@ -34,14 +34,32 @@ jobs:
       - name: Run BiocCheck
         run: |
           result <- BiocCheck::BiocCheck(".")
-          n_err  <- length(result$error)
-          n_warn <- length(result$warning)
-          n_note <- length(result$note)
+          # Distinguish real code errors from transient Bioconductor
+          # infrastructure failures (support site / mailing list lookups
+          # that depend on bioconductor.org availability).
+          infra_pattern <- "Unable to find your email in the Support Site"
+          errs       <- result$error
+          flaky_errs <- errs[grepl(infra_pattern, errs, fixed = TRUE)]
+          real_errs  <- errs[!grepl(infra_pattern, errs, fixed = TRUE)]
+          n_real  <- length(real_errs)
+          n_flaky <- length(flaky_errs)
+          n_warn  <- length(result$warning)
+          n_note  <- length(result$note)
           cat(sprintf(
-            "BiocCheck summary: %d error(s), %d warning(s), %d note(s)\n",
-            n_err, n_warn, n_note
+            paste0(
+              "BiocCheck summary: %d code error(s) ",
+              "[+ %d infra flake(s) skipped], ",
+              "%d warning(s), %d note(s)\n"
+            ),
+            n_real, n_flaky, n_warn, n_note
           ))
-          if (n_err > 0) {
+          if (n_flaky > 0) {
+            cat("\nSkipped infrastructure flakes:\n")
+            cat(paste0("  - ", flaky_errs, collapse = "\n"), "\n")
+          }
+          if (n_real > 0) {
+            cat("\nReal errors:\n")
+            cat(paste0("  - ", real_errs, collapse = "\n"), "\n")
             quit(status = 1)
           }
         shell: Rscript {0}
