@@ -1,3 +1,36 @@
+# Changes in version 0.99.2
+
+## New features
+
+* `enrichment_CTD()` now supports four enrichment methods through a unified
+  interface, selectable via the `method` argument:
+  - `"ORA"` (default) — Over-Representation Analysis via
+    `clusterProfiler::enricher()` (unchanged).
+  - `"GSEA"` — rank-based Gene Set Enrichment Analysis via `fgsea::fgsea()`
+    (unchanged).
+  - `"CAMERA"` — competitive gene-set test accounting for inter-gene
+    correlation, via `limma::camera()`. Input: a numeric expression matrix
+    (genes x samples) plus a design matrix and a contrast.
+  - `"GSVA"` — per-sample Gene Set Variation Analysis via `GSVA::gsva()`,
+    returning a chemical x sample score matrix.
+* New first argument `x` (polymorphic): a data frame for ORA/GSEA, a numeric
+  matrix for CAMERA/GSVA. Auto-detects identifier type (Entrez vs HGNC SYMBOL)
+  from `rownames(x)`; an explicit `id_type` override is also accepted.
+* `plot_CTD()` now dispatches on input class and method-specific columns:
+  bar/dot plots of fold enrichment for ORA/GSEA, bar/dot plots of
+  `-log10(padj)` coloured by direction of enrichment for CAMERA, and a
+  sample-level heatmap of the top-variance chemicals for GSVA.
+
+## Deprecation
+
+* The first argument of `enrichment_CTD()` was renamed `entrez_ids` -> `x`.
+  Calls using the old name still work but emit a deprecation warning and will
+  be removed in a future release.
+
+## Dependencies
+
+* New `Imports`: `limma`, `GSVA`, `stats`.
+
 # Changes in version 0.99.1
 
 ## Bioconductor reviewer feedback

@@ -28,15 +28,22 @@ knitr::opts_chunk$set(
 with a set of genes using data from the
 [Comparative Toxicogenomics Database (CTD)](https://ctdbase.org).
 
-Two enrichment methods are supported:
+Four enrichment methods are supported through a single
+`enrichment_CTD()` interface; the input shape depends on
+the method:
 
-- **ORA** (Over-Representation Analysis) -- tests whether
-    the overlap between your gene list and each chemical's
-    target genes is larger than expected by chance.
-    Powered by `clusterProfiler::enricher`.
-- **GSEA** (Gene Set Enrichment Analysis) -- detects
-    chemicals whose targets cluster toward the extremes
-    of a ranked gene list. Powered by `fgsea::fgsea`.
+- **ORA** (Over-Representation Analysis) -- gene list +
+    hypergeometric test. Powered by
+    `clusterProfiler::enricher`.
+- **GSEA** (Gene Set Enrichment Analysis) -- ranked gene
+    list + permutation test. Powered by `fgsea::fgsea`.
+- **CAMERA** (competitive gene-set test) -- expression
+    matrix + design + contrast. Corrects for inter-gene
+    correlation within each chemical's gene set. Powered
+    by `limma::camera`.
+- **GSVA** (Gene Set Variation Analysis) -- expression
+    matrix + per-sample scoring. Returns a chemical x sample
+    score matrix. Powered by `GSVA::gsva`.
 
 # Data licensing disclaimer
 
@@ -196,11 +203,66 @@ head(gsea_results)
 | `foldEnrichment` | abs(ES) / mean(ES) |
 | `Enriched_GENE` | Comma-separated enriched genes |
 
+### CAMERA (competitive test with inter-gene correlation)
+
+CAMERA tests, for each chemical, whether its target
+genes show a stronger differential signal than the rest
+of the transcriptome under a user-supplied design and
+contrast, while correcting for inter-gene correlation
+within the gene set. The input is an expression matrix
+(genes x samples) with Entrez IDs or HGNC SYMBOLs as
+rownames.
+
+```{r camera, eval=FALSE}
+# Suppose you have a normalised expression matrix `expr`
+# (log2 counts or microarray intensities), with Entrez IDs
+# as rownames and samples in columns.
+grp <- factor(c("ctrl","ctrl","ctrl","treat","treat","treat"))
+design <- model.matrix(~ grp)
+
+camera_results <- enrichment_CTD(
+    expr,
+    method   = "CAMERA",
+    design   = design,
+    contrast = 2  # last column of design = treat vs ctrl
+)
+head(camera_results)
+```
+
+**CAMERA output columns:** `ChemicalID`, `ChemicalName`,
+`NGenes` (gene set size after intersection with rownames),
+`Direction` (`"Up"` / `"Down"`), `pvalue`, `padj`.
+
+### GSVA (per-sample scoring)
+
+GSVA produces a **per-sample** enrichment score for each
+chemical, returning a matrix (chemicals in rows, samples
+in columns) suitable for clustering, association tests
+against phenotypes, survival analysis, or heatmap
+visualization.
+
+```{r gsva, eval=FALSE}
+gsva_scores <- enrichment_CTD(expr, method = "GSVA")
+dim(gsva_scores)  # chemicals x samples
+```
+
+Tune the underlying `GSVA::gsvaParam()` through `...`,
+for example to restrict to gene sets of a given size:
+
+```{r gsva-tune, eval=FALSE}
+gsva_scores <- enrichment_CTD(
+    expr, method = "GSVA",
+    minSize = 5, maxSize = 500
+)
+```
+
 ## Visualizing results
 
 `plot_CTD()` creates publication-ready plots from enrichment
-results. It automatically detects whether the input comes
-from ORA or GSEA.
+results. It auto-detects the method: bar/dot plots of fold
+enrichment for ORA/GSEA, bar/dot plots of `-log10(padj)`
+coloured by direction for CAMERA, and a sample-level
+heatmap of the top-variance chemicals for GSVA.
 
 ```{r plot-bar, fig.width=7, fig.height=5}
 # Bar plot of top enriched chemicals
@@ -229,19 +291,23 @@ enrichment_CTD(genes, method = "ORA", pAdjustMethod = "none")
 Available methods: `"BH"` (default), `"bonferroni"`,
 `"fdr"` (alias for BH), `"none"`.
 
-# Choosing between ORA and GSEA
+# Choosing among the four methods
 
-| Aspect | ORA | GSEA |
-|---|---|---|
-| **Input** | Gene list (no ranking) | Ranked gene list |
-| **Question** | Over-represented? | Cluster at extremes? |
-| **Threshold** | Requires cutoff | No cutoff needed |
-| **Best for** | DEG lists | Exploratory, ranked |
+| Aspect | ORA | GSEA | CAMERA | GSVA |
+|---|---|---|---|---|
+| **Input** | Gene list | Ranked gene list | Expression matrix + design + contrast | Expression matrix |
+| **Question** | Over-represented? | Cluster at extremes? | Stronger signal than rest of transcriptome (correlation-corrected)? | Per-sample chemical score |
+| **Output** | Ranked chemicals (data.frame) | Ranked chemicals (data.frame) | Ranked chemicals (data.frame) | Chemical x sample score matrix |
+| **Best for** | DEG lists | Exploratory, ranked | Multi-sample DE experiments, co-regulated gene sets | Patient stratification, downstream tests, heatmaps |
 
-Use **ORA** when you have a well-defined gene list
-(e.g. differentially expressed genes above a significance
-threshold). Use **GSEA** when you want to leverage the
-full ranking without imposing an arbitrary threshold.
+Use **ORA** when you have a well-defined gene list above a
+significance threshold; **GSEA** to leverage the full
+ranking without a cutoff; **CAMERA** when you have a
+proper multi-sample design and want to control the
+inflated false-positive rate that ORA/GSEA exhibit on
+strongly co-regulated gene sets; **GSVA** when you want a
+per-sample score to feed into downstream analyses
+(clustering, survival, correlation with phenotypes).
 
 # Updating the CTD data
 
