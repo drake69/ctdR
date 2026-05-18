@@ -203,21 +203,42 @@ head(gsea_results)
 | `foldEnrichment` | abs(ES) / mean(ES) |
 | `Enriched_GENE` | Comma-separated enriched genes |
 
+### Build a synthetic expression matrix for CAMERA and GSVA
+
+CAMERA and GSVA take a gene x sample expression matrix
+(typically log2 counts or microarray intensities). For
+this vignette we build a small synthetic matrix using the
+Entrez IDs already loaded by `import_CTD()` above:
+
+```{r make-expr}
+# Pull the Entrez IDs covered by the bundled sample
+cache_dir <- rappdirs::user_cache_dir("ctdR")
+e <- new.env(parent = emptyenv())
+load(file.path(cache_dir, "ChemicalName_GeneEntrezIds.rda"),
+    envir = e)
+all_ids <- as.character(unique(unlist(
+    e$ChemicalName_GeneEntrezIds)))
+
+# Synthetic expression matrix: 17 genes x 6 samples
+set.seed(2026)
+expr <- matrix(
+    rnorm(length(all_ids) * 6),
+    nrow = length(all_ids), ncol = 6,
+    dimnames = list(all_ids, paste0("S", 1:6))
+)
+dim(expr)
+```
+
 ### CAMERA (competitive test with inter-gene correlation)
 
 CAMERA tests, for each chemical, whether its target
 genes show a stronger differential signal than the rest
 of the transcriptome under a user-supplied design and
 contrast, while correcting for inter-gene correlation
-within the gene set. The input is an expression matrix
-(genes x samples) with Entrez IDs or HGNC SYMBOLs as
-rownames.
+within the gene set.
 
-```{r camera, eval=FALSE}
-# Suppose you have a normalised expression matrix `expr`
-# (log2 counts or microarray intensities), with Entrez IDs
-# as rownames and samples in columns.
-grp <- factor(c("ctrl","ctrl","ctrl","treat","treat","treat"))
+```{r camera}
+grp <- factor(rep(c("ctrl", "treat"), each = 3))
 design <- model.matrix(~ grp)
 
 camera_results <- enrichment_CTD(
@@ -241,19 +262,21 @@ in columns) suitable for clustering, association tests
 against phenotypes, survival analysis, or heatmap
 visualization.
 
-```{r gsva, eval=FALSE}
+```{r gsva}
 gsva_scores <- enrichment_CTD(expr, method = "GSVA")
 dim(gsva_scores)  # chemicals x samples
+head(gsva_scores, 3)
 ```
 
 Tune the underlying `GSVA::gsvaParam()` through `...`,
 for example to restrict to gene sets of a given size:
 
-```{r gsva-tune, eval=FALSE}
-gsva_scores <- enrichment_CTD(
+```{r gsva-tune}
+gsva_strict <- enrichment_CTD(
     expr, method = "GSVA",
     minSize = 5, maxSize = 500
 )
+nrow(gsva_strict)
 ```
 
 ## Visualizing results
@@ -265,13 +288,23 @@ coloured by direction for CAMERA, and a sample-level
 heatmap of the top-variance chemicals for GSVA.
 
 ```{r plot-bar, fig.width=7, fig.height=5}
-# Bar plot of top enriched chemicals
+# ORA bar plot of top enriched chemicals
 plot_CTD(ora_results, type = "bar")
 ```
 
 ```{r plot-dot, fig.width=7, fig.height=5}
-# Dot plot (size = gene count, color = adjusted p-value)
+# ORA dot plot (size = gene count, color = adjusted p-value)
 plot_CTD(ora_results, type = "dot", n = 10)
+```
+
+```{r plot-camera, fig.width=7, fig.height=5}
+# CAMERA bar plot: x-axis = -log10(padj), fill = Direction
+plot_CTD(camera_results, type = "bar")
+```
+
+```{r plot-gsva, fig.width=7, fig.height=5}
+# GSVA heatmap: top-variance chemicals across samples
+plot_CTD(gsva_scores)
 ```
 
 ## Adjusting for multiple testing
@@ -280,12 +313,21 @@ By default, `enrichment_CTD()` uses the Benjamini-Hochberg
 (`"BH"`) method for p-value adjustment. You can change this
 via the `pAdjustMethod` parameter:
 
-```{r padj-methods, eval=FALSE}
+```{r padj-methods}
 # Bonferroni correction (more conservative)
-enrichment_CTD(genes, method = "ORA", pAdjustMethod = "bonferroni")
+ora_bonf <- enrichment_CTD(genes, method = "ORA",
+    pAdjustMethod = "bonferroni")
 
 # No adjustment
-enrichment_CTD(genes, method = "ORA", pAdjustMethod = "none")
+ora_raw <- enrichment_CTD(genes, method = "ORA",
+    pAdjustMethod = "none")
+
+# Compare the adjusted p-value of the top hit
+data.frame(
+    method = c("BH (default)", "bonferroni", "none"),
+    top_padj = c(min(ora_results$padj),
+        min(ora_bonf$padj), min(ora_raw$padj))
+)
 ```
 
 Available methods: `"BH"` (default), `"bonferroni"`,
