@@ -7,7 +7,7 @@
 [![Codecov](https://codecov.io/gh/drake69/ctdR/branch/main/graph/badge.svg)](https://codecov.io/gh/drake69/ctdR)
 [![security-scan](https://github.com/drake69/ctdR/actions/workflows/security.yaml/badge.svg?branch=main)](https://github.com/drake69/ctdR/actions/workflows/security.yaml)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19344201.svg)](https://doi.org/10.5281/zenodo.19344201)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19344200.svg)](https://doi.org/10.5281/zenodo.19344200)
 [![GitHub issues](https://img.shields.io/github/issues/drake69/ctdR)](https://github.com/drake69/ctdR/issues)
 [![GitHub stars](https://img.shields.io/github/stars/drake69/ctdR)](https://github.com/drake69/ctdR/stargazers)
 [![GitHub last commit](https://img.shields.io/github/last-commit/drake69/ctdR)](https://github.com/drake69/ctdR/commits/main)
@@ -277,7 +277,7 @@ If you use ctdR in your research, please cite:
 ```
 Corsaro L (2026). ctdR: Enrichment Analysis of Chemical-Gene Interactions
 from the Comparative Toxicogenomics Database. R package version 0.99.2.
-doi: 10.5281/zenodo.19344201. https://github.com/drake69/ctdR
+doi: 10.5281/zenodo.19344200. https://github.com/drake69/ctdR
 ```
 
 Additionally, please cite CTD as required by their [Terms of Service](https://ctdbase.org/about/legal.jsp):

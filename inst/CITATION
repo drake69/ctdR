@@ -6,13 +6,13 @@ bibentry(
   year     = "2026",
   note     = "R package version 0.99.2",
   url      = "https://github.com/drake69/ctdR",
-  doi      = "10.5281/zenodo.19344201",
+  doi      = "10.5281/zenodo.19344200",
   textVersion = paste(
     "Corsaro L (2026).",
     "ctdR: Enrichment Analysis of Chemical-Gene Interactions",
     "from the Comparative Toxicogenomics Database.",
     "R package version 0.99.2.",
-    "doi: 10.5281/zenodo.19344201.",
+    "doi: 10.5281/zenodo.19344200.",
     "https://github.com/drake69/ctdR"
   )
 )
