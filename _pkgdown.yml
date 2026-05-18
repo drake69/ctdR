@@ -1,0 +1,47 @@
+url: https://drake69.github.io/ctdR
+
+template:
+  bootstrap: 5
+  bslib:
+    primary: "#4575B4"
+    border-radius: 0.4rem
+    btn-border-radius: 0.3rem
+
+home:
+  title: ctdR — Chemical Enrichment Analysis using CTD
+  description: >
+    R package for enrichment analysis of chemical–gene interactions from the
+    Comparative Toxicogenomics Database (CTD). Four methods through a unified
+    interface: ORA, GSEA, CAMERA, GSVA.
+  links:
+    - text: Comparative Toxicogenomics Database
+      href: https://ctdbase.org
+    - text: Open an issue
+      href: https://github.com/drake69/ctdR/issues
+
+navbar:
+  structure:
+    left:  [intro, reference, articles, news]
+    right: [search, github]
+
+reference:
+  - title: "Workflow"
+    desc: "End-to-end functions for the typical ctdR analysis."
+    contents:
+      - import_CTD
+      - enrichment_CTD
+      - plot_CTD
+  - title: "Package"
+    contents:
+      - ctdR-package
+
+articles:
+  - title: "Introduction"
+    navbar: ~
+    contents:
+      - ctdR
+
+news:
+  releases:
+    - text: "v0.99.2"
+      href: https://github.com/drake69/ctdR/releases/tag/v0.99.2

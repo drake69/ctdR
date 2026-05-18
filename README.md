@@ -286,6 +286,10 @@ Additionally, please cite CTD as required by their [Terms of Service](https://ct
 > Comparative Toxicogenomics Database (CTD): update 2023.
 > *Nucleic Acids Research*. 2023;51(D1):D1257-D1262.
 
+## ⭐ If you find ctdR useful, please star the repo
+
+A star helps other researchers discover the package and lets us see who's using it. Click the ⭐ at the [top of the GitHub page](https://github.com/drake69/ctdR/stargazers) — it takes one second and means a lot.
+
 ## License
 
 Apache License 2.0 - see [LICENSE](LICENSE) for details.
