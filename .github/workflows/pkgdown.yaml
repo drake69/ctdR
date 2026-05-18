@@ -1,5 +1,9 @@
-# Build and deploy the pkgdown site to docs/ on push to main.
-# GitHub Pages is configured to serve from main / /docs.
+# Build the pkgdown site and deploy it to GitHub Pages via the
+# official Pages artifact + deploy-pages actions. The site is no
+# longer committed back to docs/ on main (main is protected).
+#
+# One-time repo setting required: Settings → Pages → Source =
+# "GitHub Actions" (instead of "Deploy from a branch").
 on:
   push:
     branches: [main]
@@ -12,10 +16,16 @@ on:
 name: pkgdown
 
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
 
 jobs:
-  pkgdown:
+  build:
     runs-on: ubuntu-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -40,15 +50,24 @@ jobs:
         run: pkgdown::build_site(new_process = FALSE, install = FALSE)
         shell: Rscript {0}
 
-      - name: Commit and push docs/ on main
+      - name: Configure Pages
         if: github.event_name != 'pull_request'
-        run: |
-          git config --global user.name  "github-actions[bot]"
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs
-          if ! git diff --cached --quiet; then
-            git commit -m "docs(pkgdown): rebuild site [skip ci]"
-            git push
-          else
-            echo "No changes in docs/, nothing to commit."
-          fi
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
