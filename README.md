@@ -17,6 +17,8 @@
 
 **ctdR** is an R package that identifies chemicals significantly associated with a set of genes using data from the [Comparative Toxicogenomics Database (CTD)](https://ctdbase.org).
 
+> 🚧 **Bioconductor status**: *not yet accepted, or under review* — submission [#4232](https://github.com/Bioconductor/Contributions/issues/4232). *Fingers crossed* 🤞. For now, install from GitHub (instructions below).
+
 ## Features
 
 Four enrichment methods through a unified `enrichment_CTD()` interface, selected via the `method` argument:
@@ -47,16 +49,12 @@ Additional features:
 
 ## Installation
 
-### From Bioconductor
+> **Status**: ctdR is currently under review for inclusion in Bioconductor
+> ([Bioconductor/Contributions#4232](https://github.com/Bioconductor/Contributions/issues/4232))
+> — *not on Bioconductor yet, fingers crossed* 🤞. Until then, please
+> install from GitHub.
 
-```r
-if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-
-BiocManager::install("ctdR")
-```
-
-### From GitHub (development version)
+### From GitHub (current installation method)
 
 ```r
 # install.packages("devtools")
@@ -65,11 +63,24 @@ devtools::install_github("drake69/ctdR")
 
 ### Bioconductor dependencies
 
-ctdR depends on several Bioconductor packages. If they are not installed automatically, run:
+ctdR depends on several Bioconductor packages. They are pulled in
+automatically by `install_github()`, but you can install them upfront with:
 
 ```r
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
 BiocManager::install(c("fgsea", "org.Hs.eg.db", "clusterProfiler",
                        "AnnotationDbi", "limma", "GSVA"))
+```
+
+### From Bioconductor (once accepted)
+
+Once ctdR is accepted into Bioconductor (currently under review — *fingers
+crossed* 🤞), it will be installable directly via:
+
+```r
+BiocManager::install("ctdR")
 ```
 
 ## Quick Start
