@@ -2,7 +2,7 @@ Package: ctdR
 Type: Package
 Title: Enrichment Analysis of Chemical-Gene Interactions from the
     Comparative Toxicogenomics Database
-Version: 0.99.1
+Version: 0.99.2
 Authors@R: person(
     given = "Luigi",
     family = "Corsaro",
@@ -11,13 +11,16 @@ Authors@R: person(
     comment = c(ORCID = "0000-0003-1218-230X"))
 Description: Identifies chemicals significantly associated with a set of genes
     using data from the Comparative Toxicogenomics Database (CTD,
-    <https://ctdbase.org>). Supports two enrichment methods: Over-Representation
-    Analysis (ORA) via 'clusterProfiler' and Gene Set Enrichment Analysis (GSEA)
-    via 'fgsea'. Users download the CTD chemical-gene interactions file once,
-    import it with import_CTD(), and then run enrichment_CTD() on any gene list.
-    This package does not bundle or redistribute CTD data. Users must download
-    the required data files directly from <https://ctdbase.org> and comply with
-    the CTD data licensing terms (see <https://ctdbase.org/about/legal.jsp>).
+    <https://ctdbase.org>). Supports four enrichment methods through a unified
+    interface: Over-Representation Analysis (ORA) via 'clusterProfiler', Gene
+    Set Enrichment Analysis (GSEA) via 'fgsea', the competitive gene-set test
+    CAMERA via 'limma', and per-sample Gene Set Variation Analysis (GSVA) via
+    'GSVA'. Users download the CTD chemical-gene interactions file once, import
+    it with import_CTD(), and then run enrichment_CTD() on either a gene list
+    (ORA, GSEA) or an expression matrix (CAMERA, GSVA). This package does not
+    bundle or redistribute CTD data. Users must download the required data
+    files directly from <https://ctdbase.org> and comply with the CTD data
+    licensing terms (see <https://ctdbase.org/about/legal.jsp>).
 License: Apache License 2.0 | file LICENSE
 URL: https://github.com/drake69/ctdR
 BugReports: https://github.com/drake69/ctdR/issues
@@ -32,7 +35,10 @@ Imports:
     org.Hs.eg.db,
     clusterProfiler,
     AnnotationDbi,
-    plyr
+    plyr,
+    limma,
+    GSVA,
+    stats
 Suggests:
     testthat (>= 3.0.0),
     knitr,
@@ -45,5 +51,5 @@ biocViews:
     GeneExpression,
     DataImport
 VignetteBuilder: knitr
-RoxygenNote: 7.3.3
 Config/testthat/edition: 3
+Config/roxygen2/version: 8.0.0

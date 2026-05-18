@@ -10,12 +10,16 @@
 using data from the Comparative Toxicogenomics Database
 (CTD, \url{https://ctdbase.org}).
 
-Two enrichment methods are supported:
+Four enrichment methods are supported through a unified interface:
 \describe{
   \item{\strong{ORA}}{Over-Representation Analysis via
     \code{\link[clusterProfiler]{enricher}}.}
   \item{\strong{GSEA}}{Gene Set Enrichment Analysis via
     \code{\link[fgsea]{fgsea}}.}
+  \item{\strong{CAMERA}}{Competitive gene-set test accounting for
+    inter-gene correlation, via \code{\link[limma]{camera}}.}
+  \item{\strong{GSVA}}{Per-sample Gene Set Variation Analysis via
+    \code{\link[GSVA]{gsva}}.}
 }
 }
 \section{Quick Start}{
@@ -65,5 +69,10 @@ Davis AP, Wiegers TC, Johnson RJ, Sciaky D, Wiegers J, Mattingly CJ (2023).
 }
 \author{
 \strong{Maintainer}: Luigi Corsaro \email{lcorsaro69@gmail.com} (\href{https://orcid.org/0000-0003-1218-230X}{ORCID})
+
+Authors:
+\itemize{
+  \item Luigi Corsaro \email{lcorsaro69@gmail.com} (\href{https://orcid.org/0000-0003-1218-230X}{ORCID})
+}
 
 }
