@@ -86,7 +86,78 @@ test_that("plot_CTD limits to n top results", {
 test_that("plot_CTD errors on empty data frame", {
     expect_error(
         plot_CTD(data.frame()),
-        "non-empty data frame"
+        "non-empty"
+    )
+})
+
+test_that("plot_CTD bar plot works with CAMERA results", {
+    skip_if_not_installed("ggplot2")
+
+    camera_df <- data.frame(
+        ChemicalID = paste0("D00", 1:5),
+        ChemicalName = paste("Chemical", LETTERS[1:5]),
+        NGenes = c(15L, 20L, 10L, 8L, 12L),
+        Direction = c("Up", "Down", "Up", "Down", "Up"),
+        pvalue = c(0.001, 0.005, 0.01, 0.02, 0.05),
+        padj = c(0.005, 0.01, 0.03, 0.05, 0.1),
+        stringsAsFactors = FALSE
+    )
+
+    p <- plot_CTD(camera_df, type = "bar")
+    expect_s3_class(p, "ggplot")
+    # CAMERA branch uses negLog10padj on x axis
+    expect_true("negLog10padj" %in% colnames(p$data))
+})
+
+test_that("plot_CTD dot plot works with CAMERA results", {
+    skip_if_not_installed("ggplot2")
+
+    camera_df <- data.frame(
+        ChemicalID = paste0("D00", 1:5),
+        ChemicalName = paste("Chemical", LETTERS[1:5]),
+        NGenes = c(15L, 20L, 10L, 8L, 12L),
+        Direction = c("Up", "Down", "Up", "Down", "Up"),
+        pvalue = c(0.001, 0.005, 0.01, 0.02, 0.05),
+        padj = c(0.005, 0.01, 0.03, 0.05, 0.1),
+        stringsAsFactors = FALSE
+    )
+
+    p <- plot_CTD(camera_df, type = "dot")
+    expect_s3_class(p, "ggplot")
+})
+
+test_that("plot_CTD heatmap works with GSVA matrix", {
+    skip_if_not_installed("ggplot2")
+
+    set.seed(1)
+    scores <- matrix(rnorm(30, sd = 0.4), nrow = 5, ncol = 6,
+        dimnames = list(paste0("D00", 1:5), paste0("S", 1:6)))
+
+    p <- plot_CTD(scores)
+    expect_s3_class(p, "ggplot")
+    # GSVA branch: data has Score column
+    expect_true("Score" %in% colnames(p$data))
+})
+
+test_that("plot_CTD limits GSVA heatmap to top-n by variance", {
+    skip_if_not_installed("ggplot2")
+
+    set.seed(2)
+    scores <- matrix(rnorm(80), nrow = 20, ncol = 4,
+        dimnames = list(paste0("D", 1:20), paste0("S", 1:4)))
+    # boost the variance of chemicals 1 and 2
+    scores[1, ] <- c(-1, -1, 1, 1)
+    scores[2, ] <- c(1, -1, -1, 1)
+
+    p <- plot_CTD(scores, n = 3)
+    # 3 chemicals x 4 samples = 12 tiles
+    expect_equal(nrow(p$data), 3L * 4L)
+})
+
+test_that("plot_CTD errors on empty numeric matrix", {
+    expect_error(
+        plot_CTD(matrix(numeric(0), nrow = 0, ncol = 0)),
+        "rows|empty|non-empty"
     )
 })
 

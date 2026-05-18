@@ -7,40 +7,49 @@
 plot_CTD(results, type = "bar", n = 20, title = NULL)
 }
 \arguments{
-\item{results}{A data frame returned by \code{\link{enrichment_CTD}}.}
+\item{results}{A data frame or numeric matrix returned by
+\code{\link{enrichment_CTD}}.}
 
-\item{type}{Character. Plot type: \code{"bar"} (default) for a bar plot of
-fold enrichment colored by adjusted p-value, or \code{"dot"} for a dot
-plot with dot size proportional to gene count and color mapped to adjusted
-p-value.}
+\item{type}{Character. Plot type for tabular results:
+\code{"bar"} (default) or \code{"dot"}. Ignored for GSVA matrix input.}
 
-\item{n}{Integer. Number of top chemicals to display (default 20). Chemicals
-are ranked by adjusted p-value.}
+\item{n}{Integer. Number of top chemicals to display (default 20).
+Selection criterion: ascending \code{padj} for tabular results, descending
+score variance across samples for GSVA matrices.}
 
 \item{title}{Character. Plot title. If \code{NULL} (default), a title is
-generated automatically based on the enrichment method.}
+generated automatically based on the detected method.}
 }
 \value{
 A \code{ggplot2} object.
 }
 \description{
-Visualizes the output of \code{\link{enrichment_CTD}} as a bar plot or dot
-plot of the top enriched chemicals. The function automatically detects
-whether the input comes from ORA or GSEA based on column names.
+Visualizes the output of \code{\link{enrichment_CTD}}. The function
+auto-detects the enrichment method from the input class and column
+structure:
+\itemize{
+  \item \strong{ORA} / \strong{GSEA} (data frame with \code{Count} or
+    \code{NES}): bar or dot plot of fold enrichment.
+  \item \strong{CAMERA} (data frame with \code{Direction} and \code{NGenes}):
+    bar or dot plot of \eqn{-\log_{10}(\mathrm{padj})}, colored by
+    direction of enrichment.
+  \item \strong{GSVA} (numeric matrix \code{chemicals x samples}): heatmap
+    of per-sample enrichment scores for the top-N chemicals selected by
+    score variance across samples.
+}
 }
 \examples{
-# Import sample data:
 sample_file <- system.file(
     "extdata", "CTD_chem_gene_ixns_sample.csv",
     package = "ctdR"
 )
 import_CTD(sample_file)
 
+# ORA / GSEA
 genes <- data.frame(
     entrez_ids = c("7124", "3569", "7157", "672", "1956"),
     pvalue = c(0.001, 0.003, 0.01, 0.02, 0.05)
 )
-
 ora_results <- enrichment_CTD(genes, method = "ORA")
 plot_CTD(ora_results, type = "bar")
 plot_CTD(ora_results, type = "dot")
