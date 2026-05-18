@@ -50,10 +50,5 @@
         ...
     )
 
-    scores <- GSVA::gsva(param)
-
-    if (!is.matrix(scores)) {
-        scores <- as.matrix(scores)
-    }
-    scores
+    GSVA::gsva(param)
 }
