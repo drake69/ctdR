@@ -5,3 +5,5 @@
 ^LICENSE\.md$
 ^docs$
 ^ctdR\.BiocCheck$
+^_pkgdown\.yml$
+^pkgdown$
