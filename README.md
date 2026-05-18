@@ -19,10 +19,19 @@
 
 ## Features
 
-- **Over-Representation Analysis (ORA)** — tests whether the overlap between your gene list and each chemical's target genes is larger than expected by chance (via [`clusterProfiler`](https://bioconductor.org/packages/clusterProfiler/))
-- **Gene Set Enrichment Analysis (GSEA)** — detects chemicals whose targets cluster toward the extremes of a ranked gene list (via [`fgsea`](https://bioconductor.org/packages/fgsea/))
+Four enrichment methods through a unified `enrichment_CTD()` interface, selected via the `method` argument:
+
+- **ORA** — Over-Representation Analysis (hypergeometric test). Input: gene list. Backend: [`clusterProfiler::enricher`](https://bioconductor.org/packages/clusterProfiler/).
+- **GSEA** — Gene Set Enrichment Analysis (rank-based, permutational). Input: ranked gene list. Backend: [`fgsea::fgsea`](https://bioconductor.org/packages/fgsea/).
+- **CAMERA** — competitive gene-set test with inter-gene correlation correction. Input: expression matrix + design + contrast. Backend: [`limma::camera`](https://bioconductor.org/packages/limma/).
+- **GSVA** — Gene Set Variation Analysis (per-sample scoring). Input: expression matrix. Output: chemical × sample score matrix. Backend: [`GSVA::gsva`](https://bioconductor.org/packages/GSVA/).
+
+Additional features:
+
 - **Automatic caching** — CTD data is parsed once and cached locally for fast repeated analyses
 - **Human-only filtering** — automatically restricts interactions to *Homo sapiens* (OrganismID 9606)
+- **Auto-detected gene identifiers** — Entrez vs HGNC SYMBOL detected from `rownames()` of the input matrix (CAMERA / GSVA); override via `id_type`
+- **Visualization** — `plot_CTD()` auto-dispatches to bar/dot plot (ORA/GSEA/CAMERA) or heatmap (GSVA)
 
 ## Data Licensing Disclaimer
 
@@ -59,7 +68,8 @@ devtools::install_github("drake69/ctdR")
 ctdR depends on several Bioconductor packages. If they are not installed automatically, run:
 
 ```r
-BiocManager::install(c("fgsea", "org.Hs.eg.db", "clusterProfiler", "DOSE", "AnnotationDbi"))
+BiocManager::install(c("fgsea", "org.Hs.eg.db", "clusterProfiler",
+                       "AnnotationDbi", "limma", "GSVA"))
 ```
 
 ## Quick Start
@@ -92,8 +102,13 @@ The data is now cached locally. You only need to do this once (or again when you
 
 ### Step 3 — Run enrichment analysis
 
+The first argument of `enrichment_CTD()` is polymorphic and named `x`:
+a `data.frame` for ORA / GSEA, a numeric matrix for CAMERA / GSVA.
+
+#### ORA / GSEA — gene-list paradigm
+
 ```r
-# Prepare your gene list as a data frame
+# Prepare your gene list as a data frame (Entrez IDs + numeric column)
 genes <- data.frame(
   entrez_ids = c("7124", "3569", "7157", "672", "1956"),
   pvalue     = c(0.001, 0.003, 0.01, 0.02, 0.05)
@@ -103,7 +118,7 @@ genes <- data.frame(
 ora_results <- enrichment_CTD(genes, method = "ORA")
 head(ora_results)
 
-# Gene Set Enrichment Analysis
+# Gene Set Enrichment Analysis (uses the second column as ranking)
 gsea_results <- enrichment_CTD(genes, method = "GSEA")
 head(gsea_results)
 
@@ -111,31 +126,63 @@ head(gsea_results)
 ora_bonf <- enrichment_CTD(genes, method = "ORA", pAdjustMethod = "bonferroni")
 ```
 
-### Step 4 -- Visualize results
+#### CAMERA — multi-sample paradigm with correlation correction
 
 ```r
-# Bar plot of top enriched chemicals
-plot_CTD(ora_results, type = "bar")
+# Suppose `expr` is a normalised expression matrix (genes x samples)
+# with Entrez IDs (or HGNC SYMBOLs) as rownames.
+grp    <- factor(c("ctrl","ctrl","ctrl","treat","treat","treat"))
+design <- model.matrix(~ grp)
 
-# Dot plot (size = gene count, color = adjusted p-value)
-plot_CTD(ora_results, type = "dot", n = 10)
+camera_results <- enrichment_CTD(
+  expr,
+  method   = "CAMERA",
+  design   = design,
+  contrast = 2  # last column of `design` = treat vs ctrl
+)
+head(camera_results)
+```
 
-# GSEA results work too
-plot_CTD(gsea_results, type = "bar")
+#### GSVA — per-sample scoring
+
+```r
+# Returns a chemical x sample matrix of GSVA enrichment scores
+gsva_scores <- enrichment_CTD(expr, method = "GSVA")
+dim(gsva_scores)
+```
+
+### Step 4 — Visualize results
+
+```r
+# ORA / GSEA / CAMERA: bar or dot plot of top chemicals
+plot_CTD(ora_results,    type = "bar")
+plot_CTD(gsea_results,   type = "dot", n = 10)
+plot_CTD(camera_results, type = "bar")  # colour encodes Direction
+
+# GSVA: heatmap of the top-variance chemicals across samples
+plot_CTD(gsva_scores)
 ```
 
 ## Input Format
 
-The `entrez_ids` parameter must be a data frame with at least two columns:
+The first argument `x` of `enrichment_CTD()` depends on the method:
+
+### ORA / GSEA — data frame
 
 | Column | Description |
 |---|---|
 | `entrez_ids` | Character or numeric Entrez gene IDs |
 | *(second column)* | A numeric value per gene (e.g. p-value, log fold-change). Used for ranking in GSEA; ignored in ORA. |
 
+### CAMERA / GSVA — numeric matrix
+
+A `genes × samples` numeric matrix with `rownames(x)` set to either
+Entrez IDs or HGNC SYMBOLs. Identifier type is auto-detected from
+`rownames(x)`; override with the `id_type` argument if needed.
+
 ## Output
 
-### ORA results
+### ORA results (`data.frame`)
 
 | Column | Description |
 |---|---|
@@ -149,7 +196,7 @@ The `entrez_ids` parameter must be a data frame with at least two columns:
 | `geneID` | Enriched gene symbols |
 | `Count` | Number of overlapping genes |
 
-### GSEA results
+### GSEA results (`data.frame`)
 
 | Column | Description |
 |---|---|
@@ -161,8 +208,28 @@ The `entrez_ids` parameter must be a data frame with at least two columns:
 | `NES` | Normalized enrichment score |
 | `size` | Size of the gene set |
 | `leadingEdge` | Leading-edge gene subset |
-| `foldEnrichment` | |ES| / mean(ES) |
+| `foldEnrichment` | abs(ES) / mean(ES) |
 | `Enriched_GENE` | Comma-separated enriched gene symbols |
+
+### CAMERA results (`data.frame`)
+
+| Column | Description |
+|---|---|
+| `ChemicalID` | CTD chemical identifier |
+| `ChemicalName` | Human-readable chemical name |
+| `NGenes` | Number of gene-set genes matched in `rownames(x)` |
+| `Direction` | `"Up"` or `"Down"` — direction of mean effect |
+| `Correlation` | Estimated (or pre-specified) inter-gene correlation |
+| `pvalue` | Raw p-value from `limma::camera()` |
+| `padj` | Adjusted p-value |
+
+### GSVA results (`matrix`)
+
+A numeric matrix with CTD chemical IDs in rows and samples in columns,
+containing per-sample enrichment scores (typically in `[-1, 1]`).
+Unlike the other methods, GSVA does not return p-values — the scores
+are descriptive features for downstream analyses (clustering,
+association with outcomes, heatmap visualization).
 
 ## Dependencies
 
@@ -177,7 +244,8 @@ The `entrez_ids` parameter must be a data frame with at least two columns:
 
 - [fgsea](https://bioconductor.org/packages/fgsea/) — fast GSEA implementation
 - [clusterProfiler](https://bioconductor.org/packages/clusterProfiler/) — ORA enrichment
-- [DOSE](https://bioconductor.org/packages/DOSE/) — ratio parsing utilities
+- [limma](https://bioconductor.org/packages/limma/) — CAMERA backend (`limma::camera()`)
+- [GSVA](https://bioconductor.org/packages/GSVA/) — per-sample gene-set scoring
 - [AnnotationDbi](https://bioconductor.org/packages/AnnotationDbi/) — gene ID mapping
 - [org.Hs.eg.db](https://bioconductor.org/packages/org.Hs.eg.db/) — human gene annotation
 
@@ -207,8 +275,8 @@ Contributions are welcome! Please open an [issue](https://github.com/drake69/ctd
 If you use ctdR in your research, please cite:
 
 ```
-Corsaro L (2024). ctdR: Enrichment Analysis of Chemical-Gene Interactions
-from the Comparative Toxicogenomics Database. R package version 0.99.0.
+Corsaro L (2026). ctdR: Enrichment Analysis of Chemical-Gene Interactions
+from the Comparative Toxicogenomics Database. R package version 0.99.2.
 doi: 10.5281/zenodo.19344201. https://github.com/drake69/ctdR
 ```
 
