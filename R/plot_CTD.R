@@ -36,7 +36,7 @@
 #'
 #' # ORA / GSEA
 #' genes <- data.frame(
-#'     entrez_ids = c("7124", "3569", "7157", "672", "1956"),
+#'     EntrezID = c("7124", "3569", "7157", "672", "1956"),
 #'     pvalue = c(0.001, 0.003, 0.01, 0.02, 0.05)
 #' )
 #' ora_results <- enrichment_CTD(genes, method = "ORA")
