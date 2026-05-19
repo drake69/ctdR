@@ -7,8 +7,9 @@
 .run_gsva(expr, id_type = NULL, cache_dir, ...)
 }
 \arguments{
-\item{expr}{Numeric expression matrix (genes x samples). \code{rownames(expr)}
-must be Entrez IDs or HGNC symbols matching the cached CTD gene sets.}
+\item{expr}{Numeric expression matrix (genes x samples).
+\code{rownames(expr)} must be Entrez IDs or HGNC symbols matching the
+cached CTD gene sets.}
 
 \item{id_type}{Either \code{"entrez"}, \code{"symbol"}, or \code{NULL} for
 auto-detection from \code{rownames(expr)}.}
