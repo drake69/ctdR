@@ -22,14 +22,45 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      # Fast, version-independent guard: BiocCheck's check for tracked
+      # system files exists only in devel (>= 1.49.x), so a stable
+      # BiocCheck release would silently let .Rproj / .DS_Store through.
+      # This step catches that class of issue regardless of BiocCheck version.
+      - name: Forbid tracked system files
+        run: |
+          bad=$(git ls-files | grep -E '\.(Rproj|DS_Store)$' || true)
+          if [ -n "$bad" ]; then
+            echo "::error::Tracked system files found (must not be in git):"
+            printf '  %s\n' "$bad"
+            exit 1
+          fi
+
       - uses: r-lib/actions/setup-r@v2
         with:
           use-public-rspm: true
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::BiocCheck
+          extra-packages: any::BiocManager
           needs: check
+
+      # Install BiocCheck from Bioconductor devel to match what the
+      # Bioconductor package builder runs (e.g. job 4232 used 1.49.6).
+      # The CRAN/release BiocCheck (1.48.x) lacks the tracked-system-files
+      # check, which is exactly what we want to catch in CI.
+      - name: Install BiocCheck (Bioconductor devel)
+        run: |
+          BiocManager::install(
+            "BiocCheck",
+            version = "devel",
+            ask = FALSE,
+            update = FALSE
+          )
+          cat(
+            "BiocCheck installed:",
+            as.character(packageVersion("BiocCheck")), "\n"
+          )
+        shell: Rscript {0}
 
       - name: Run BiocCheckGitClone
         run: |
