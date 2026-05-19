@@ -41,20 +41,20 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::BiocManager
+          extra-packages: any::pak
           needs: check
 
-      # Install BiocCheck from Bioconductor devel to match what the
-      # Bioconductor package builder runs (e.g. job 4232 used 1.49.6).
-      # The CRAN/release BiocCheck (1.48.x) lacks the tracked-system-files
-      # check, which is exactly what we want to catch in CI.
+      # Install BiocCheck from the Bioconductor/BiocCheck@devel GitHub
+      # mirror to match what the Bioconductor package builder runs
+      # (e.g. job 4232 used 1.49.6). We use pak (not BiocManager) because
+      # BiocManager::install(version = "devel") refuses unless we also
+      # upgrade ~53 other Bioc packages to devel — too heavy for CI.
+      # pak resolves and installs just BiocCheck and its missing deps.
       - name: Install BiocCheck (Bioconductor devel)
         run: |
-          BiocManager::install(
-            "BiocCheck",
-            version = "devel",
-            ask = FALSE,
-            update = FALSE
+          pak::pkg_install(
+            "github::Bioconductor/BiocCheck@devel",
+            upgrade = FALSE
           )
           installed <- as.character(packageVersion("BiocCheck"))
           required  <- "1.49.0"
@@ -63,9 +63,9 @@ jobs:
             "(required >=", required, ")\n"
           )
           # Fail-loud if the resolved BiocCheck is older than the version
-          # that introduced the tracked-system-files check. Protects against
-          # silent regressions if Bioconductor renames version = "devel" or
-          # the mirror falls back to release.
+          # that introduced the tracked-system-files check. Protects
+          # against silent regressions if Bioconductor renames the
+          # devel branch or the mirror falls back to release.
           if (utils::compareVersion(installed, required) < 0) {
             stop(sprintf(
               paste0(
