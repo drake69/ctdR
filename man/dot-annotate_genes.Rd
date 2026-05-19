@@ -4,7 +4,7 @@
 \alias{.annotate_genes}
 \title{Annotate GSEA results with enriched gene symbols}
 \usage{
-.annotate_genes(results, entrez_ids, pathways)
+.annotate_genes(results, gene_table, chemical_sets)
 }
 \value{
 A character vector of comma-separated gene symbols per chemical.

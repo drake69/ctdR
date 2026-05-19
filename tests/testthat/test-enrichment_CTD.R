@@ -10,22 +10,22 @@ test_that("enrichment_CTD errors when CTD data not imported", {
     })
 
     expect_error(
-        enrichment_CTD(data.frame(entrez_ids = "7124", value = 0.01)),
+        enrichment_CTD(data.frame(EntrezID = "7124", value = 0.01)),
         "CTD data not found"
     )
     expect_error(
-        enrichment_CTD(data.frame(entrez_ids = "7124", value = 0.01)),
+        enrichment_CTD(data.frame(EntrezID = "7124", value = 0.01)),
         "import_CTD"
     )
     expect_error(
-        enrichment_CTD(data.frame(entrez_ids = "7124", value = 0.01)),
+        enrichment_CTD(data.frame(EntrezID = "7124", value = 0.01)),
         "CTD_chem_gene_ixns.csv.gz"
     )
 })
 
 test_that("enrichment_CTD errors on invalid pAdjustMethod", {
     expect_error(
-        enrichment_CTD(data.frame(entrez_ids = "7124", value = 0.01),
+        enrichment_CTD(data.frame(EntrezID = "7124", value = 0.01),
             pAdjustMethod = "invalid"
         ),
         "pAdjustMethod"
@@ -43,7 +43,7 @@ test_that("enrichment_CTD error mentions download URL", {
     })
 
     expect_error(
-        enrichment_CTD(data.frame(entrez_ids = "7124", value = 0.01)),
+        enrichment_CTD(data.frame(EntrezID = "7124", value = 0.01)),
         "ctdbase.org"
     )
 })

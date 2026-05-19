@@ -4,12 +4,23 @@
 \alias{.run_ora}
 \title{Run ORA branch of enrichment analysis}
 \usage{
-.run_ora(entrez_ids, ChemicalName_GeneSymbols, chemicals, pAdjustMethod)
+.run_ora(x, chemicals_meta, cache_dir, pAdjustMethod)
+}
+\arguments{
+\item{x}{Data frame with column \code{EntrezID}.}
+
+\item{chemicals_meta}{Data frame with \code{ChemicalID} and
+\code{ChemicalName} columns.}
+
+\item{cache_dir}{Directory holding cached CTD \code{.rda} files.}
+
+\item{pAdjustMethod}{Multiple-testing correction name.}
 }
 \value{
 A data frame of ORA enrichment results.
 }
 \description{
-Run ORA branch of enrichment analysis
+Loads the cached chemical->gene-symbol mapping, maps Entrez IDs to
+symbols, runs ORA, and merges chemical names.
 }
 \keyword{internal}

@@ -36,7 +36,7 @@
 #'
 #' # ORA / GSEA
 #' genes <- data.frame(
-#'     entrez_ids = c("7124", "3569", "7157", "672", "1956"),
+#'     EntrezID = c("7124", "3569", "7157", "672", "1956"),
 #'     pvalue = c(0.001, 0.003, 0.01, 0.02, 0.05)
 #' )
 #' ora_results <- enrichment_CTD(genes, method = "ORA")
@@ -63,23 +63,23 @@ plot_CTD <- function(results, type = "bar", n = 20, title = NULL) {
 
     type <- match.arg(type, c("bar", "dot"))
 
-    is_camera <- all(c("Direction", "NGenes") %in% colnames(results))
+    is_camera <- all(c("Direction", "GeneSetSize") %in% colnames(results)) &&
+        !("Count" %in% colnames(results))
     is_ora <- "Count" %in% colnames(results)
 
     if (is_camera) {
         return(.plot_camera(results, type = type, n = n, title = title))
     }
 
-    padj_col <- if ("padj" %in% colnames(results)) "padj" else "pval"
-    count_col <- if (is_ora) "Count" else "size"
+    count_col <- if (is_ora) "Count" else "GeneSetSize"
 
-    results <- results[order(results[[padj_col]]), ]
+    results <- results[order(results$PValueAdjusted), ]
     results <- utils::head(results, n)
 
     plot_df <- data.frame(
         ChemicalName = results$ChemicalName,
-        foldEnrichment = results$foldEnrichment,
-        padj = results[[padj_col]],
+        foldEnrichment = results$FoldEnrichment,
+        padj = results$PValueAdjusted,
         Count = results[[count_col]],
         stringsAsFactors = FALSE
     )
@@ -142,13 +142,15 @@ plot_CTD <- function(results, type = "bar", n = 20, title = NULL) {
 #' Plot CAMERA enrichment results
 #' @keywords internal
 .plot_camera <- function(results, type, n, title) {
-    results <- results[order(results$padj), ]
+    results <- results[order(results$PValueAdjusted), ]
     results <- utils::head(results, n)
 
     plot_df <- data.frame(
         ChemicalName = results$ChemicalName,
-        negLog10padj = -log10(pmax(results$padj, .Machine$double.eps)),
-        NGenes = results$NGenes,
+        negLog10padj = -log10(
+            pmax(results$PValueAdjusted, .Machine$double.eps)
+        ),
+        NGenes = results$GeneSetSize,
         Direction = factor(results$Direction, levels = c("Up", "Down")),
         stringsAsFactors = FALSE
     )
