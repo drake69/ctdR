@@ -127,7 +127,52 @@ enrichment_CTD <- function(x,
         stop("Argument 'x' is required.", call. = FALSE)
     }
     method <- match.arg(method)
+    cache_dir <- rappdirs::user_cache_dir("ctdR")
 
+    .validate_enrichment_args(x, method, design, contrast,
+        pAdjustMethod, cache_dir)
+
+    e <- new.env(parent = emptyenv())
+    load(file = file.path(cache_dir, "chemicals.rda"), envir = e)
+    chemicals <- e$chemicals
+
+    switch(method,
+        ORA = .run_ora(x, chemicals, cache_dir, pAdjustMethod),
+        GSEA = .run_gsea(x, chemicals, cache_dir, pAdjustMethod),
+        CAMERA = .run_camera(
+            expr = x, design = design, contrast = contrast,
+            id_type = id_type, pAdjustMethod = pAdjustMethod,
+            chemicals_meta = chemicals,
+            cache_dir = cache_dir,
+            ...
+        ),
+        GSVA = .run_gsva(
+            expr = x,
+            id_type = id_type,
+            cache_dir = cache_dir,
+            ...
+        )
+    )
+}
+
+#' Validate user inputs for enrichment_CTD()
+#'
+#' Checks pAdjustMethod, CTD cache presence, x shape per method, and
+#' CAMERA-specific design/contrast requirements. Centralizing here keeps
+#' enrichment_CTD() below the BiocCheck 50-line recommendation.
+#'
+#' @param x The user input (data.frame or matrix).
+#' @param method Already normalized via match.arg().
+#' @param design Design matrix for CAMERA (or NULL).
+#' @param contrast Contrast spec for CAMERA (or NULL).
+#' @param pAdjustMethod Multiple-testing correction name.
+#' @param cache_dir Directory expected to hold CTD \code{.rda} files.
+#'
+#' @return Invisibly \code{TRUE} on success; otherwise \code{stop()}s
+#'   with an informative message.
+#' @keywords internal
+.validate_enrichment_args <- function(x, method, design, contrast,
+    pAdjustMethod, cache_dir) {
     valid_methods <- c("BH", "bonferroni", "fdr", "none")
     if (!pAdjustMethod %in% valid_methods) {
         stop("'pAdjustMethod' must be one of: ",
@@ -136,8 +181,6 @@ enrichment_CTD <- function(x,
             call. = FALSE
         )
     }
-
-    cache_dir <- rappdirs::user_cache_dir("ctdR")
 
     rda_path <- file.path(cache_dir, "ChemicalName_GeneEntrezIds.rda")
     if (!file.exists(rda_path)) {
@@ -175,72 +218,74 @@ enrichment_CTD <- function(x,
             )
         }
     }
-
-    e <- new.env(parent = emptyenv())
-    load(file = file.path(cache_dir, "chemicals.rda"), envir = e)
-    chemicals <- e$chemicals
-
-    switch(method,
-        ORA = {
-            e2 <- new.env(parent = emptyenv())
-            load(
-                file = file.path(cache_dir, "ChemicalName_GeneSymbols.rda"),
-                envir = e2
-            )
-            .run_ora(x, e2$ChemicalName_GeneSymbols,
-                chemicals, pAdjustMethod)
-        },
-        GSEA = {
-            e2 <- new.env(parent = emptyenv())
-            load(
-                file = file.path(cache_dir,
-                    "ChemicalName_GeneEntrezIds.rda"),
-                envir = e2
-            )
-            entrez <- as.data.frame(x)
-            entrez <- entrez[!is.na(entrez$entrez_ids), ]
-            gsea(e2$ChemicalName_GeneEntrezIds, entrez,
-                chemicals, pAdjustMethod = pAdjustMethod)
-        },
-        CAMERA = .run_camera(
-            expr = x, design = design, contrast = contrast,
-            id_type = id_type, pAdjustMethod = pAdjustMethod,
-            chemicals_meta = chemicals,
-            cache_dir = cache_dir,
-            ...
-        ),
-        GSVA = .run_gsva(
-            expr = x,
-            id_type = id_type,
-            cache_dir = cache_dir,
-            ...
-        )
-    )
+    invisible(TRUE)
 }
 
 #' Run ORA branch of enrichment analysis
+#'
+#' Loads the cached chemical->gene-symbol mapping, maps Entrez IDs to
+#' symbols, runs ORA, and merges chemical names.
+#'
+#' @param x Data frame with column \code{entrez_ids}.
+#' @param chemicals_meta Data frame with \code{ChemicalID} and
+#'   \code{ChemicalName} columns.
+#' @param cache_dir Directory holding cached CTD \code{.rda} files.
+#' @param pAdjustMethod Multiple-testing correction name.
+#'
 #' @return A data frame of ORA enrichment results.
 #' @keywords internal
-.run_ora <- function(entrez_ids, ChemicalName_GeneSymbols,
-    chemicals, pAdjustMethod) {
+.run_ora <- function(x, chemicals_meta, cache_dir, pAdjustMethod) {
+    e <- new.env(parent = emptyenv())
+    load(
+        file = file.path(cache_dir, "ChemicalName_GeneSymbols.rda"),
+        envir = e
+    )
+
     gene_symbols <- AnnotationDbi::select(
         org.Hs.eg.db::org.Hs.eg.db,
-        keys = entrez_ids$entrez_ids,
+        keys = x$entrez_ids,
         column = "SYMBOL",
         keytype = "ENTREZID",
         multiVals = "first"
     )
     gene_symbols <- gene_symbols[, "SYMBOL"]
     results <- ora(
-        ChemicalName_GeneSymbols, gene_symbols,
+        e$ChemicalName_GeneSymbols, gene_symbols,
         pAdjustMethod = pAdjustMethod
     )
     results <- merge(
-        results, chemicals,
+        results, chemicals_meta,
         by.y = "ChemicalID", by.x = "ID"
     )
     id_col <- colnames(results) == "ID"
     colnames(results)[id_col] <- "ChemicalID"
     keep <- !colnames(results) %in% "Description"
     results[, keep]
+}
+
+#' Run GSEA branch of enrichment analysis
+#'
+#' Loads the cached chemical->Entrez-ID mapping, prepares the ranked
+#' input, and delegates to \code{\link{gsea}}.
+#'
+#' @param x Data frame with column \code{entrez_ids} and a numeric
+#'   value column used for ranking.
+#' @param chemicals_meta Data frame with \code{ChemicalID} and
+#'   \code{ChemicalName} columns.
+#' @param cache_dir Directory holding cached CTD \code{.rda} files.
+#' @param pAdjustMethod Multiple-testing correction name.
+#'
+#' @return A data frame of GSEA enrichment results.
+#' @keywords internal
+.run_gsea <- function(x, chemicals_meta, cache_dir, pAdjustMethod) {
+    e <- new.env(parent = emptyenv())
+    load(
+        file = file.path(cache_dir,
+            "ChemicalName_GeneEntrezIds.rda"),
+        envir = e
+    )
+    entrez <- as.data.frame(x)
+    entrez <- entrez[!is.na(entrez$entrez_ids), ]
+    gsea(e$ChemicalName_GeneEntrezIds, entrez,
+        chemicals_meta, pAdjustMethod = pAdjustMethod)
 }
