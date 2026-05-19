@@ -56,10 +56,25 @@ jobs:
             ask = FALSE,
             update = FALSE
           )
+          installed <- as.character(packageVersion("BiocCheck"))
+          required  <- "1.49.0"
           cat(
-            "BiocCheck installed:",
-            as.character(packageVersion("BiocCheck")), "\n"
+            "BiocCheck installed:", installed,
+            "(required >=", required, ")\n"
           )
+          # Fail-loud if the resolved BiocCheck is older than the version
+          # that introduced the tracked-system-files check. Protects against
+          # silent regressions if Bioconductor renames version = "devel" or
+          # the mirror falls back to release.
+          if (utils::compareVersion(installed, required) < 0) {
+            stop(sprintf(
+              paste0(
+                "BiocCheck %s is below the required %s. ",
+                "The tracked-system-files check requires devel."
+              ),
+              installed, required
+            ))
+          }
         shell: Rscript {0}
 
       - name: Run BiocCheckGitClone
