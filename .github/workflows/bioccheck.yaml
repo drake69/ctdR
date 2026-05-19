@@ -31,6 +31,26 @@ jobs:
           extra-packages: any::BiocCheck
           needs: check
 
+      - name: Run BiocCheckGitClone
+        run: |
+          gc <- BiocCheck::BiocCheckGitClone(".")
+          n_err  <- length(gc$error)
+          n_warn <- length(gc$warning)
+          n_note <- length(gc$note)
+          cat(sprintf(
+            paste0(
+              "BiocCheckGitClone summary: %d error(s), ",
+              "%d warning(s), %d note(s)\n"
+            ),
+            n_err, n_warn, n_note
+          ))
+          if (n_err > 0) {
+            cat("\nGitClone errors:\n")
+            cat(paste0("  - ", gc$error, collapse = "\n"), "\n")
+            quit(status = 1)
+          }
+        shell: Rscript {0}
+
       - name: Run BiocCheck
         run: |
           result <- BiocCheck::BiocCheck(".")
