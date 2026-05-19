@@ -18,7 +18,7 @@ enrichment_CTD(
 \item{x}{The input. Its expected type depends on \code{method}:
 \itemize{
   \item For \code{"ORA"} and \code{"GSEA"}: a data frame with at least two
-    columns, \code{entrez_ids} (character or numeric Entrez gene IDs)
+    columns, \code{EntrezID} (character or numeric Entrez gene IDs)
     and a numeric value column (e.g. p-value, log fold-change). The
     numeric column is used for ranking in GSEA and ignored in ORA.
   \item For \code{"CAMERA"} and \code{"GSVA"}: a numeric expression
@@ -53,7 +53,11 @@ one of \code{"BH"} (Benjamini-Hochberg, default), \code{"bonferroni"},
 \value{
 \itemize{
   \item For \code{"ORA"}, \code{"GSEA"}, and \code{"CAMERA"}: a data frame
-    of enrichment results sorted by adjusted p-value (\code{padj}).
+    of enrichment results sorted by \code{PValueAdjusted} ascending. All
+    three methods share the leading columns \code{ChemicalID},
+    \code{ChemicalName}, \code{Method}, \code{PValue},
+    \code{PValueAdjusted}; method-specific extras follow (see the
+    package vignette for the full per-method schema).
   \item For \code{"GSVA"}: a numeric matrix of enrichment scores with
     chemicals (CTD chemical IDs) in rows and samples in columns.
 }
@@ -69,8 +73,8 @@ Four methods are available:
     the overlap between your gene list and each chemical's target genes is
     larger than expected by chance.
     Uses \code{\link[clusterProfiler]{enricher}}.
-    Input: data frame of Entrez IDs (column \code{entrez_ids}) with an
-    optional numeric value column.}
+    Input: data frame with column \code{EntrezID} (character or
+    numeric Entrez gene IDs) and an optional numeric value column.}
   \item{\strong{GSEA}}{Gene Set Enrichment Analysis. Uses a ranked gene list
     (ranked by the numeric column in the input, e.g. p-values or fold
     changes) to detect chemicals whose targets cluster toward the top or
@@ -110,7 +114,7 @@ import_CTD(sample_file)
 
 # ORA / GSEA: prepare a gene list with Entrez IDs and a numeric value
 genes <- data.frame(
-    entrez_ids = c("7124", "3569", "7157", "672", "1956"),
+    EntrezID = c("7124", "3569", "7157", "672", "1956"),
     pvalue = c(0.001, 0.003, 0.01, 0.02, 0.05)
 )
 ora_results <- enrichment_CTD(genes, method = "ORA")

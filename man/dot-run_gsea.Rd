@@ -7,7 +7,7 @@
 .run_gsea(x, chemicals_meta, cache_dir, pAdjustMethod)
 }
 \arguments{
-\item{x}{Data frame with column \code{entrez_ids} and a numeric
+\item{x}{Data frame with column \code{EntrezID} and a numeric
 value column used for ranking.}
 
 \item{chemicals_meta}{Data frame with \code{ChemicalID} and
@@ -18,10 +18,12 @@ value column used for ranking.}
 \item{pAdjustMethod}{Multiple-testing correction name.}
 }
 \value{
-A data frame of GSEA enrichment results.
+A data frame of GSEA enrichment results, formatted by
+  \code{\link{.format_enrichment_result}}.
 }
 \description{
 Loads the cached chemical->Entrez-ID mapping, prepares the ranked
-input, and delegates to \code{\link{gsea}}.
+input, calls the \code{\link{gsea}} engine, and feeds the result
+through the shared \code{\link{.format_enrichment_result}}.
 }
 \keyword{internal}

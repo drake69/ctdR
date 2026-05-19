@@ -4,37 +4,40 @@
 \alias{gsea}
 \title{Gene Set Enrichment Analysis (GSEA)}
 \usage{
-gsea(ChemicalName_GeneEntrezIds, entrez_ids, chemicals, pAdjustMethod = "BH")
+gsea(ChemicalName_GeneEntrezIds, gene_table)
 }
 \arguments{
-\item{ChemicalName_GeneEntrezIds}{A named list where each element is a
-character vector of Entrez gene IDs associated with a CTD chemical. Names
-are CTD chemical IDs.}
+\item{ChemicalName_GeneEntrezIds}{A named list where each element
+is a character vector of Entrez gene IDs associated with a CTD
+chemical. Names are CTD chemical IDs.}
 
-\item{entrez_ids}{A data frame with at least two columns:
+\item{gene_table}{A data frame with at least two columns:
 \describe{
-  \item{\code{entrez_ids}}{Entrez gene IDs (character).}
-  \item{(second column)}{Numeric values used for ranking (e.g. p-values).
-    Converted internally to \code{-log10(value)}
-    for the ranking statistic.}
+  \item{\code{EntrezID}}{Entrez gene IDs (character).}
+  \item{(second column)}{Numeric values used for ranking (e.g.
+    p-values). Converted internally to \code{-log10(value)} for
+    the ranking statistic.}
 }}
-
-\item{chemicals}{A data frame with columns \code{ChemicalID} and
-\code{ChemicalName}, used to annotate results with human-readable names.}
-
-\item{pAdjustMethod}{Character. Method for multiple testing correction
-(default \code{"BH"}). Passed to \code{\link[stats]{p.adjust}} to
-recalculate the \code{padj} column returned by \code{fgsea}.}
 }
 \value{
-A data frame with columns: \code{ChemicalID}, \code{pval},
-  \code{padj}, \code{ES}, \code{NES}, \code{size}, \code{leadingEdge},
-  \code{ChemicalName}, \code{foldEnrichment}, and \code{Enriched_GENE}.
-  Results are sorted by \code{padj} in ascending order.
+A data frame with \code{fgsea::fgsea}'s native columns
+  (\code{pathway}, \code{pval}, \code{ES}, \code{NES}, \code{size},
+  \code{leadingEdge}, \code{nMoreExtreme}) plus two ctdR-added
+  columns (\code{foldEnrichment}, \code{Enriched_GENE}). Not yet
+  sorted and not yet joined with chemical metadata; pass to
+  \code{\link{.format_enrichment_result}} for the canonical shape.
 }
 \description{
-Internal function that performs Gene Set Enrichment Analysis using
-\code{\link[fgsea]{fgsea}}. Detects chemicals whose known target genes
-cluster toward the extremes of a ranked gene list.
+Internal engine that performs Gene Set Enrichment Analysis via
+\code{\link[fgsea]{fgsea}}. Detects chemicals whose known target
+genes cluster toward the extremes of a ranked gene list.
+
+This function returns the raw GSEA result with two GSEA-specific
+decorations (\code{foldEnrichment}, \code{Enriched_GENE}) and
+harmonized column names (\code{ChemicalID}, \code{pvalue}). The
+adjusted-p, chemical-name join, column ordering and sort are
+applied downstream by
+\code{\link{.format_enrichment_result}} so that the schema stays
+consistent across ORA / GSEA / CAMERA.
 }
 \keyword{internal}
