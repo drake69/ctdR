@@ -10,8 +10,9 @@
 #' association tests against phenotypes, survival analysis, or heatmap
 #' visualization.
 #'
-#' @param expr Numeric expression matrix (genes x samples). \code{rownames(expr)}
-#'   must be Entrez IDs or HGNC symbols matching the cached CTD gene sets.
+#' @param expr Numeric expression matrix (genes x samples).
+#'   \code{rownames(expr)} must be Entrez IDs or HGNC symbols matching the
+#'   cached CTD gene sets.
 #' @param id_type Either \code{"entrez"}, \code{"symbol"}, or \code{NULL} for
 #'   auto-detection from \code{rownames(expr)}.
 #' @param cache_dir Directory holding the cached CTD \code{.rda} files.

@@ -9,9 +9,11 @@
 #' transcriptome under a user-supplied design and contrast, while accounting
 #' for inter-gene correlation.
 #'
-#' @param expr Numeric expression matrix (genes x samples). \code{rownames(expr)}
-#'   must be Entrez IDs or HGNC symbols matching the cached CTD gene sets.
-#' @param design Design matrix produced e.g. by \code{\link[stats]{model.matrix}}.
+#' @param expr Numeric expression matrix (genes x samples).
+#'   \code{rownames(expr)} must be Entrez IDs or HGNC symbols matching the
+#'   cached CTD gene sets.
+#' @param design Design matrix produced e.g. by
+#'   \code{\link[stats]{model.matrix}}.
 #' @param contrast Either a column number or column name of \code{design}, or
 #'   a numeric contrast vector.
 #' @param id_type Either \code{"entrez"}, \code{"symbol"}, or \code{NULL} for
@@ -21,8 +23,9 @@
 #' @param chemicals_meta Data frame with columns \code{ChemicalID} and
 #'   \code{ChemicalName}, used to annotate results.
 #' @param cache_dir Directory holding the cached CTD \code{.rda} files.
-#' @param ... Forwarded to \code{\link[limma]{camera}} (e.g. \code{inter.gene.cor},
-#'   \code{use.ranks}, \code{allow.neg.cor}, \code{trend.var}).
+#' @param ... Forwarded to \code{\link[limma]{camera}}
+#'   (e.g. \code{inter.gene.cor}, \code{use.ranks}, \code{allow.neg.cor},
+#'   \code{trend.var}).
 #'
 #' @return A data frame with columns \code{ChemicalID}, \code{ChemicalName},
 #'   \code{NGenes}, \code{Direction}, \code{Correlation} (if reported),
