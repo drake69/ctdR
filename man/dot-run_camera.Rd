@@ -16,10 +16,12 @@
 )
 }
 \arguments{
-\item{expr}{Numeric expression matrix (genes x samples). \code{rownames(expr)}
-must be Entrez IDs or HGNC symbols matching the cached CTD gene sets.}
+\item{expr}{Numeric expression matrix (genes x samples).
+\code{rownames(expr)} must be Entrez IDs or HGNC symbols matching the
+cached CTD gene sets.}
 
-\item{design}{Design matrix produced e.g. by \code{\link[stats]{model.matrix}}.}
+\item{design}{Design matrix produced e.g. by
+\code{\link[stats]{model.matrix}}.}
 
 \item{contrast}{Either a column number or column name of \code{design}, or
 a numeric contrast vector.}
@@ -35,8 +37,9 @@ compute the \code{padj} column.}
 
 \item{cache_dir}{Directory holding the cached CTD \code{.rda} files.}
 
-\item{...}{Forwarded to \code{\link[limma]{camera}} (e.g. \code{inter.gene.cor},
-\code{use.ranks}, \code{allow.neg.cor}, \code{trend.var}).}
+\item{...}{Forwarded to \code{\link[limma]{camera}}
+(e.g. \code{inter.gene.cor}, \code{use.ranks}, \code{allow.neg.cor},
+\code{trend.var}).}
 }
 \value{
 A data frame with columns \code{ChemicalID}, \code{ChemicalName},
