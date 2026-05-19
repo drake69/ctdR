@@ -62,7 +62,7 @@ test_that("GSVA errors when x is a data.frame", {
     skip_if_not_installed("GSVA")
     .setup_sample_cache_gsva()
 
-    df <- data.frame(entrez_ids = "7124", value = 0.01)
+    df <- data.frame(EntrezID = "7124", value = 0.01)
     expect_error(
         enrichment_CTD(df, method = "GSVA"),
         "numeric matrix"

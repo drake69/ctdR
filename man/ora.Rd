@@ -4,28 +4,37 @@
 \alias{ora}
 \title{Over-Representation Analysis (ORA)}
 \usage{
-ora(ChemicalName_GeneSymbols, entrez_ids, pAdjustMethod = "BH")
+ora(ChemicalName_GeneSymbols, gene_symbols, pAdjustMethod = "BH")
 }
 \arguments{
 \item{ChemicalName_GeneSymbols}{A data frame with two columns
-(\code{term}, \code{gene}) mapping CTD chemical IDs to HGNC gene symbols.
-This serves as the TERM2GENE input for \code{clusterProfiler::enricher}.}
+(\code{term}, \code{gene}) mapping CTD chemical IDs to HGNC gene
+symbols. Serves as the TERM2GENE input for
+\code{clusterProfiler::enricher}.}
 
-\item{entrez_ids}{Character vector of HGNC gene symbols to test for
-enrichment.}
+\item{gene_symbols}{Character vector of HGNC gene symbols to test
+for enrichment.}
 
-\item{pAdjustMethod}{Character. Method for multiple testing correction
-(default \code{"BH"}). Passed to \code{\link[clusterProfiler]{enricher}}.}
+\item{pAdjustMethod}{Character. Method for multiple testing
+correction (default \code{"BH"}). Passed to
+\code{\link[clusterProfiler]{enricher}}.}
 }
 \value{
-A data frame with columns: \code{ID}, \code{GeneRatio},
-  \code{BgRatio}, \code{pvalue}, \code{padj}, \code{qvalue}, \code{geneID},
-  \code{Count}, and \code{foldEnrichment}. Returns an empty data frame with
+A data frame with \code{clusterProfiler::enricher}'s native
+  columns (\code{ID}, \code{GeneRatio}, \code{BgRatio},
+  \code{pvalue}, \code{p.adjust}, \code{qvalue}, \code{geneID},
+  \code{Count}, \code{Description}) plus a ctdR-added
+  \code{foldEnrichment} column. Returns an empty data frame with
   the same structure if no enrichment is found.
 }
 \description{
-Internal function that performs Over-Representation Analysis using
-\code{\link[clusterProfiler]{enricher}}. Tests whether the input gene list
-is significantly enriched for genes associated with each CTD chemical.
+Internal engine that performs Over-Representation Analysis via
+\code{\link[clusterProfiler]{enricher}}. Returns the raw enricher
+result table with one ctdR-added column (\code{foldEnrichment}).
+
+Column renaming, multiple-testing correction, chemical-name join,
+canonical ordering and sort are applied downstream by
+\code{\link{.format_enrichment_result}} so the engine stays close
+to its underlying tool's native vocabulary.
 }
 \keyword{internal}

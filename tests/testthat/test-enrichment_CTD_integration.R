@@ -43,7 +43,7 @@ test_that("enrichment_CTD ORA path works with cached data", {
     # Use Entrez IDs for genes that map to symbols in CHEM1:
     # TP53=7157, TNF=7124, IL6=3569, BRCA1=672, EGFR=1956
     entrez_ids <- data.frame(
-        entrez_ids = c("7157", "7124", "3569", "672", "1956"),
+        EntrezID = c("7157", "7124", "3569", "672", "1956"),
         pvalue = c(0.001, 0.002, 0.003, 0.004, 0.005),
         stringsAsFactors = FALSE
     )
@@ -58,8 +58,12 @@ test_that("enrichment_CTD ORA path works with cached data", {
     # Description column should be removed
     expect_false("Description" %in% colnames(result))
     # padj and foldEnrichment should exist
-    expect_true("padj" %in% colnames(result))
-    expect_true("foldEnrichment" %in% colnames(result))
+    expect_true("PValueAdjusted" %in% colnames(result))
+    expect_true("FoldEnrichment" %in% colnames(result))
+    expect_true("Method" %in% colnames(result))
+    if (nrow(result) > 0) {
+        expect_equal(unique(result$Method), "ORA")
+    }
 })
 
 test_that("enrichment_CTD GSEA path works with cached data", {
@@ -94,7 +98,7 @@ test_that("enrichment_CTD GSEA path works with cached data", {
 
     set.seed(42)
     entrez_ids <- data.frame(
-        entrez_ids = as.character(1:100),
+        EntrezID = as.character(1:100),
         pvalue = runif(100),
         stringsAsFactors = FALSE
     )
@@ -104,9 +108,11 @@ test_that("enrichment_CTD GSEA path works with cached data", {
     expect_true(is.data.frame(result))
     expect_true("ChemicalID" %in% colnames(result))
     expect_true("ChemicalName" %in% colnames(result))
-    expect_true("padj" %in% colnames(result))
-    expect_true("foldEnrichment" %in% colnames(result))
-    expect_true("Enriched_GENE" %in% colnames(result))
+    expect_true("PValueAdjusted" %in% colnames(result))
+    expect_true("FoldEnrichment" %in% colnames(result))
+    expect_true("EnrichedGenes" %in% colnames(result))
+    expect_true("Method" %in% colnames(result))
+    expect_equal(unique(result$Method), "GSEA")
 })
 
 test_that("enrichment_CTD GSEA applies pAdjustMethod correctly", {
@@ -139,7 +145,7 @@ test_that("enrichment_CTD GSEA applies pAdjustMethod correctly", {
 
     set.seed(42)
     entrez_ids <- data.frame(
-        entrez_ids = as.character(1:100),
+        EntrezID = as.character(1:100),
         pvalue = runif(100),
         stringsAsFactors = FALSE
     )
@@ -151,16 +157,16 @@ test_that("enrichment_CTD GSEA applies pAdjustMethod correctly", {
     expect_true(is.data.frame(result_bonf))
     # Bonferroni is more conservative, so padj values should be >= BH values
     # Merge by ChemicalID to compare
-    merged <- merge(result_bh[, c("ChemicalID", "padj")],
-        result_bonf[, c("ChemicalID", "padj")],
+    merged <- merge(result_bh[, c("ChemicalID", "PValueAdjusted")],
+        result_bonf[, c("ChemicalID", "PValueAdjusted")],
         by = "ChemicalID", suffixes = c("_bh", "_bonf")
     )
     if (nrow(merged) > 0) {
-        expect_true(all(merged$padj_bonf >= merged$padj_bh))
+        expect_true(all(merged$PValueAdjusted_bonf >= merged$PValueAdjusted_bh))
     }
 })
 
-test_that("enrichment_CTD GSEA handles NA entrez_ids", {
+test_that("enrichment_CTD GSEA handles NA EntrezID values", {
     skip_on_cran()
     skip_if_not_installed("fgsea")
 
@@ -189,7 +195,7 @@ test_that("enrichment_CTD GSEA handles NA entrez_ids", {
 
     set.seed(42)
     entrez_ids <- data.frame(
-        entrez_ids = c(as.character(1:50), NA, NA),
+        EntrezID = c(as.character(1:50), NA, NA),
         pvalue = c(runif(50), 0.5, 0.5),
         stringsAsFactors = FALSE
     )

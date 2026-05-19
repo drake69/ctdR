@@ -39,12 +39,14 @@ test_that("CAMERA returns a data frame with expected columns", {
         design = d, contrast = 2)
 
     expect_true(is.data.frame(res))
-    expect_true(all(c("ChemicalID", "ChemicalName", "NGenes",
-        "Direction", "pvalue", "padj") %in% colnames(res)))
+    expect_true(all(c("ChemicalID", "ChemicalName", "GeneSetSize",
+        "Direction", "PValue", "PValueAdjusted", "Method") %in%
+        colnames(res)))
+    expect_equal(unique(res$Method), "CAMERA")
     expect_true(nrow(res) > 0)
 })
 
-test_that("CAMERA results are sorted by padj ascending", {
+test_that("CAMERA results are sorted by PValueAdjusted ascending", {
     skip_on_cran()
     skip_if_not_installed("limma")
     .setup_sample_cache()
@@ -56,11 +58,11 @@ test_that("CAMERA results are sorted by padj ascending", {
     res <- enrichment_CTD(expr, method = "CAMERA",
         design = d, contrast = 2)
     if (nrow(res) > 1) {
-        expect_true(all(diff(res$padj) >= 0))
+        expect_true(all(diff(res$PValueAdjusted) >= 0))
     }
 })
 
-test_that("CAMERA padj matches the requested adjustment method", {
+test_that("CAMERA PValueAdjusted matches the requested adjustment method", {
     skip_on_cran()
     skip_if_not_installed("limma")
     .setup_sample_cache()
@@ -76,8 +78,10 @@ test_that("CAMERA padj matches the requested adjustment method", {
     res_none <- enrichment_CTD(expr, method = "CAMERA",
         design = d, contrast = 2, pAdjustMethod = "none")
 
-    expect_equal(res_none$padj, res_none$pvalue)
-    expect_true(all(res_bf$padj >= res_bh$padj - 1e-12))
+    expect_equal(res_none$PValueAdjusted, res_none$PValue)
+    expect_true(all(
+        res_bf$PValueAdjusted >= res_bh$PValueAdjusted - 1e-12
+    ))
 })
 
 test_that("CAMERA errors when design or contrast missing", {
@@ -104,7 +108,7 @@ test_that("CAMERA errors when x is a data.frame", {
     skip_if_not_installed("limma")
     .setup_sample_cache()
 
-    df <- data.frame(entrez_ids = "7124", value = 0.01)
+    df <- data.frame(EntrezID = "7124", value = 0.01)
     grp <- factor(rep(c("ctrl", "treat"), each = 3))
     d <- model.matrix(~ grp)
 
@@ -140,8 +144,8 @@ test_that("CAMERA accepts both numeric- and character-typed rownames as Entrez",
     res_explicit <- enrichment_CTD(expr, method = "CAMERA",
         design = d, contrast = 2, id_type = "entrez")
 
-    expect_equal(res_auto[, c("ChemicalID", "pvalue")],
-        res_explicit[, c("ChemicalID", "pvalue")])
+    expect_equal(res_auto[, c("ChemicalID", "PValue")],
+        res_explicit[, c("ChemicalID", "PValue")])
 })
 
 test_that("CAMERA errors when no gene set has >=2 matched genes", {

@@ -7,7 +7,7 @@
 .run_ora(x, chemicals_meta, cache_dir, pAdjustMethod)
 }
 \arguments{
-\item{x}{Data frame with column \code{entrez_ids}.}
+\item{x}{Data frame with column \code{EntrezID}.}
 
 \item{chemicals_meta}{Data frame with \code{ChemicalID} and
 \code{ChemicalName} columns.}
