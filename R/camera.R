@@ -71,21 +71,9 @@
     )
 
     res$ChemicalID <- rownames(res)
-    res$padj <- stats::p.adjust(res$PValue, method = pAdjustMethod)
-    res <- merge(res, chemicals_meta, by = "ChemicalID", all.x = TRUE)
-    res <- res[order(res$padj), , drop = FALSE]
-
-    colnames(res)[colnames(res) == "PValue"] <- "pvalue"
-    keep_fdr <- !colnames(res) %in% "FDR"
-    res <- res[, keep_fdr, drop = FALSE]
-
-    front <- c(
-        "ChemicalID", "ChemicalName", "NGenes",
-        "Direction", "Correlation", "pvalue", "padj"
+    .format_enrichment_result(res, chemicals_meta, pAdjustMethod,
+        method = "CAMERA",
+        rename = c(NGenes = "GeneSetSize"),
+        drop = c("FDR")
     )
-    front <- intersect(front, colnames(res))
-    other <- setdiff(colnames(res), front)
-    res <- res[, c(front, other), drop = FALSE]
-    rownames(res) <- NULL
-    res
 }

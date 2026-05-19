@@ -140,7 +140,7 @@ columns:
 
 | Column | Description |
 |---|---|
-| `entrez_ids` | Character or numeric Entrez gene IDs |
+| `EntrezID` | Character or numeric Entrez gene IDs |
 | *(2nd column)* | Numeric value per gene (e.g. p-value) |
 
 The second column is used for ranking in GSEA and is
@@ -148,7 +148,7 @@ ignored in ORA.
 
 ```{r prepare-genes}
 genes <- data.frame(
-    entrez_ids = c(
+    EntrezID = c(
         "7124", "3569", "7157", "672", "1956",
         "4609", "3845", "207", "5290", "3553"
     ),
@@ -158,6 +158,25 @@ genes <- data.frame(
     )
 )
 ```
+
+### Shared output schema
+
+All three data-frame-returning methods (ORA, GSEA,
+CAMERA) share the **same leading columns**. This makes
+it trivial to combine results across methods (e.g.
+`dplyr::bind_rows()` on a list of result frames).
+
+| Column | Type | Description |
+|---|---|---|
+| `ChemicalID` | character | CTD chemical identifier |
+| `ChemicalName` | character | Human-readable chemical name |
+| `Method` | character | One of `"ORA"`, `"GSEA"`, `"CAMERA"` |
+| `PValue` | numeric | Raw p-value from the underlying method |
+| `PValueAdjusted` | numeric | Multiple-testing-corrected p-value (`pAdjustMethod`) |
+
+Method-specific extras follow these front columns and
+differ by method (documented in the sub-sections
+below). Rows are sorted by `PValueAdjusted` ascending.
 
 ### Over-Representation Analysis (ORA)
 
@@ -170,18 +189,16 @@ ora_results <- enrichment_CTD(genes, method = "ORA")
 head(ora_results)
 ```
 
-**ORA output columns:**
+**ORA method-specific columns** (in addition to the
+shared schema above):
 
 | Column | Description |
 |---|---|
-| `ChemicalID` | CTD chemical identifier |
-| `ChemicalName` | Human-readable chemical name |
 | `GeneRatio` | Proportion of input genes in the set |
-| `BgRatio` | Background ratio |
-| `pvalue` | Raw p-value |
-| `padj` | Adjusted p-value (BH method) |
-| `foldEnrichment` | GeneRatio / BgRatio |
-| `geneID` | Enriched gene symbols |
+| `BackgroundRatio` | Background ratio |
+| `QValue` | Storey's q-value (from `clusterProfiler`) |
+| `FoldEnrichment` | GeneRatio / BackgroundRatio |
+| `EnrichedGenes` | Enriched gene symbols (comma-separated) |
 | `Count` | Number of overlapping genes |
 
 ### Gene Set Enrichment Analysis (GSEA)
@@ -195,20 +212,17 @@ gsea_results <- enrichment_CTD(genes, method = "GSEA")
 head(gsea_results)
 ```
 
-**GSEA output columns:**
+**GSEA method-specific columns** (in addition to the
+shared schema above):
 
 | Column | Description |
 |---|---|
-| `ChemicalID` | CTD chemical identifier |
-| `ChemicalName` | Human-readable chemical name |
-| `pval` | Raw p-value |
-| `padj` | Adjusted p-value |
-| `ES` | Enrichment score |
-| `NES` | Normalized enrichment score |
-| `size` | Size of the gene set |
-| `leadingEdge` | Leading-edge gene subset |
-| `foldEnrichment` | abs(ES) / mean(ES) |
-| `Enriched_GENE` | Comma-separated enriched genes |
+| `EnrichmentScore` | Enrichment score (`ES` from fgsea) |
+| `NormalizedEnrichmentScore` | Normalized enrichment score (`NES`) |
+| `GeneSetSize` | Size of the gene set used |
+| `LeadingEdge` | Leading-edge gene subset |
+| `FoldEnrichment` | `abs(ES) / mean(ES)` |
+| `EnrichedGenes` | Comma-separated enriched genes |
 
 ### Build a synthetic expression matrix for CAMERA and GSVA
 
@@ -257,9 +271,14 @@ camera_results <- enrichment_CTD(
 head(camera_results)
 ```
 
-**CAMERA output columns:** `ChemicalID`, `ChemicalName`,
-`NGenes` (gene set size after intersection with rownames),
-`Direction` (`"Up"` / `"Down"`), `pvalue`, `padj`.
+**CAMERA method-specific columns** (in addition to the
+shared schema above):
+
+| Column | Description |
+|---|---|
+| `GeneSetSize` | Gene set size after intersection with `rownames(x)` |
+| `Direction` | `"Up"` or `"Down"` |
+| `Correlation` | Inter-gene correlation (when reported by `limma::camera`) |
 
 ### GSVA (per-sample scoring)
 

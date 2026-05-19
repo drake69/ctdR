@@ -5,11 +5,11 @@ test_that("plot_CTD bar plot works with ORA results", {
         ChemicalID = paste0("D00", 1:5),
         ChemicalName = paste("Chemical", LETTERS[1:5]),
         GeneRatio = c("3/10", "2/10", "4/10", "1/10", "5/10"),
-        BgRatio = c("20/500", "30/500", "15/500", "40/500", "10/500"),
-        pvalue = c(0.001, 0.005, 0.01, 0.02, 0.05),
-        padj = c(0.005, 0.01, 0.03, 0.05, 0.1),
-        foldEnrichment = c(3.5, 2.1, 4.2, 1.3, 5.0),
-        geneID = c("A/B/C", "D/E", "F/G/H/I", "J", "K/L/M/N/O"),
+        BackgroundRatio = c("20/500", "30/500", "15/500", "40/500", "10/500"),
+        PValue = c(0.001, 0.005, 0.01, 0.02, 0.05),
+        PValueAdjusted = c(0.005, 0.01, 0.03, 0.05, 0.1),
+        FoldEnrichment = c(3.5, 2.1, 4.2, 1.3, 5.0),
+        EnrichedGenes = c("A/B/C", "D/E", "F/G/H/I", "J", "K/L/M/N/O"),
         Count = c(3L, 2L, 4L, 1L, 5L),
         stringsAsFactors = FALSE
     )
@@ -26,11 +26,11 @@ test_that("plot_CTD dot plot works with ORA results", {
         ChemicalID = paste0("D00", 1:5),
         ChemicalName = paste("Chemical", LETTERS[1:5]),
         GeneRatio = c("3/10", "2/10", "4/10", "1/10", "5/10"),
-        BgRatio = c("20/500", "30/500", "15/500", "40/500", "10/500"),
-        pvalue = c(0.001, 0.005, 0.01, 0.02, 0.05),
-        padj = c(0.005, 0.01, 0.03, 0.05, 0.1),
-        foldEnrichment = c(3.5, 2.1, 4.2, 1.3, 5.0),
-        geneID = c("A/B/C", "D/E", "F/G/H/I", "J", "K/L/M/N/O"),
+        BackgroundRatio = c("20/500", "30/500", "15/500", "40/500", "10/500"),
+        PValue = c(0.001, 0.005, 0.01, 0.02, 0.05),
+        PValueAdjusted = c(0.005, 0.01, 0.03, 0.05, 0.1),
+        FoldEnrichment = c(3.5, 2.1, 4.2, 1.3, 5.0),
+        EnrichedGenes = c("A/B/C", "D/E", "F/G/H/I", "J", "K/L/M/N/O"),
         Count = c(3L, 2L, 4L, 1L, 5L),
         stringsAsFactors = FALSE
     )
@@ -46,14 +46,14 @@ test_that("plot_CTD works with GSEA results", {
     gsea_df <- data.frame(
         ChemicalID = paste0("D00", 1:3),
         ChemicalName = paste("Chemical", LETTERS[1:3]),
-        pval = c(0.001, 0.01, 0.05),
-        padj = c(0.005, 0.03, 0.1),
-        ES = c(0.65, 0.45, 0.30),
-        NES = c(1.8, 1.5, 1.2),
-        size = c(15L, 20L, 10L),
-        leadingEdge = I(list(c("A", "B"), c("C", "D"), c("E"))),
-        foldEnrichment = c(2.5, 1.8, 1.2),
-        Enriched_GENE = c("A, B", "C, D", "E"),
+        PValue = c(0.001, 0.01, 0.05),
+        PValueAdjusted = c(0.005, 0.03, 0.1),
+        EnrichmentScore = c(0.65, 0.45, 0.30),
+        NormalizedEnrichmentScore = c(1.8, 1.5, 1.2),
+        GeneSetSize = c(15L, 20L, 10L),
+        LeadingEdge = I(list(c("A", "B"), c("C", "D"), c("E"))),
+        FoldEnrichment = c(2.5, 1.8, 1.2),
+        EnrichedGenes = c("A, B", "C, D", "E"),
         stringsAsFactors = FALSE
     )
 
@@ -68,11 +68,11 @@ test_that("plot_CTD limits to n top results", {
     ora_df <- data.frame(
         ChemicalID = paste0("D", 1:30),
         ChemicalName = paste("Chemical", 1:30),
-        pvalue = seq(0.001, 0.03, length.out = 30),
-        padj = seq(0.005, 0.1, length.out = 30),
-        foldEnrichment = seq(5, 1, length.out = 30),
+        PValue = seq(0.001, 0.03, length.out = 30),
+        PValueAdjusted = seq(0.005, 0.1, length.out = 30),
+        FoldEnrichment = seq(5, 1, length.out = 30),
         Count = rep(3L, 30),
-        geneID = rep("A/B/C", 30),
+        EnrichedGenes = rep("A/B/C", 30),
         stringsAsFactors = FALSE
     )
 
@@ -96,10 +96,10 @@ test_that("plot_CTD bar plot works with CAMERA results", {
     camera_df <- data.frame(
         ChemicalID = paste0("D00", 1:5),
         ChemicalName = paste("Chemical", LETTERS[1:5]),
-        NGenes = c(15L, 20L, 10L, 8L, 12L),
+        GeneSetSize = c(15L, 20L, 10L, 8L, 12L),
         Direction = c("Up", "Down", "Up", "Down", "Up"),
-        pvalue = c(0.001, 0.005, 0.01, 0.02, 0.05),
-        padj = c(0.005, 0.01, 0.03, 0.05, 0.1),
+        PValue = c(0.001, 0.005, 0.01, 0.02, 0.05),
+        PValueAdjusted = c(0.005, 0.01, 0.03, 0.05, 0.1),
         stringsAsFactors = FALSE
     )
 
@@ -115,10 +115,10 @@ test_that("plot_CTD dot plot works with CAMERA results", {
     camera_df <- data.frame(
         ChemicalID = paste0("D00", 1:5),
         ChemicalName = paste("Chemical", LETTERS[1:5]),
-        NGenes = c(15L, 20L, 10L, 8L, 12L),
+        GeneSetSize = c(15L, 20L, 10L, 8L, 12L),
         Direction = c("Up", "Down", "Up", "Down", "Up"),
-        pvalue = c(0.001, 0.005, 0.01, 0.02, 0.05),
-        padj = c(0.005, 0.01, 0.03, 0.05, 0.1),
+        PValue = c(0.001, 0.005, 0.01, 0.02, 0.05),
+        PValueAdjusted = c(0.005, 0.01, 0.03, 0.05, 0.1),
         stringsAsFactors = FALSE
     )
 
@@ -167,11 +167,11 @@ test_that("plot_CTD accepts custom title", {
     ora_df <- data.frame(
         ChemicalID = "D001",
         ChemicalName = "Chemical A",
-        pvalue = 0.001,
-        padj = 0.005,
-        foldEnrichment = 3.5,
+        PValue = 0.001,
+        PValueAdjusted = 0.005,
+        FoldEnrichment = 3.5,
         Count = 3L,
-        geneID = "A/B/C",
+        EnrichedGenes = "A/B/C",
         stringsAsFactors = FALSE
     )
 

@@ -1,3 +1,84 @@
+# Changes in version 0.99.4
+
+## Breaking changes
+
+These changes are made now, while the package is pre-1.0 and not yet
+accepted into Bioconductor, so that the public column schema is stable
+before any external code depends on it.
+
+### Input column name (ORA / GSEA)
+
+* The input data frame must now provide an `EntrezID` column (was
+  `entrez_ids`). The numeric value column can still be named freely.
+
+### Unified output schema (ORA, GSEA, CAMERA)
+
+All three data-frame-returning methods now share the same leading
+columns, in this order:
+
+```
+ChemicalID, ChemicalName, Method, PValue, PValueAdjusted, ...
+```
+
+The new `Method` column carries the method label (`"ORA"`, `"GSEA"`,
+`"CAMERA"`), making cross-method `rbind` / `dplyr::bind_rows`
+straightforward.
+
+Rows are sorted by `PValueAdjusted` ascending in all three methods
+(previously ORA results were unsorted).
+
+### Column renames (full table)
+
+| Method | Old column | New column |
+|---|---|---|
+| GSEA | `pval` | `PValue` |
+| GSEA | `ES` | `EnrichmentScore` |
+| GSEA | `NES` | `NormalizedEnrichmentScore` |
+| GSEA | `size` | `GeneSetSize` |
+| GSEA | `leadingEdge` | `LeadingEdge` |
+| GSEA | `Enriched_GENE` | `EnrichedGenes` |
+| ORA  | `pvalue` | `PValue` |
+| ORA  | `padj` | `PValueAdjusted` |
+| ORA  | `BgRatio` | `BackgroundRatio` |
+| ORA  | `qvalue` | `QValue` |
+| ORA  | `geneID` | `EnrichedGenes` |
+| ORA  | `foldEnrichment` | `FoldEnrichment` |
+| ORA  | `ID` | `ChemicalID` |
+| ORA  | `Description` | *(dropped — was always `== ID`)* |
+| CAMERA | `PValue` | (kept as) `PValue` |
+| CAMERA | `NGenes` | `GeneSetSize` |
+| CAMERA | `FDR` | *(dropped — `PValueAdjusted` recomputed per `pAdjustMethod`)* |
+| All  | (new) | `Method` |
+
+Cross-method semantic alignment:
+- `GeneSetSize` replaces both GSEA's `size` and CAMERA's `NGenes`
+- `EnrichedGenes` replaces both ORA's `geneID` and GSEA's `Enriched_GENE`
+- `PValue` / `PValueAdjusted` are spelled the same across all methods
+
+## Internal refactor
+
+* `enrichment_CTD()` shrank from 101 lines to ~30 by delegating
+  argument validation to `.validate_enrichment_args()` and adding
+  `.run_ora()` / `.run_gsea()` runners mirroring the existing
+  `.run_camera()` / `.run_gsva()` shape.
+* `.format_enrichment_result()` is the **single source of truth** for
+  the engine -> canonical-schema mapping: each runner passes a
+  `rename = c(old = "New")` and `drop = c(...)` and the formatter
+  handles padj recomputation, metadata merge, column ordering, sort
+  and row-name reset.
+* `gsea()` and `ora()` engines now return their underlying tool's
+  native column casing (`pval` / `pvalue`, `ES`, `NES`, …); the only
+  semantic rename they apply themselves is lifting the primary-key
+  column (`pathway` for fgsea, `ID` for clusterProfiler) to
+  `ChemicalID`, so internal callers never see the misleading generic
+  name.
+* `gsea()` signature dropped the unused `chemicals` and
+  `pAdjustMethod` arguments. Its `entrez_ids` parameter was renamed
+  to `gene_table` (still internal-only).
+* `.run_camera()` shrank to 48 lines (was 57) and `.run_ora()` /
+  `.run_gsea()` are now under 30 lines each. BiocCheck's "function
+  length > 50" NOTE is satisfied for the enrichment-table pipeline.
+
 # Changes in version 0.99.2
 
 ## New features

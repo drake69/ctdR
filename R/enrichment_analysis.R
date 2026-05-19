@@ -11,8 +11,8 @@
 #'     the overlap between your gene list and each chemical's target genes is
 #'     larger than expected by chance.
 #'     Uses \code{\link[clusterProfiler]{enricher}}.
-#'     Input: data frame of Entrez IDs (column \code{entrez_ids}) with an
-#'     optional numeric value column.}
+#'     Input: data frame with column \code{EntrezID} (character or
+#'     numeric Entrez gene IDs) and an optional numeric value column.}
 #'   \item{\strong{GSEA}}{Gene Set Enrichment Analysis. Uses a ranked gene list
 #'     (ranked by the numeric column in the input, e.g. p-values or fold
 #'     changes) to detect chemicals whose targets cluster toward the top or
@@ -43,7 +43,7 @@
 #' @param x The input. Its expected type depends on \code{method}:
 #'   \itemize{
 #'     \item For \code{"ORA"} and \code{"GSEA"}: a data frame with at least two
-#'       columns, \code{entrez_ids} (character or numeric Entrez gene IDs)
+#'       columns, \code{EntrezID} (character or numeric Entrez gene IDs)
 #'       and a numeric value column (e.g. p-value, log fold-change). The
 #'       numeric column is used for ranking in GSEA and ignored in ORA.
 #'     \item For \code{"CAMERA"} and \code{"GSVA"}: a numeric expression
@@ -72,7 +72,11 @@
 #' @return
 #' \itemize{
 #'   \item For \code{"ORA"}, \code{"GSEA"}, and \code{"CAMERA"}: a data frame
-#'     of enrichment results sorted by adjusted p-value (\code{padj}).
+#'     of enrichment results sorted by \code{PValueAdjusted} ascending. All
+#'     three methods share the leading columns \code{ChemicalID},
+#'     \code{ChemicalName}, \code{Method}, \code{PValue},
+#'     \code{PValueAdjusted}; method-specific extras follow (see the
+#'     package vignette for the full per-method schema).
 #'   \item For \code{"GSVA"}: a numeric matrix of enrichment scores with
 #'     chemicals (CTD chemical IDs) in rows and samples in columns.
 #' }
@@ -90,7 +94,7 @@
 #'
 #' # ORA / GSEA: prepare a gene list with Entrez IDs and a numeric value
 #' genes <- data.frame(
-#'     entrez_ids = c("7124", "3569", "7157", "672", "1956"),
+#'     EntrezID = c("7124", "3569", "7157", "672", "1956"),
 #'     pvalue = c(0.001, 0.003, 0.01, 0.02, 0.05)
 #' )
 #' ora_results <- enrichment_CTD(genes, method = "ORA")
@@ -127,7 +131,52 @@ enrichment_CTD <- function(x,
         stop("Argument 'x' is required.", call. = FALSE)
     }
     method <- match.arg(method)
+    cache_dir <- rappdirs::user_cache_dir("ctdR")
 
+    .validate_enrichment_args(x, method, design, contrast,
+        pAdjustMethod, cache_dir)
+
+    e <- new.env(parent = emptyenv())
+    load(file = file.path(cache_dir, "chemicals.rda"), envir = e)
+    chemicals <- e$chemicals
+
+    switch(method,
+        ORA = .run_ora(x, chemicals, cache_dir, pAdjustMethod),
+        GSEA = .run_gsea(x, chemicals, cache_dir, pAdjustMethod),
+        CAMERA = .run_camera(
+            expr = x, design = design, contrast = contrast,
+            id_type = id_type, pAdjustMethod = pAdjustMethod,
+            chemicals_meta = chemicals,
+            cache_dir = cache_dir,
+            ...
+        ),
+        GSVA = .run_gsva(
+            expr = x,
+            id_type = id_type,
+            cache_dir = cache_dir,
+            ...
+        )
+    )
+}
+
+#' Validate user inputs for enrichment_CTD()
+#'
+#' Checks pAdjustMethod, CTD cache presence, x shape per method, and
+#' CAMERA-specific design/contrast requirements. Centralizing here keeps
+#' enrichment_CTD() below the BiocCheck 50-line recommendation.
+#'
+#' @param x The user input (data.frame or matrix).
+#' @param method Already normalized via match.arg().
+#' @param design Design matrix for CAMERA (or NULL).
+#' @param contrast Contrast spec for CAMERA (or NULL).
+#' @param pAdjustMethod Multiple-testing correction name.
+#' @param cache_dir Directory expected to hold CTD \code{.rda} files.
+#'
+#' @return Invisibly \code{TRUE} on success; otherwise \code{stop()}s
+#'   with an informative message.
+#' @keywords internal
+.validate_enrichment_args <- function(x, method, design, contrast,
+    pAdjustMethod, cache_dir) {
     valid_methods <- c("BH", "bonferroni", "fdr", "none")
     if (!pAdjustMethod %in% valid_methods) {
         stop("'pAdjustMethod' must be one of: ",
@@ -136,8 +185,6 @@ enrichment_CTD <- function(x,
             call. = FALSE
         )
     }
-
-    cache_dir <- rappdirs::user_cache_dir("ctdR")
 
     rda_path <- file.path(cache_dir, "ChemicalName_GeneEntrezIds.rda")
     if (!file.exists(rda_path)) {
@@ -175,72 +222,154 @@ enrichment_CTD <- function(x,
             )
         }
     }
-
-    e <- new.env(parent = emptyenv())
-    load(file = file.path(cache_dir, "chemicals.rda"), envir = e)
-    chemicals <- e$chemicals
-
-    switch(method,
-        ORA = {
-            e2 <- new.env(parent = emptyenv())
-            load(
-                file = file.path(cache_dir, "ChemicalName_GeneSymbols.rda"),
-                envir = e2
-            )
-            .run_ora(x, e2$ChemicalName_GeneSymbols,
-                chemicals, pAdjustMethod)
-        },
-        GSEA = {
-            e2 <- new.env(parent = emptyenv())
-            load(
-                file = file.path(cache_dir,
-                    "ChemicalName_GeneEntrezIds.rda"),
-                envir = e2
-            )
-            entrez <- as.data.frame(x)
-            entrez <- entrez[!is.na(entrez$entrez_ids), ]
-            gsea(e2$ChemicalName_GeneEntrezIds, entrez,
-                chemicals, pAdjustMethod = pAdjustMethod)
-        },
-        CAMERA = .run_camera(
-            expr = x, design = design, contrast = contrast,
-            id_type = id_type, pAdjustMethod = pAdjustMethod,
-            chemicals_meta = chemicals,
-            cache_dir = cache_dir,
-            ...
-        ),
-        GSVA = .run_gsva(
-            expr = x,
-            id_type = id_type,
-            cache_dir = cache_dir,
-            ...
-        )
-    )
+    invisible(TRUE)
 }
 
 #' Run ORA branch of enrichment analysis
+#'
+#' Loads the cached chemical->gene-symbol mapping, maps Entrez IDs to
+#' symbols, runs ORA, and merges chemical names.
+#'
+#' @param x Data frame with column \code{EntrezID}.
+#' @param chemicals_meta Data frame with \code{ChemicalID} and
+#'   \code{ChemicalName} columns.
+#' @param cache_dir Directory holding cached CTD \code{.rda} files.
+#' @param pAdjustMethod Multiple-testing correction name.
+#'
 #' @return A data frame of ORA enrichment results.
 #' @keywords internal
-.run_ora <- function(entrez_ids, ChemicalName_GeneSymbols,
-    chemicals, pAdjustMethod) {
+.run_ora <- function(x, chemicals_meta, cache_dir, pAdjustMethod) {
+    e <- new.env(parent = emptyenv())
+    load(
+        file = file.path(cache_dir, "ChemicalName_GeneSymbols.rda"),
+        envir = e
+    )
+
     gene_symbols <- AnnotationDbi::select(
         org.Hs.eg.db::org.Hs.eg.db,
-        keys = entrez_ids$entrez_ids,
+        keys = x$EntrezID,
         column = "SYMBOL",
         keytype = "ENTREZID",
         multiVals = "first"
-    )
-    gene_symbols <- gene_symbols[, "SYMBOL"]
-    results <- ora(
-        ChemicalName_GeneSymbols, gene_symbols,
+    )[, "SYMBOL"]
+
+    res <- ora(
+        e$ChemicalName_GeneSymbols, gene_symbols,
         pAdjustMethod = pAdjustMethod
     )
-    results <- merge(
-        results, chemicals,
-        by.y = "ChemicalID", by.x = "ID"
+
+    .format_enrichment_result(res, chemicals_meta, pAdjustMethod,
+        method = "ORA",
+        rename = c(
+            pvalue         = "PValue",
+            qvalue         = "QValue",
+            BgRatio        = "BackgroundRatio",
+            geneID         = "EnrichedGenes",
+            foldEnrichment = "FoldEnrichment"
+        ),
+        drop = c("p.adjust", "Description")
     )
-    id_col <- colnames(results) == "ID"
-    colnames(results)[id_col] <- "ChemicalID"
-    keep <- !colnames(results) %in% "Description"
-    results[, keep]
+}
+
+#' Run GSEA branch of enrichment analysis
+#'
+#' Loads the cached chemical->Entrez-ID mapping, prepares the ranked
+#' input, calls the \code{\link{gsea}} engine, and feeds the result
+#' through the shared \code{\link{.format_enrichment_result}}.
+#'
+#' @param x Data frame with column \code{EntrezID} and a numeric
+#'   value column used for ranking.
+#' @param chemicals_meta Data frame with \code{ChemicalID} and
+#'   \code{ChemicalName} columns.
+#' @param cache_dir Directory holding cached CTD \code{.rda} files.
+#' @param pAdjustMethod Multiple-testing correction name.
+#'
+#' @return A data frame of GSEA enrichment results, formatted by
+#'   \code{\link{.format_enrichment_result}}.
+#' @keywords internal
+.run_gsea <- function(x, chemicals_meta, cache_dir, pAdjustMethod) {
+    e <- new.env(parent = emptyenv())
+    load(
+        file = file.path(cache_dir,
+            "ChemicalName_GeneEntrezIds.rda"),
+        envir = e
+    )
+    gene_table <- as.data.frame(x)
+    gene_table <- gene_table[!is.na(gene_table$EntrezID), ]
+    res <- gsea(e$ChemicalName_GeneEntrezIds, gene_table)
+
+    .format_enrichment_result(res, chemicals_meta, pAdjustMethod,
+        method = "GSEA",
+        rename = c(
+            pval           = "PValue",
+            ES             = "EnrichmentScore",
+            NES            = "NormalizedEnrichmentScore",
+            size           = "GeneSetSize",
+            leadingEdge    = "LeadingEdge",
+            foldEnrichment = "FoldEnrichment",
+            Enriched_GENE  = "EnrichedGenes"
+        ),
+        drop = c("padj")
+    )
+}
+
+#' Canonicalize and order an enrichment result data frame
+#'
+#' Shared post-processing for the ORA / GSEA / CAMERA runners. Each
+#' runner hands in a data frame that already has the harmonized columns
+#' \code{ChemicalID} and \code{pvalue}; this helper computes
+#' \code{padj}, joins chemical metadata, applies a canonical
+#' leading-column order, sorts by \code{padj} ascending, and drops row
+#' names. Centralizing this step keeps the runners small and the public
+#' output schema consistent across methods.
+#'
+#' @param res Data frame as returned by an enrichment engine
+#'   (\code{ora()}, \code{gsea()}, \code{limma::camera()}), still
+#'   carrying the engine's native column names.
+#' @param chemicals_meta Data frame with \code{ChemicalID} and
+#'   \code{ChemicalName} columns.
+#' @param pAdjustMethod Method passed to \code{\link[stats]{p.adjust}}.
+#' @param method Method label (one of \code{"ORA"}, \code{"GSEA"},
+#'   \code{"CAMERA"}) stamped into the new \code{Method} column so
+#'   results can be \code{rbind}'d across methods without losing
+#'   provenance.
+#' @param rename Named character vector mapping
+#'   \code{old_engine_colname = "NewCanonicalName"}. Applied before the
+#'   metadata merge. Centralizes the engine->canonical-schema mapping
+#'   so each engine can keep its native column names.
+#' @param drop Character vector of engine column names to remove
+#'   before the merge / sort.
+#'
+#' @return A data frame whose leading columns are
+#'   \code{ChemicalID, ChemicalName, Method, PValue, PValueAdjusted}
+#'   (whichever of those are present after the rename), followed by
+#'   the remaining columns in their original order, sorted by
+#'   \code{PValueAdjusted} ascending.
+#' @keywords internal
+.format_enrichment_result <- function(res, chemicals_meta, pAdjustMethod,
+    method, rename = NULL, drop = NULL) {
+    if (length(drop)) {
+        res <- res[, !colnames(res) %in% drop, drop = FALSE]
+    }
+    for (old in names(rename)) {
+        colnames(res)[colnames(res) == old] <- rename[[old]]
+    }
+
+    # rep() instead of scalar assignment so the empty-result case
+    # (engine returned 0 rows) doesn't trigger
+    # "replacement has 1 row, data has 0".
+    res$Method <- rep(method, nrow(res))
+    res$PValueAdjusted <- stats::p.adjust(res$PValue, method = pAdjustMethod)
+    res <- merge(res, chemicals_meta, by = "ChemicalID", all.x = TRUE)
+
+    front <- c(
+        "ChemicalID", "ChemicalName", "Method",
+        "PValue", "PValueAdjusted"
+    )
+    front <- intersect(front, colnames(res))
+    other <- setdiff(colnames(res), front)
+    res <- res[, c(front, other), drop = FALSE]
+    res <- res[order(res$PValueAdjusted), , drop = FALSE]
+    rownames(res) <- NULL
+    res
 }
