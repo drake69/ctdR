@@ -7,3 +7,6 @@
 ctdR.BiocCheck/
 ctdR.Rcheck/
 *.tar.gz
+
+# .sestante/ — backlog locale, mai committato
+.sestante/
