@@ -120,23 +120,20 @@ genes <- data.frame(
 ora_results <- enrichment_CTD(genes, method = "ORA")
 gsea_results <- enrichment_CTD(genes, method = "GSEA")
 
-# CAMERA: expression matrix + design + contrast
-set.seed(1)
-expr <- matrix(rnorm(20 * 6), nrow = 20,
-    dimnames = list(c("7124","3569","7157","672","1956",
-        "1017","1019","207","208","595",
-        "894","983","1029","1869","5599",
-        "5290","4609","6347","3458","2099"),
-        paste0("S", 1:6)))
-grp <- factor(rep(c("ctrl","treat"), each = 3))
-d <- model.matrix(~ grp)
-\donttest{
+# CAMERA / GSVA: expression matrix + design + contrast.
+# Uses the bundled GSE311566 subset
+# (Dex vs DMSO, female PBMCs; see inst/extdata/README.md).
+gse <- readRDS(system.file(
+    "extdata", "GSE311566_subset.rds", package = "ctdR"
+))
+expr <- gse$expr
+grp  <- gse$coldata$group
+d    <- model.matrix(~ grp)
 camera_results <- enrichment_CTD(expr, method = "CAMERA",
     design = d, contrast = 2)
 
 # GSVA: per-sample enrichment scores
 gsva_scores <- enrichment_CTD(expr, method = "GSVA")
-}
 
 }
 \seealso{

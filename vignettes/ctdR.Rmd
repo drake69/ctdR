@@ -224,30 +224,83 @@ shared schema above):
 | `FoldEnrichment` | `abs(ES) / mean(ES)` |
 | `EnrichedGenes` | Comma-separated enriched genes |
 
-### Build a synthetic expression matrix for CAMERA and GSVA
+### End-to-end example with real RNA-seq data (GSE311566)
 
-CAMERA and GSVA take a gene x sample expression matrix
-(typically log2 counts or microarray intensities). For
-this vignette we build a small synthetic matrix using the
-Entrez IDs already loaded by `import_CTD()` above:
+The hand-coded `genes` data frame above is convenient for the
+Quick start but does not exercise the matrix-based methods. This
+section ties everything together on a small subset of
+[GEO GSE311566](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE311566)
+-- human PBMCs treated with **dexamethasone** vs **vehicle (DMSO)**
+in female donors. The bundled subset
+`inst/extdata/GSE311566_subset.rds` contains 1,500 top-variance
+genes (plus the 17 genes referenced by the toy CTD sample),
+log2-transformed normalised counts, 7 samples total
+(4 DMSO + 3 Dex). See `inst/extdata/README.md` for provenance.
 
-```{r make-expr}
-# Pull the Entrez IDs covered by the bundled sample
-cache_dir <- rappdirs::user_cache_dir("ctdR")
-e <- new.env(parent = emptyenv())
-load(file.path(cache_dir, "ChemicalName_GeneEntrezIds.rda"),
-    envir = e)
-all_ids <- as.character(unique(unlist(
-    e$ChemicalName_GeneEntrezIds)))
-
-# Synthetic expression matrix: 17 genes x 6 samples
-set.seed(2026)
-expr <- matrix(
-    rnorm(length(all_ids) * 6),
-    nrow = length(all_ids), ncol = 6,
-    dimnames = list(all_ids, paste0("S", 1:6))
-)
+```{r load-real}
+gse <- readRDS(system.file(
+    "extdata", "GSE311566_subset.rds", package = "ctdR"
+))
+expr <- gse$expr
+grp  <- gse$coldata$group
 dim(expr)
+table(grp)
+```
+
+We compute a deliberately minimal per-gene differential
+expression with base R only: a two-sample `t.test` per gene with
+BH-adjusted p-values. Production analyses should use `limma`,
+`DESeq2`, or `edgeR` for proper count-based modelling; this
+ascetic version keeps the example self-contained.
+
+```{r de-real}
+de <- t(apply(expr, 1, function(y) {
+    tt <- stats::t.test(y ~ grp)
+    c(log2FC = unname(diff(tt$estimate)),
+      pvalue = tt$p.value)
+}))
+de <- as.data.frame(de)
+de$padj <- stats::p.adjust(de$pvalue, method = "BH")
+de$EntrezID <- rownames(de)
+de <- de[, c("EntrezID", "log2FC", "pvalue", "padj")]
+head(de[order(de$padj), ])
+c(padj_lt_05 = sum(de$padj < 0.05),
+  pvalue_lt_05 = sum(de$pvalue < 0.05))
+```
+
+#### Real-data GSEA
+
+GSEA uses the full ranked gene list and tends to surface the
+expected chemical (Dexamethasone) near the top even with this
+small DE.
+
+```{r gsea-real}
+gsea_real <- enrichment_CTD(
+    de[, c("EntrezID", "pvalue")], method = "GSEA"
+)
+head(gsea_real[, c("ChemicalID", "ChemicalName",
+                   "PValue", "PValueAdjusted",
+                   "NormalizedEnrichmentScore")])
+```
+
+#### Real-data ORA
+
+> **Note**: the bundled `CTD_chem_gene_ixns_sample.csv` covers
+> only 10 chemicals and 17 unique genes, so the ORA
+> hypergeometric universe is very small. On a 7-sample DE you
+> should expect ORA to return few or zero significant chemicals
+> here. With the real CTD download (~16,000 chemicals x millions
+> of interactions) ORA is meaningfully powered.
+
+```{r ora-real}
+sig <- de[de$pvalue < 0.05, c("EntrezID", "pvalue")]
+ora_real <- enrichment_CTD(sig, method = "ORA")
+if (nrow(ora_real)) {
+    head(ora_real[, c("ChemicalID", "ChemicalName",
+                      "PValue", "PValueAdjusted", "Count")])
+} else {
+    message("No chemicals enriched on this toy CTD sample.")
+}
 ```
 
 ### CAMERA (competitive test with inter-gene correlation)
@@ -256,17 +309,16 @@ CAMERA tests, for each chemical, whether its target
 genes show a stronger differential signal than the rest
 of the transcriptome under a user-supplied design and
 contrast, while correcting for inter-gene correlation
-within the gene set.
+within the gene set. Reusing the real `expr` / `grp` above:
 
 ```{r camera}
-grp <- factor(rep(c("ctrl", "treat"), each = 3))
 design <- model.matrix(~ grp)
 
 camera_results <- enrichment_CTD(
     expr,
     method   = "CAMERA",
     design   = design,
-    contrast = 2  # last column of design = treat vs ctrl
+    contrast = 2  # column 2 of design = Dex vs DMSO
 )
 head(camera_results)
 ```
