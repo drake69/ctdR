@@ -7,3 +7,4 @@
 ^ctdR\.BiocCheck$
 ^_pkgdown\.yml$
 ^pkgdown$
+^\.sestante$

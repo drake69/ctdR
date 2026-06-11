@@ -1,3 +1,35 @@
+# Changes in version 0.99.5
+
+## Documentation
+
+* Added an end-to-end real-data example to the vignette using a small
+  subset of GEO series GSE311566 (human PBMCs, dexamethasone vs.
+  vehicle, female donors). The example walks through loading the
+  bundled subset, a deliberately minimal base-R differential
+  expression with `t.test` + `p.adjust`, and the four ctdR methods
+  (ORA, GSEA, CAMERA, GSVA) on the resulting DE.
+* Bundled `inst/extdata/GSE311566_subset.rds` (~34 KB) containing
+  log2-normalised counts for 1,500 top-variance genes plus the 17
+  genes referenced by the toy CTD sample, across 7 samples
+  (4 DMSO + 3 Dex).
+* Added a reproducible provenance script at
+  `inst/scripts/make_gse311566_subset.R` and a per-file documentation
+  README at `inst/extdata/README.md`.
+* The `enrichment_CTD()` `@examples` block no longer relies on
+  `\donttest{}`: CAMERA and GSVA examples now run directly on the
+  bundled subset, satisfying the BiocCheck recommendation against
+  `\dontrun{}` / `\donttest{}` in man pages.
+
+## Testing
+
+* New `tests/testthat/test-e2e-gse311566.R` runs the full
+  data-to-enrichment pipeline on the bundled GSE311566 subset and
+  asserts that Dexamethasone (`D003907`) ranks in the top 3 by GSEA
+  p-value and in the top 6 by CAMERA p-value, plus structural
+  checks on the GSVA output. Guards against silent regressions in
+  ID mapping, output schema, or sort order that the vignette and
+  man-page examples would only catch as "still runs".
+
 # Changes in version 0.99.4
 
 ## Breaking changes

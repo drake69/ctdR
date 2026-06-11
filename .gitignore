@@ -10,3 +10,6 @@ ctdR.Rcheck/
 
 # .sestante/ — backlog locale, mai committato
 .sestante/
+
+# vignette HTML è artefatto di rmarkdown::render(), non sorgente
+vignettes/*.html
