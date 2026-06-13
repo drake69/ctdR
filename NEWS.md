@@ -1,3 +1,20 @@
+# Changes in version 0.99.6
+
+## Documentation
+
+* Added a full end-to-end pipeline example at
+  `inst/scripts/example_gse311566_full_pipeline.R`. The script
+  downloads the complete GSE311566 Female PBMCs normalised-count
+  matrix (Dex vs DMSO), computes an a-priori power analysis with
+  declared alpha thresholds, runs `limma`-based differential
+  expression, and exercises all four enrichment methods (ORA, GSEA,
+  CAMERA, GSVA) with BH-adjusted significance cutoffs. It refuses to
+  fall back to the bundled toy CTD sample; the user must populate the
+  CTD cache with the real chemical-gene interactions file first.
+  Complements the vignette (which uses the bundled subset *without*
+  alpha cutoffs) by providing the production-shaped example linked
+  from the README and the companion paper.
+
 # Changes in version 0.99.5
 
 ## Documentation

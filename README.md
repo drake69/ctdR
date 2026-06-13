@@ -174,6 +174,30 @@ plot_CTD(camera_results, type = "bar")  # colour encodes Direction
 plot_CTD(gsva_scores)
 ```
 
+## End-to-end runnable example
+
+For a production-shaped reference pipeline — full GSE311566 Female
+PBMCs dataset (Dex vs DMSO), a-priori power analysis, declared
+significance thresholds, `limma` differential expression, and all
+four enrichment methods with BH-adjusted alpha cutoffs — see:
+
+```
+inst/scripts/example_gse311566_full_pipeline.R
+```
+
+Run it from the package root after installing ctdR and populating
+the CTD cache (`import_CTD()`):
+
+```bash
+Rscript inst/scripts/example_gse311566_full_pipeline.R
+```
+
+Outputs (DE table, per-method significant chemicals, plots, power
+report, `sessionInfo`) land in `./example_outputs/`. This script is
+the example referenced by the companion paper; the vignette covers
+the same workflow on a bundled subset (~34 KB, no alpha cutoffs)
+for didactic purposes and BiocCheck-friendly build times.
+
 ## Input Format
 
 The first argument `x` of `enrichment_CTD()` depends on the method:
