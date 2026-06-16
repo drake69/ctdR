@@ -49,12 +49,12 @@ ora <- function(ChemicalName_GeneSymbols, gene_symbols,
         foldEnrichment = numeric()
     )
 
-    ora_results <- clusterProfiler::enricher(
+    ora_results <- suppressMessages(clusterProfiler::enricher(
         gene = gene_symbols,
         TERM2GENE = ChemicalName_GeneSymbols,
         pAdjustMethod = pAdjustMethod,
         ...
-    )
+    ))
 
     if (is.null(ora_results)) return(empty)
 
