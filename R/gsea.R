@@ -19,26 +19,47 @@
 #' @param gene_table A data frame with at least two columns:
 #'   \describe{
 #'     \item{\code{EntrezID}}{Entrez gene IDs (character).}
-#'     \item{(second column)}{Numeric values used for ranking (e.g.
-#'       p-values). Converted internally to \code{-log10(value)} for
-#'       the ranking statistic.}
+#'     \item{(second column)}{Numeric values (e.g. p-values), used as
+#'       \code{-log10(value)} fallback ranking when no \code{stat} column
+#'       is present.}
+#'     \item{\code{stat} (optional)}{Signed numeric ranking statistic used
+#'       directly by \code{fgsea} (higher = ranked first). Recommended:
+#'       the moderated t-statistic from \code{limma::eBayes()} or
+#'       \code{-log10(p) * sign(logFC)}. When present, suppresses the
+#'       directionality warning.}
 #'   }
 #'
-#' @return A data frame with \code{fgsea::fgsea}'s native columns
+#' @param ... Additional arguments forwarded to
+#'   \code{\link[fgsea]{fgseaMultilevel}} (e.g. \code{nproc} to set the
+#'   number of parallel workers, \code{eps} for p-value precision).
+#'
+#' @return A data frame with \code{fgsea::fgseaMultilevel}'s native columns
 #'   (\code{pathway}, \code{pval}, \code{ES}, \code{NES}, \code{size},
-#'   \code{leadingEdge}, \code{nMoreExtreme}) plus two ctdR-added
-#'   columns (\code{foldEnrichment}, \code{Enriched_GENE}). Not yet
-#'   sorted and not yet joined with chemical metadata; pass to
+#'   \code{leadingEdge}) plus two ctdR-added columns
+#'   (\code{foldEnrichment}, \code{Enriched_GENE}). Not yet sorted and not
+#'   yet joined with chemical metadata; pass to
 #'   \code{\link{.format_enrichment_result}} for the canonical shape.
 #'
 #' @keywords internal
-gsea <- function(ChemicalName_GeneEntrezIds, gene_table) {
-    stats <- -log10(gene_table[, 2] + 1e-10)
+gsea <- function(ChemicalName_GeneEntrezIds, gene_table, ...) {
+    if ("stat" %in% colnames(gene_table)) {
+        stats <- gene_table$stat
+    } else {
+        warning(
+            "GSEA: no 'stat' column found in input. ",
+            "Falling back to -log10(second column) for ranking, which loses ",
+            "directionality and may produce ties at non-significant genes. ",
+            "Add a signed ranking statistic (e.g. the moderated t-statistic ",
+            "from limma::eBayes()) as a column named 'stat' to suppress this warning.",
+            call. = FALSE
+        )
+        stats <- -log10(gene_table[, 2] + 1e-10)
+    }
     names(stats) <- gene_table$EntrezID
     stats <- sort(stats, decreasing = TRUE)
 
-    fgsea_results <- fgsea::fgsea(
-        pathways = ChemicalName_GeneEntrezIds, stats = stats
+    fgsea_results <- fgsea::fgseaMultilevel(
+        pathways = ChemicalName_GeneEntrezIds, stats = stats, ...
     )
     fgsea_results <- as.data.frame(fgsea_results)
 

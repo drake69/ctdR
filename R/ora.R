@@ -19,6 +19,17 @@
 #' @param pAdjustMethod Character. Method for multiple testing
 #'   correction (default \code{"BH"}). Passed to
 #'   \code{\link[clusterProfiler]{enricher}}.
+#' @param ... Additional arguments forwarded to
+#'   \code{\link[clusterProfiler]{enricher}}, e.g.:
+#'   \describe{
+#'     \item{\code{universe}}{Character vector of background gene symbols
+#'       (default: all genes in the TERM2GENE table). Set to
+#'       \code{rownames(expr)} or the full tested gene list to restrict
+#'       the background to measured genes only.}
+#'     \item{\code{minGSSize}}{Minimum gene set size after intersection
+#'       with the universe (default 1).}
+#'     \item{\code{maxGSSize}}{Maximum gene set size (default 500).}
+#'   }
 #'
 #' @return A data frame with \code{clusterProfiler::enricher}'s native
 #'   columns (\code{ID}, \code{GeneRatio}, \code{BgRatio},
@@ -29,7 +40,7 @@
 #'
 #' @keywords internal
 ora <- function(ChemicalName_GeneSymbols, gene_symbols,
-    pAdjustMethod = "BH") {
+    pAdjustMethod = "BH", ...) {
     empty <- data.frame(
         ChemicalID = character(), Description = character(),
         GeneRatio = character(), BgRatio = character(),
@@ -41,7 +52,8 @@ ora <- function(ChemicalName_GeneSymbols, gene_symbols,
     ora_results <- clusterProfiler::enricher(
         gene = gene_symbols,
         TERM2GENE = ChemicalName_GeneSymbols,
-        pAdjustMethod = pAdjustMethod
+        pAdjustMethod = pAdjustMethod,
+        ...
     )
 
     if (is.null(ora_results)) return(empty)
