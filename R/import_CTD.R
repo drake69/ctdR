@@ -73,6 +73,8 @@ import_CTD <- function(file_path) {
     cache_dir <- rappdirs::user_cache_dir("ctdR")
     dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
 
+    t0 <- proc.time()[["elapsed"]]
+
     CTD_chem_gene_ixns <- .read_and_validate_ctd(file_path)
 
     chemicals_ids <- unique(CTD_chem_gene_ixns$ChemicalID)
@@ -85,7 +87,15 @@ import_CTD <- function(file_path) {
 
     .save_ctd_cache(cache_dir, chemicals,
                     gene_maps$entrez, gene_maps$symbols, interactions)
-    message("CTD data cached successfully in: ", cache_dir)
+
+    elapsed <- proc.time()[["elapsed"]] - t0
+    message(sprintf(
+        "CTD data cached successfully in: %s\n  %d chemicals | %d unique genes | %.0f s",
+        cache_dir,
+        nrow(chemicals),
+        length(unique(interactions$EntrezID)),
+        elapsed
+    ))
     invisible(NULL)
 }
 
