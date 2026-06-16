@@ -80,6 +80,10 @@ jobs:
       - name: Run BiocCheckGitClone
         run: |
           gc <- BiocCheck::BiocCheckGitClone(".")
+          # Remove the output folder created by BiocCheckGitClone so that
+          # the subsequent BiocCheck() call does not flag it as a stray
+          # BiocCheck output directory (which would be an ERROR).
+          unlink("ctdR.BiocCheck", recursive = TRUE)
           n_err  <- length(gc$error)
           n_warn <- length(gc$warning)
           n_note <- length(gc$note)

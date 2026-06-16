@@ -4,7 +4,15 @@
 \alias{.run_gsea}
 \title{Run GSEA branch of enrichment analysis}
 \usage{
-.run_gsea(x, chemicals_meta, cache_dir, pAdjustMethod)
+.run_gsea(
+  x,
+  chemicals_meta,
+  cache_dir,
+  pAdjustMethod,
+  interaction_types = NULL,
+  gene_id_type = "symbol",
+  ...
+)
 }
 \arguments{
 \item{x}{Data frame with column \code{EntrezID} and a numeric

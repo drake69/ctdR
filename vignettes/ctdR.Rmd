@@ -203,11 +203,17 @@ shared schema above):
 
 ### Gene Set Enrichment Analysis (GSEA)
 
-GSEA uses the full ranked gene list (ranked by the
-numeric column) to detect chemicals whose targets
-cluster toward the top or bottom of the ranking.
+GSEA uses the full ranked gene list to detect chemicals
+whose targets cluster toward the top or bottom of the
+ranking. For best results, supply a signed ranking
+statistic (e.g. the moderated t-statistic from
+`limma::eBayes()`) as a column named `stat`. When `stat`
+is absent, ctdR falls back to `-log10(pvalue)`, which
+loses directionality and may produce ties.
 
 ```{r gsea}
+# Quick-start: no signed statistic available in this
+# toy gene list, so the pvalue fallback is used.
 gsea_results <- enrichment_CTD(genes, method = "GSEA")
 head(gsea_results)
 ```
@@ -272,11 +278,15 @@ c(padj_lt_05 = sum(de$padj < 0.05),
 
 GSEA uses the full ranked gene list and tends to surface the
 expected chemical (Dexamethasone) near the top even with this
-small DE.
+small DE. We supply `log2FC` as the `stat` column so that
+direction (up/down) is preserved in the ranking.
 
 ```{r gsea-real}
 gsea_real <- enrichment_CTD(
-    de[, c("EntrezID", "pvalue")], method = "GSEA"
+    data.frame(EntrezID = de$EntrezID,
+               pvalue   = de$pvalue,
+               stat     = de$log2FC),
+    method = "GSEA"
 )
 head(gsea_real[, c("ChemicalID", "ChemicalName",
                    "PValue", "PValueAdjusted",
@@ -362,7 +372,7 @@ shared schema above):
 |---|---|
 | `GeneSetSize` | Gene set size after intersection with `rownames(x)` |
 | `Direction` | `"Up"` or `"Down"` |
-| `Correlation` | Inter-gene correlation (when reported by `limma::camera`) |
+| `Correlation` | Inter-gene correlation (present only when estimated by `limma::camera`; absent when `inter.gene.cor` is fixed) |
 
 ### GSVA (per-sample scoring)
 
@@ -442,6 +452,44 @@ data.frame(
 
 Available methods: `"BH"` (default), `"bonferroni"`,
 `"fdr"` (alias for BH), `"none"`.
+
+## Gene set size filters and background universe
+
+Each method applies a gene set size filter and defines a background
+universe, but the degree of user control differs:
+
+| Method | Size filter | Configurable | Background universe | Configurable |
+|--------|-------------|:---:|---------------------|:---:|
+| ORA | `minGSSize` / `maxGSSize` | ✓ | All genes in TERM2GENE (default) or user-supplied `universe` | ✓ |
+| GSEA | `minSize` / `maxSize` | ✓ | No universe concept — uses the full ranked list | — |
+| CAMERA | ≥ 2 genes (hard-coded) | ✗ | `rownames(expr)` | implicit |
+| GSVA | `minSize` / `maxSize` | ✓ | `rownames(expr)` | implicit |
+
+ORA, GSEA, and GSVA accept size-filter arguments via `...`, which are
+forwarded to the underlying engine. CAMERA's minimum of 2 genes is
+hard-coded and cannot be changed.
+
+```{r size-universe}
+# ORA: restrict background to expressed genes and apply size filters
+ora_expressed <- enrichment_CTD(
+    genes, method = "ORA",
+    universe   = c(genes$EntrezID, "7422", "836"),  # expressed genes
+    minGSSize  = 3,
+    maxGSSize  = 300
+)
+
+# GSEA: filter gene sets by size
+gsea_filtered <- enrichment_CTD(
+    genes, method = "GSEA",
+    minSize = 3,
+    maxSize = 300
+)
+```
+
+Setting `universe` in ORA to the full list of genes measured in your
+experiment (rather than the default of all CTD-annotated genes) is
+strongly recommended: it avoids inflated fold-enrichment estimates that
+arise when the background is larger than the actual measurement space.
 
 # Choosing among the four methods
 

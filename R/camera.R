@@ -37,6 +37,7 @@
     pAdjustMethod = "BH",
     chemicals_meta,
     cache_dir,
+    interaction_types = NULL,
     ...) {
     .validate_expr_matrix(expr)
 
@@ -46,7 +47,14 @@
         id_type <- match.arg(id_type, c("entrez", "symbol"))
     }
 
-    gene_sets <- .load_geneset_list(id_type, cache_dir)
+    if (!is.null(interaction_types)) {
+        gs <- .filter_gene_sets(cache_dir, interaction_types)
+        gene_sets <- if (id_type == "entrez") gs$entrez else {
+            split(gs$symbols$gene, gs$symbols$term)
+        }
+    } else {
+        gene_sets <- .load_geneset_list(id_type, cache_dir)
+    }
 
     rn <- as.character(rownames(expr))
     index_list <- lapply(gene_sets, function(g) {
