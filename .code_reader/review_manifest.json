@@ -2,15 +2,79 @@
   "project": {
     "name": "ctdR",
     "path": "/Users/lcorsaro/Documents/Progetti/RICERCA/ctdR/ctdR",
-    "total": 1188,
-    "read": 5,
-    "unread": 1183,
-    "needs_re_review": 0,
-    "completion_pct": 0.4,
-    "last_sync": "2026-06-16T11:17:28.871640",
-    "last_scan_commit": "1f5bedd68f946ffd085d84533430db9c7fbffc7d"
+    "total": 1235,
+    "read": 4,
+    "unread": 1230,
+    "needs_re_review": 1,
+    "completion_pct": 0.3,
+    "last_sync": "2026-06-16T17:47:38.029049",
+    "last_scan_commit": "65381638027be5c1b6281efb2b6a4fc721b1a02f"
   },
   "units": [
+    {
+      "qualified_name": ".coding_agent/2026-06-15_session.md::section::Session diary — 2026-06-15",
+      "file_path": ".coding_agent/2026-06-15_session.md",
+      "kind": "section",
+      "status": "unread",
+      "content_hash": "467c890e24a48c2c",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": ".coding_agent/2026-06-15_session.md::section::Cosa è stato fatto",
+      "file_path": ".coding_agent/2026-06-15_session.md",
+      "kind": "section",
+      "status": "unread",
+      "content_hash": "080879b743b1f616",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": ".coding_agent/2026-06-15_session.md::section::vignette (`ctdR.Rmd`) — ORA real-data section",
+      "file_path": ".coding_agent/2026-06-15_session.md",
+      "kind": "section",
+      "status": "unread",
+      "content_hash": "8765215682240a33",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": ".coding_agent/2026-06-15_session.md::section::manuscript (`paper.tex` + `paper.pdf`)",
+      "file_path": ".coding_agent/2026-06-15_session.md",
+      "kind": "section",
+      "status": "unread",
+      "content_hash": "5940e35c40f61d2c",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": ".coding_agent/2026-06-15_session.md::section::Backlog",
+      "file_path": ".coding_agent/2026-06-15_session.md",
+      "kind": "section",
+      "status": "unread",
+      "content_hash": "e1ed256a637c67a7",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": ".coding_agent/2026-06-15_session.md::section::Decisioni prese e perché",
+      "file_path": ".coding_agent/2026-06-15_session.md",
+      "kind": "section",
+      "status": "unread",
+      "content_hash": "d44334aabc4ca789",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": ".coding_agent/2026-06-15_session.md::section::Cosa rimane aperto",
+      "file_path": ".coding_agent/2026-06-15_session.md",
+      "kind": "section",
+      "status": "unread",
+      "content_hash": "927d245fb9f19930",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": ".coding_agent/2026-06-15_session.md::section::Blocchi / dipendenze",
+      "file_path": ".coding_agent/2026-06-15_session.md",
+      "kind": "section",
+      "status": "unread",
+      "content_hash": "409c5bf131237691",
+      "notes_count": 0
+    },
     {
       "qualified_name": ".github/dependabot.yml::yaml::version",
       "file_path": ".github/dependabot.yml",
@@ -168,7 +232,7 @@
       "file_path": ".github/workflows/bioccheck.yaml",
       "kind": "yaml_key",
       "status": "unread",
-      "content_hash": "d4e34afac077d9f7",
+      "content_hash": "9de22700e24fc67f",
       "notes_count": 0
     },
     {
@@ -176,7 +240,7 @@
       "file_path": ".github/workflows/bioccheck.yaml",
       "kind": "yaml_key",
       "status": "unread",
-      "content_hash": "b176a87042fcf875",
+      "content_hash": "4742fc4a804ce4f8",
       "notes_count": 0
     },
     {
@@ -620,6 +684,14 @@
       "notes_count": 0
     },
     {
+      "qualified_name": "NEWS.md::section::Changes in version 0.99.6",
+      "file_path": "NEWS.md",
+      "kind": "section",
+      "status": "unread",
+      "content_hash": "816ee97d8de26fe2",
+      "notes_count": 0
+    },
+    {
       "qualified_name": "NEWS.md::section::Changes in version 0.99.5",
       "file_path": "NEWS.md",
       "kind": "section",
@@ -796,11 +868,27 @@
       "notes_count": 0
     },
     {
+      "qualified_name": "R/import_CTD.R::.deduplicate_chemicals",
+      "file_path": "R/import_CTD.R",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "e7f8ec70c6cfe876",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "R/import_CTD.R::.map_chemical_genes",
+      "file_path": "R/import_CTD.R",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "aea88a94954b6667",
+      "notes_count": 0
+    },
+    {
       "qualified_name": "R/import_CTD.R::.save_ctd_cache",
       "file_path": "R/import_CTD.R",
       "kind": "function",
-      "status": "read",
-      "content_hash": "916d92ff90e97f00",
+      "status": "needs_re_review",
+      "content_hash": "a51395217c003958",
       "notes_count": 0
     },
     {
@@ -816,7 +904,7 @@
       "file_path": "README.md",
       "kind": "section",
       "status": "unread",
-      "content_hash": "5dce6c396d21441a",
+      "content_hash": "26e457c99a9ac541",
       "notes_count": 0
     },
     {
@@ -929,6 +1017,14 @@
       "kind": "section",
       "status": "unread",
       "content_hash": "caebd7eac5eaa128",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "README.md::section::End-to-end runnable example",
+      "file_path": "README.md",
+      "kind": "section",
+      "status": "unread",
+      "content_hash": "82ac7f519cae8ca7",
       "notes_count": 0
     },
     {
@@ -1168,7 +1264,7 @@
       "file_path": "_pkgdown.yml",
       "kind": "yaml_key",
       "status": "unread",
-      "content_hash": "a4bc41f9ca405ee2",
+      "content_hash": "ce620b86aec81060",
       "notes_count": 0
     },
     {
@@ -1177,6 +1273,14 @@
       "kind": "yaml_key",
       "status": "unread",
       "content_hash": "9f135851e5f600be",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "_pkgdown.yml::yaml::articles[1]",
+      "file_path": "_pkgdown.yml",
+      "kind": "yaml_key",
+      "status": "unread",
+      "content_hash": "413f487fb68a305f",
       "notes_count": 0
     },
     {
@@ -5292,6 +5396,246 @@
       "notes_count": 0
     },
     {
+      "qualified_name": "inst/scripts/example_gse311566_full_pipeline.R::log_step",
+      "file_path": "inst/scripts/example_gse311566_full_pipeline.R",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "f5045012bac56c62",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "inst/scripts/example_gse311566_full_pipeline.R::apply_alpha",
+      "file_path": "inst/scripts/example_gse311566_full_pipeline.R",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "e8221c442b319843",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "inst/scripts/example_gse311566_full_pipeline.R::top_summary",
+      "file_path": "inst/scripts/example_gse311566_full_pipeline.R",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "f992c28aef4ad7e3",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "inst/scripts/example_gse311566_full_pipeline.R::rank_in",
+      "file_path": "inst/scripts/example_gse311566_full_pipeline.R",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "ead363e50888bf1e",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "vignettes/ctdR.html::h1::Introduction to ctdR",
+      "file_path": "vignettes/ctdR.html",
+      "kind": "section",
+      "status": "unread",
+      "content_hash": "2a6cc232b97fb927",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "vignettes/ctdR.html::h4::2026-06-15",
+      "file_path": "vignettes/ctdR.html",
+      "kind": "section",
+      "status": "unread",
+      "content_hash": "cf361a957433198a",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "vignettes/ctdR.html::h1::Contents",
+      "file_path": "vignettes/ctdR.html",
+      "kind": "section",
+      "status": "unread",
+      "content_hash": "0403ddd4bded18d2",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "vignettes/ctdR.html::h1::1 Overview",
+      "file_path": "vignettes/ctdR.html",
+      "kind": "section",
+      "status": "unread",
+      "content_hash": "c433038069a82862",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "vignettes/ctdR.html::h1::2 Data licensing disclaimer",
+      "file_path": "vignettes/ctdR.html",
+      "kind": "section",
+      "status": "unread",
+      "content_hash": "aa834b3d9467c500",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "vignettes/ctdR.html::h1::3 Installation",
+      "file_path": "vignettes/ctdR.html",
+      "kind": "section",
+      "status": "unread",
+      "content_hash": "a998c7dd7bc84ab3",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "vignettes/ctdR.html::h2::3.1 From GitHub (current installation me",
+      "file_path": "vignettes/ctdR.html",
+      "kind": "section",
+      "status": "unread",
+      "content_hash": "f9d7100ebd47ff31",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "vignettes/ctdR.html::h2::3.2 From Bioconductor (once accepted)",
+      "file_path": "vignettes/ctdR.html",
+      "kind": "section",
+      "status": "unread",
+      "content_hash": "8e4acd96b4764f45",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "vignettes/ctdR.html::h1::4 Quick start",
+      "file_path": "vignettes/ctdR.html",
+      "kind": "section",
+      "status": "unread",
+      "content_hash": "6234817065ef3acf",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "vignettes/ctdR.html::h2::4.1 Step 1 – Download CTD data",
+      "file_path": "vignettes/ctdR.html",
+      "kind": "section",
+      "status": "unread",
+      "content_hash": "12d32c6f2f5e43cf",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "vignettes/ctdR.html::h2::4.2 Step 2 – Import into ctdR",
+      "file_path": "vignettes/ctdR.html",
+      "kind": "section",
+      "status": "unread",
+      "content_hash": "fe56c8c9456753cb",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "vignettes/ctdR.html::h2::4.3 Step 3 – Run enrichment analysis",
+      "file_path": "vignettes/ctdR.html",
+      "kind": "section",
+      "status": "unread",
+      "content_hash": "bd49ea61d6419f8c",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "vignettes/ctdR.html::h3::4.3.1 Prepare your gene list",
+      "file_path": "vignettes/ctdR.html",
+      "kind": "section",
+      "status": "unread",
+      "content_hash": "3cc970e276e61222",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "vignettes/ctdR.html::h3::4.3.2 Shared output schema",
+      "file_path": "vignettes/ctdR.html",
+      "kind": "section",
+      "status": "unread",
+      "content_hash": "ff049a0c464cbd90",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "vignettes/ctdR.html::h3::4.3.3 Over-Representation Analysis (ORA)",
+      "file_path": "vignettes/ctdR.html",
+      "kind": "section",
+      "status": "unread",
+      "content_hash": "7af4fefe68679b95",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "vignettes/ctdR.html::h3::4.3.4 Gene Set Enrichment Analysis (GSEA",
+      "file_path": "vignettes/ctdR.html",
+      "kind": "section",
+      "status": "unread",
+      "content_hash": "a7215aeec7c65eda",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "vignettes/ctdR.html::h3::4.3.5 End-to-end example with real RNA-s",
+      "file_path": "vignettes/ctdR.html",
+      "kind": "section",
+      "status": "unread",
+      "content_hash": "5f532d8ddfc86f7b",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "vignettes/ctdR.html::h4::4.3.5.1 Real-data GSEA",
+      "file_path": "vignettes/ctdR.html",
+      "kind": "section",
+      "status": "unread",
+      "content_hash": "efff325aed8565bc",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "vignettes/ctdR.html::h4::4.3.5.2 Real-data ORA",
+      "file_path": "vignettes/ctdR.html",
+      "kind": "section",
+      "status": "unread",
+      "content_hash": "c515e3b486628f69",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "vignettes/ctdR.html::h3::4.3.6 CAMERA (competitive test with inte",
+      "file_path": "vignettes/ctdR.html",
+      "kind": "section",
+      "status": "unread",
+      "content_hash": "8dc985c26bd01de9",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "vignettes/ctdR.html::h3::4.3.7 GSVA (per-sample scoring)",
+      "file_path": "vignettes/ctdR.html",
+      "kind": "section",
+      "status": "unread",
+      "content_hash": "3941c72327b5c1d1",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "vignettes/ctdR.html::h2::4.4 Visualizing results",
+      "file_path": "vignettes/ctdR.html",
+      "kind": "section",
+      "status": "unread",
+      "content_hash": "68f2a82a8eedc070",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "vignettes/ctdR.html::h2::4.5 Adjusting for multiple testing",
+      "file_path": "vignettes/ctdR.html",
+      "kind": "section",
+      "status": "unread",
+      "content_hash": "a954b4d6dcd65eef",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "vignettes/ctdR.html::h1::5 Choosing among the four methods",
+      "file_path": "vignettes/ctdR.html",
+      "kind": "section",
+      "status": "unread",
+      "content_hash": "430e1578fe160215",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "vignettes/ctdR.html::h1::6 Updating the CTD data",
+      "file_path": "vignettes/ctdR.html",
+      "kind": "section",
+      "status": "unread",
+      "content_hash": "0b9204118037f6c7",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "vignettes/ctdR.html::h1::7 Session info",
+      "file_path": "vignettes/ctdR.html",
+      "kind": "section",
+      "status": "unread",
+      "content_hash": "76d1d89eb09a6e69",
+      "notes_count": 0
+    },
+    {
       "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::jQuery",
       "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
       "kind": "function",
@@ -5348,6 +5692,14 @@
       "notes_count": 0
     },
     {
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::w",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "c75fbc7b949ae5f6",
+      "notes_count": 0
+    },
+    {
       "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::V",
       "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
       "kind": "function",
@@ -5361,6 +5713,14 @@
       "kind": "function",
       "status": "unread",
       "content_hash": "3d99c6bc30b65601",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::s",
+      "file_path": "docs/deps/search-1.0.0/fuse.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "2b814755df27b92b",
       "notes_count": 0
     },
     {
@@ -5388,11 +5748,11 @@
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::O",
+      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::b",
       "file_path": "docs/deps/search-1.0.0/fuse.min.js",
       "kind": "function",
       "status": "unread",
-      "content_hash": "03ecb94e4ab974bb",
+      "content_hash": "7c081b444276670e",
       "notes_count": 0
     },
     {
@@ -5409,6 +5769,14 @@
       "kind": "function",
       "status": "unread",
       "content_hash": "c73718625d5d1e5d",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::P",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "72fca4ca6230fc25",
       "notes_count": 0
     },
     {
@@ -5436,6 +5804,22 @@
       "notes_count": 0
     },
     {
+      "qualified_name": "docs/deps/clipboard.js-2.0.11/clipboard.min.js::l",
+      "file_path": "docs/deps/clipboard.js-2.0.11/clipboard.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "5dd6e9cdbccd16e8",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/clipboard.js-2.0.11/clipboard.min.js::d",
+      "file_path": "docs/deps/clipboard.js-2.0.11/clipboard.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "3a5aab1738aca7cb",
+      "notes_count": 0
+    },
+    {
       "qualified_name": "docs/deps/clipboard.js-2.0.11/clipboard.min.js::y",
       "file_path": "docs/deps/clipboard.js-2.0.11/clipboard.min.js",
       "kind": "function",
@@ -5444,11 +5828,11 @@
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/clipboard.js-2.0.11/clipboard.min.js::m",
+      "qualified_name": "docs/deps/clipboard.js-2.0.11/clipboard.min.js::v",
       "file_path": "docs/deps/clipboard.js-2.0.11/clipboard.min.js",
       "kind": "function",
       "status": "unread",
-      "content_hash": "99c88063313b1be1",
+      "content_hash": "784d6cbc8d038849",
       "notes_count": 0
     },
     {
@@ -5596,30 +5980,6 @@
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::r",
-      "file_path": "docs/deps/search-1.0.0/fuse.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "b1f09a12b6142a76",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::i",
-      "file_path": "docs/deps/search-1.0.0/fuse.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "3f1969289643d918",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::u",
-      "file_path": "docs/deps/search-1.0.0/fuse.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "c69fc4c0d012955b",
-      "notes_count": 0
-    },
-    {
       "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::h",
       "file_path": "docs/deps/search-1.0.0/fuse.min.js",
       "kind": "function",
@@ -5636,27 +5996,19 @@
       "notes_count": 0
     },
     {
+      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::P",
+      "file_path": "docs/deps/search-1.0.0/fuse.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "01f72963611ae3fc",
+      "notes_count": 0
+    },
+    {
       "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::z",
       "file_path": "docs/deps/search-1.0.0/fuse.min.js",
       "kind": "function",
       "status": "unread",
       "content_hash": "db4b2dc8ad6981a4",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::x",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "6473f222239c44f8",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::I",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "150094748f28df25",
       "notes_count": 0
     },
     {
@@ -5692,22 +6044,6 @@
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/clipboard.js-2.0.11/clipboard.min.js::a",
-      "file_path": "docs/deps/clipboard.js-2.0.11/clipboard.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "18f7e86805698a3e",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/clipboard.js-2.0.11/clipboard.min.js::i",
-      "file_path": "docs/deps/clipboard.js-2.0.11/clipboard.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "28949a385dbbe970",
-      "notes_count": 0
-    },
-    {
       "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::sibling",
       "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
       "kind": "function",
@@ -5740,35 +6076,43 @@
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::d",
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::I",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "dcf7348bad9de907",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::f",
       "file_path": "docs/deps/search-1.0.0/fuse.min.js",
       "kind": "function",
       "status": "unread",
-      "content_hash": "eeef93c35c86324a",
+      "content_hash": "ccea54b32ff4508e",
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::k",
+      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::O",
+      "file_path": "docs/deps/search-1.0.0/fuse.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "03ecb94e4ab974bb",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::j",
+      "file_path": "docs/deps/search-1.0.0/fuse.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "e65840425014f863",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::x",
       "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
       "kind": "function",
       "status": "unread",
-      "content_hash": "12c8331dbda69817",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::P",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "72fca4ca6230fc25",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/clipboard.js-2.0.11/clipboard.min.js::s",
-      "file_path": "docs/deps/clipboard.js-2.0.11/clipboard.min.js",
-      "kind": "component",
-      "status": "unread",
-      "content_hash": "7bd08a9913010a93",
+      "content_hash": "6473f222239c44f8",
       "notes_count": 0
     },
     {
@@ -5788,126 +6132,6 @@
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::I",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "dcf7348bad9de907",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::P",
-      "file_path": "docs/deps/search-1.0.0/fuse.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "01f72963611ae3fc",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::C",
-      "file_path": "docs/deps/search-1.0.0/fuse.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "81ac931a48c2cb81",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::L",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "4bdae00a2790da28",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::at",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "42b9a477f0e017bc",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::xt.next",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "method",
-      "status": "unread",
-      "content_hash": "aaa3e5b304d1cda5",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::x",
-      "file_path": "docs/deps/search-1.0.0/fuse.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "c5fd23e858f01359",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::next",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "b9d0f1562b51c410",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::x",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "bde1203993374ac9",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "R/gsea.R::.annotate_genes",
-      "file_path": "R/gsea.R",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "c01cb10129223cf8",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "R/utils-input.R::.validate_expr_matrix",
-      "file_path": "R/utils-input.R",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "8fb6d13e16edee61",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::L",
-      "file_path": "docs/deps/search-1.0.0/fuse.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "c5fd23e858f01359",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/pkgdown.js::searchFuse",
-      "file_path": "docs/pkgdown.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "7ecc0a8322576399",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "R/gsea.R::gsea",
-      "file_path": "R/gsea.R",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "24bbc50f734b1f9b",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::S",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "d27e9fa59e4d9321",
-      "notes_count": 0
-    },
-    {
       "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::S",
       "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
       "kind": "function",
@@ -5916,11 +6140,11 @@
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::h",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
+      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::C",
+      "file_path": "docs/deps/search-1.0.0/fuse.min.js",
       "kind": "function",
       "status": "unread",
-      "content_hash": "ad4f512abce21e7b",
+      "content_hash": "81ac931a48c2cb81",
       "notes_count": 0
     },
     {
@@ -5940,15 +6164,135 @@
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::ot",
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::at",
       "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
       "kind": "function",
       "status": "unread",
-      "content_hash": "288d5d1433dec444",
+      "content_hash": "42b9a477f0e017bc",
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::p",
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::xt.next",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "method",
+      "status": "unread",
+      "content_hash": "aaa3e5b304d1cda5",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/search-1.0.0/autocomplete.jquery.min.js::d",
+      "file_path": "docs/deps/search-1.0.0/autocomplete.jquery.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "1189faa102d9c27e",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::_",
+      "file_path": "docs/deps/search-1.0.0/fuse.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "ac9ea6fbc253e415",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::d",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "bcbdccd19449d951",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::next",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "b9d0f1562b51c410",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::l",
+      "file_path": "docs/deps/search-1.0.0/fuse.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "a432986d83698ec2",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/search-1.0.0/autocomplete.jquery.min.js::f",
+      "file_path": "docs/deps/search-1.0.0/autocomplete.jquery.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "4f9d7db97e631c23",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::u",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "bcbdccd19449d951",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::u",
+      "file_path": "docs/deps/search-1.0.0/fuse.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "c69fc4c0d012955b",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::a",
+      "file_path": "docs/deps/search-1.0.0/fuse.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "b1e67e15b515c059",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/clipboard.js-2.0.11/clipboard.min.js::a",
+      "file_path": "docs/deps/clipboard.js-2.0.11/clipboard.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "18f7e86805698a3e",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/search-1.0.0/autocomplete.jquery.min.js::a",
+      "file_path": "docs/deps/search-1.0.0/autocomplete.jquery.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "c78a3ef8415a5e1f",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::l",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "bcbdccd19449d951",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::c",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "bcbdccd19449d951",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/clipboard.js-2.0.11/clipboard.min.js::f",
+      "file_path": "docs/deps/clipboard.js-2.0.11/clipboard.min.js",
+      "kind": "component",
+      "status": "unread",
+      "content_hash": "76b0567103351058",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::_",
       "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
       "kind": "function",
       "status": "unread",
@@ -5964,55 +6308,31 @@
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/search-1.0.0/autocomplete.jquery.min.js::f",
-      "file_path": "docs/deps/search-1.0.0/autocomplete.jquery.min.js",
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::createOptions",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
       "kind": "function",
       "status": "unread",
-      "content_hash": "4f9d7db97e631c23",
+      "content_hash": "c52204c4d8fc2e12",
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::h",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::inspectPrefiltersOrTransports",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
       "kind": "function",
       "status": "unread",
-      "content_hash": "bcbdccd19449d951",
+      "content_hash": "81b742e3c2163be3",
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::T",
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::X",
       "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
       "kind": "function",
       "status": "unread",
-      "content_hash": "ad4f512abce21e7b",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::l",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "e8edf115264f5634",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/clipboard.js-2.0.11/clipboard.min.js::l",
-      "file_path": "docs/deps/clipboard.js-2.0.11/clipboard.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "5dd6e9cdbccd16e8",
+      "content_hash": "05ecebad863955b8",
       "notes_count": 0
     },
     {
       "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::a",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "bcbdccd19449d951",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::_",
       "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
       "kind": "function",
       "status": "unread",
@@ -6049,14 +6369,6 @@
       "kind": "method",
       "status": "unread",
       "content_hash": "b728e689515dc2d9",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::X",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "05ecebad863955b8",
       "notes_count": 0
     },
     {
@@ -6116,6 +6428,14 @@
       "notes_count": 0
     },
     {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::xt.nextWhenVisible",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "method",
+      "status": "unread",
+      "content_hash": "e8ba9d6c923a229c",
+      "notes_count": 0
+    },
+    {
       "qualified_name": "docs/deps/search-1.0.0/autocomplete.jquery.min.js::j",
       "file_path": "docs/deps/search-1.0.0/autocomplete.jquery.min.js",
       "kind": "function",
@@ -6124,19 +6444,283 @@
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/search-1.0.0/autocomplete.jquery.min.js::d",
+      "qualified_name": "docs/deps/search-1.0.0/autocomplete.jquery.min.js::h",
       "file_path": "docs/deps/search-1.0.0/autocomplete.jquery.min.js",
       "kind": "function",
       "status": "unread",
-      "content_hash": "1189faa102d9c27e",
+      "content_hash": "f3b784de4b4f3571",
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/search-1.0.0/autocomplete.jquery.min.js::c",
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::T",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "ad4f512abce21e7b",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::I",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "150094748f28df25",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::L",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "4bdae00a2790da28",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::L",
+      "file_path": "docs/deps/search-1.0.0/fuse.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "c5fd23e858f01359",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::x",
+      "file_path": "docs/deps/search-1.0.0/fuse.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "c5fd23e858f01359",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::p",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "5fd177aab4ef237e",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/clipboard.js-2.0.11/clipboard.min.js::h",
+      "file_path": "docs/deps/clipboard.js-2.0.11/clipboard.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "e1f2f7a5897db172",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::h",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "ad4f512abce21e7b",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::S",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "d27e9fa59e4d9321",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::s",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "40b39da33ee5d521",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::ot",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "288d5d1433dec444",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/clipboard.js-2.0.11/clipboard.min.js::s",
+      "file_path": "docs/deps/clipboard.js-2.0.11/clipboard.min.js",
+      "kind": "component",
+      "status": "unread",
+      "content_hash": "7bd08a9913010a93",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/headroom-0.11.0/headroom.min.js::d",
+      "file_path": "docs/deps/headroom-0.11.0/headroom.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "5f4737fabe25d84f",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::p",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "bcbdccd19449d951",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/clipboard.js-2.0.11/clipboard.min.js::p",
+      "file_path": "docs/deps/clipboard.js-2.0.11/clipboard.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "9cc8c79de7efc4b4",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::l",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "e8edf115264f5634",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::b",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "bcbdccd19449d951",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/search-1.0.0/autocomplete.jquery.min.js::b",
       "file_path": "docs/deps/search-1.0.0/autocomplete.jquery.min.js",
       "kind": "function",
       "status": "unread",
-      "content_hash": "3f9990a49bb82cf1",
+      "content_hash": "16cec7b5ca520bab",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/search-1.0.0/autocomplete.jquery.min.js::g",
+      "file_path": "docs/deps/search-1.0.0/autocomplete.jquery.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "431f4116b01a3b41",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::x",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "bde1203993374ac9",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "R/gsea.R::.annotate_genes",
+      "file_path": "R/gsea.R",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "70ac29dc3a1ce810",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "R/utils-input.R::.validate_expr_matrix",
+      "file_path": "R/utils-input.R",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "8fb6d13e16edee61",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::m",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "bde1203993374ac9",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/pkgdown.js::searchFuse",
+      "file_path": "docs/pkgdown.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "7ecc0a8322576399",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "inst/scripts/example_gse311566_full_pipeline.R::flatten_list_cols",
+      "file_path": "inst/scripts/example_gse311566_full_pipeline.R",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "2ea92c57e63e7c69",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "R/gsea.R::gsea",
+      "file_path": "R/gsea.R",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "be9682db76af4c1e",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::p",
+      "file_path": "docs/deps/search-1.0.0/fuse.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "04850094a55e76ec",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "inst/scripts/example_gse311566_full_pipeline.R::write_method",
+      "file_path": "inst/scripts/example_gse311566_full_pipeline.R",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "86f04090ca14b740",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "tests/testthat/test-utils-input.R::.validate_expr_matrix rejects non-matrix input",
+      "file_path": "tests/testthat/test-utils-input.R",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "169d6494a2bcd999",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "R/ora.R::.parse_ratio",
+      "file_path": "R/ora.R",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "d0d193ccdf7109d8",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::o",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "bcbdccd19449d951",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "R/ora.R::ora",
+      "file_path": "R/ora.R",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "42b435460d54fbef",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/clipboard.js-2.0.11/clipboard.min.js::o",
+      "file_path": "docs/deps/clipboard.js-2.0.11/clipboard.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "32309ef7c4c3fd68",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/headroom-0.11.0/headroom.min.js::o",
+      "file_path": "docs/deps/headroom-0.11.0/headroom.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "4cc3674242e4a49a",
       "notes_count": 0
     },
     {
@@ -6156,11 +6740,11 @@
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/clipboard.js-2.0.11/clipboard.min.js::v",
-      "file_path": "docs/deps/clipboard.js-2.0.11/clipboard.min.js",
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::s",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
       "kind": "function",
       "status": "unread",
-      "content_hash": "784d6cbc8d038849",
+      "content_hash": "bcbdccd19449d951",
       "notes_count": 0
     },
     {
@@ -6172,23 +6756,7 @@
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::j",
-      "file_path": "docs/deps/search-1.0.0/fuse.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "e65840425014f863",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::_",
-      "file_path": "docs/deps/search-1.0.0/fuse.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "ac9ea6fbc253e415",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::d",
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::m",
       "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
       "kind": "function",
       "status": "unread",
@@ -6196,115 +6764,51 @@
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::createOptions",
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::xt.pause",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "method",
+      "status": "unread",
+      "content_hash": "5e94d951f008e7bc",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::add",
       "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
       "kind": "function",
       "status": "unread",
-      "content_hash": "c52204c4d8fc2e12",
+      "content_hash": "f5d8b5e5d698aa30",
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::inspectPrefiltersOrTransports",
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::ajaxHandleResponses",
       "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
       "kind": "function",
       "status": "unread",
-      "content_hash": "81b742e3c2163be3",
+      "content_hash": "fd7825686c090f8b",
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::l",
-      "file_path": "docs/deps/search-1.0.0/fuse.min.js",
-      "kind": "function",
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::fire",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
+      "kind": "component",
       "status": "unread",
-      "content_hash": "a432986d83698ec2",
+      "content_hash": "ca75c236e3d3b8a1",
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::m",
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::c",
       "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
-      "kind": "function",
+      "kind": "component",
       "status": "unread",
-      "content_hash": "bde1203993374ac9",
+      "content_hash": "82e64e89979d1713",
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::p",
-      "file_path": "docs/deps/search-1.0.0/fuse.min.js",
+      "qualified_name": "inst/scripts/example_gse311566_full_pipeline.R::save_plot",
+      "file_path": "inst/scripts/example_gse311566_full_pipeline.R",
       "kind": "function",
       "status": "unread",
-      "content_hash": "04850094a55e76ec",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/search-1.0.0/autocomplete.jquery.min.js::g",
-      "file_path": "docs/deps/search-1.0.0/autocomplete.jquery.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "431f4116b01a3b41",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/search-1.0.0/autocomplete.jquery.min.js::h",
-      "file_path": "docs/deps/search-1.0.0/autocomplete.jquery.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "f3b784de4b4f3571",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::f",
-      "file_path": "docs/deps/search-1.0.0/fuse.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "ccea54b32ff4508e",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::s",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "bcbdccd19449d951",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/headroom-0.11.0/headroom.min.js::d",
-      "file_path": "docs/deps/headroom-0.11.0/headroom.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "5f4737fabe25d84f",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/search-1.0.0/autocomplete.jquery.min.js::b",
-      "file_path": "docs/deps/search-1.0.0/autocomplete.jquery.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "16cec7b5ca520bab",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/search-1.0.0/autocomplete.jquery.min.js::a",
-      "file_path": "docs/deps/search-1.0.0/autocomplete.jquery.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "c78a3ef8415a5e1f",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::c",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "bcbdccd19449d951",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::b",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "bcbdccd19449d951",
+      "content_hash": "df14fef7605c9f9b",
       "notes_count": 0
     },
     {
@@ -6316,11 +6820,11 @@
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::o",
+      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::r",
       "file_path": "docs/deps/search-1.0.0/fuse.min.js",
       "kind": "function",
       "status": "unread",
-      "content_hash": "de7fb564e269d1b1",
+      "content_hash": "b1f09a12b6142a76",
       "notes_count": 0
     },
     {
@@ -6340,27 +6844,43 @@
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/headroom-0.11.0/headroom.min.js::o",
-      "file_path": "docs/deps/headroom-0.11.0/headroom.min.js",
+      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::i",
+      "file_path": "docs/deps/search-1.0.0/fuse.min.js",
       "kind": "function",
       "status": "unread",
-      "content_hash": "4cc3674242e4a49a",
+      "content_hash": "3f1969289643d918",
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/clipboard.js-2.0.11/clipboard.min.js::d",
+      "qualified_name": "docs/deps/clipboard.js-2.0.11/clipboard.min.js::i",
       "file_path": "docs/deps/clipboard.js-2.0.11/clipboard.min.js",
       "kind": "function",
       "status": "unread",
-      "content_hash": "3a5aab1738aca7cb",
+      "content_hash": "28949a385dbbe970",
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::l",
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::k",
       "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
       "kind": "function",
       "status": "unread",
-      "content_hash": "bcbdccd19449d951",
+      "content_hash": "12c8331dbda69817",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/search-1.0.0/autocomplete.jquery.min.js::e",
+      "file_path": "docs/deps/search-1.0.0/autocomplete.jquery.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "c27b1f1469a3c921",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::c",
+      "file_path": "docs/deps/search-1.0.0/fuse.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "36d4f8efa2c15c87",
       "notes_count": 0
     },
     {
@@ -6372,55 +6892,39 @@
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::w",
+      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::d",
+      "file_path": "docs/deps/search-1.0.0/fuse.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "eeef93c35c86324a",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/search-1.0.0/autocomplete.jquery.min.js::i",
+      "file_path": "docs/deps/search-1.0.0/autocomplete.jquery.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "696521a3fa9d042d",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::e",
       "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
       "kind": "function",
       "status": "unread",
-      "content_hash": "c75fbc7b949ae5f6",
+      "content_hash": "f95711fa18bbc1c9",
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::p",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "5fd177aab4ef237e",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/clipboard.js-2.0.11/clipboard.min.js::p",
+      "qualified_name": "docs/deps/clipboard.js-2.0.11/clipboard.min.js::m",
       "file_path": "docs/deps/clipboard.js-2.0.11/clipboard.min.js",
       "kind": "function",
       "status": "unread",
-      "content_hash": "9cc8c79de7efc4b4",
+      "content_hash": "99c88063313b1be1",
       "notes_count": 0
     },
     {
-      "qualified_name": "R/ora.R::.parse_ratio",
-      "file_path": "R/ora.R",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "d0d193ccdf7109d8",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/clipboard.js-2.0.11/clipboard.min.js::h",
-      "file_path": "docs/deps/clipboard.js-2.0.11/clipboard.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "e1f2f7a5897db172",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "R/ora.R::ora",
-      "file_path": "R/ora.R",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "522c5e0f1e27638b",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::o",
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::n",
       "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
       "kind": "function",
       "status": "unread",
@@ -6428,35 +6932,131 @@
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/clipboard.js-2.0.11/clipboard.min.js::f",
-      "file_path": "docs/deps/clipboard.js-2.0.11/clipboard.min.js",
-      "kind": "component",
-      "status": "unread",
-      "content_hash": "76b0567103351058",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::c",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
-      "kind": "component",
-      "status": "unread",
-      "content_hash": "82e64e89979d1713",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/clipboard.js-2.0.11/clipboard.min.js::o",
-      "file_path": "docs/deps/clipboard.js-2.0.11/clipboard.min.js",
+      "qualified_name": "tests/testthat/test-utils-input.R::.validate_expr_matrix rejects matrix without rownames",
+      "file_path": "tests/testthat/test-utils-input.R",
       "kind": "function",
       "status": "unread",
-      "content_hash": "32309ef7c4c3fd68",
+      "content_hash": "a555333fdd535488",
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::s",
+      "qualified_name": "R/plot_CTD.R::.plot_gsva_heatmap",
+      "file_path": "R/plot_CTD.R",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "11de97264556f88a",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::siblings",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "b0dc8de0ca1e7963",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::i",
       "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
       "kind": "function",
       "status": "unread",
-      "content_hash": "40b39da33ee5d521",
+      "content_hash": "75ad6b71fbf1ae5a",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::DOMEval",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "b72c2f69e8ae8ba1",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::winnow",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "4df1870ee34bae39",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::updateFunc",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "1f1c43d998f8a659",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::access",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
+      "kind": "component",
+      "status": "unread",
+      "content_hash": "5450188ce6cae07e",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::resolve",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "5f5d7ffc39f4018b",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::setGlobalEval",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "ab4f23be96ea9fcb",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::cloneCopyEvent",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "40f0cee009b957ca",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::vendorPropName",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "8fd7af2e39711385",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::boxModelAdjustment",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "9bb3525e2768c370",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::genFx",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "47f9a70f36df315e",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::buildParams",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "09835e3467922f6b",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::addToPrefiltersOrTransports",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "01dd0b2ae4f2ca4a",
       "notes_count": 0
     },
     {
@@ -6465,6 +7065,46 @@
       "kind": "function",
       "status": "unread",
       "content_hash": "3ecf9e4650c3ad82",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::adoptValue",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "ab1dedecc57092b4",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::buildFragment",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "7053c6513591e05e",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::remove",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "5ff1fac7b6442384",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::finalPropName",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "3d891b235951217f",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::getWidthOrHeight",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "b97bc59e4c93dea6",
       "notes_count": 0
     },
     {
@@ -6636,35 +7276,11 @@
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::qi.show",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "method",
-      "status": "unread",
-      "content_hash": "5726efe276bde6bf",
-      "notes_count": 0
-    },
-    {
       "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::qi.hide",
       "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
       "kind": "method",
       "status": "unread",
       "content_hash": "d249fc2afed89a31",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::qi._completeHide",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "method",
-      "status": "unread",
-      "content_hash": "61fb920455d7ce41",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::qi._getConfig",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "method",
-      "status": "unread",
-      "content_hash": "57009626fec8ec27",
       "notes_count": 0
     },
     {
@@ -6828,14 +7444,6 @@
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::cs.hide",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "method",
-      "status": "unread",
-      "content_hash": "795d9823a4ced9f0",
-      "notes_count": 0
-    },
-    {
       "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::cs.setContent",
       "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
       "kind": "method",
@@ -6956,214 +7564,6 @@
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::e",
-      "file_path": "docs/deps/search-1.0.0/fuse.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "51af5df518b97f2b",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::Ee",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "c6685b65a4563ab6",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::b",
-      "file_path": "docs/deps/search-1.0.0/fuse.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "7c081b444276670e",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/lightswitch.js::bsSetupThemeToggle",
-      "file_path": "docs/lightswitch.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "e561229c485aacdb",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/search-1.0.0/autocomplete.jquery.min.js::i",
-      "file_path": "docs/deps/search-1.0.0/autocomplete.jquery.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "696521a3fa9d042d",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::i",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "75ad6b71fbf1ae5a",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::u",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "bcbdccd19449d951",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::DOMEval",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "b72c2f69e8ae8ba1",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::winnow",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "4df1870ee34bae39",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::updateFunc",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "1f1c43d998f8a659",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::access",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
-      "kind": "component",
-      "status": "unread",
-      "content_hash": "5450188ce6cae07e",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::resolve",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "5f5d7ffc39f4018b",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::setGlobalEval",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "ab4f23be96ea9fcb",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::cloneCopyEvent",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "40f0cee009b957ca",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::vendorPropName",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "8fd7af2e39711385",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::boxModelAdjustment",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "9bb3525e2768c370",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::genFx",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "47f9a70f36df315e",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::addToPrefiltersOrTransports",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "01dd0b2ae4f2ca4a",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::adoptValue",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "ab1dedecc57092b4",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::buildFragment",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "7053c6513591e05e",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::remove",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "5ff1fac7b6442384",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::finalPropName",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "3d891b235951217f",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::getWidthOrHeight",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "b97bc59e4c93dea6",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::a",
-      "file_path": "docs/deps/search-1.0.0/fuse.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "b1e67e15b515c059",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::m",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "bcbdccd19449d951",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::xt.nextWhenVisible",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "method",
-      "status": "unread",
-      "content_hash": "e8ba9d6c923a229c",
-      "notes_count": 0
-    },
-    {
       "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::domManip",
       "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
       "kind": "function",
@@ -7172,123 +7572,19 @@
       "notes_count": 0
     },
     {
-      "qualified_name": "tests/testthat/test-utils-input.R::.validate_expr_matrix rejects non-matrix input",
-      "file_path": "tests/testthat/test-utils-input.R",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "169d6494a2bcd999",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/search-1.0.0/autocomplete.jquery.min.js::e",
-      "file_path": "docs/deps/search-1.0.0/autocomplete.jquery.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "c27b1f1469a3c921",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "tests/testthat/test-utils-input.R::.validate_expr_matrix rejects matrix without rownames",
-      "file_path": "tests/testthat/test-utils-input.R",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "a555333fdd535488",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::s",
+      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::e",
       "file_path": "docs/deps/search-1.0.0/fuse.min.js",
       "kind": "function",
       "status": "unread",
-      "content_hash": "2b814755df27b92b",
+      "content_hash": "51af5df518b97f2b",
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::n",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "qualified_name": "R/enrichment_analysis.R::.filter_gene_sets",
+      "file_path": "R/enrichment_analysis.R",
       "kind": "function",
       "status": "unread",
-      "content_hash": "bcbdccd19449d951",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::xt.pause",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "method",
-      "status": "unread",
-      "content_hash": "5e94d951f008e7bc",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::add",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "f5d8b5e5d698aa30",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::ajaxHandleResponses",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "fd7825686c090f8b",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "R/plot_CTD.R::.plot_gsva_heatmap",
-      "file_path": "R/plot_CTD.R",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "11de97264556f88a",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::siblings",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "b0dc8de0ca1e7963",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::fire",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
-      "kind": "component",
-      "status": "unread",
-      "content_hash": "ca75c236e3d3b8a1",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::buildParams",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "09835e3467922f6b",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::e",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "f95711fa18bbc1c9",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "R/import_CTD.R::.map_chemical_genes",
-      "file_path": "R/import_CTD.R",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "603b7704f20a73b3",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::D",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "e909a847facfa72e",
+      "content_hash": "ea86f033a298ed10",
       "notes_count": 0
     },
     {
@@ -7297,22 +7593,6 @@
       "kind": "function",
       "status": "unread",
       "content_hash": "8e23a0918f9b4fed",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::H._mergeConfigObj",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "method",
-      "status": "unread",
-      "content_hash": "07507e64a8873f08",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::H._typeCheckConfig",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "method",
-      "status": "unread",
-      "content_hash": "a8c021fe316b69a7",
       "notes_count": 0
     },
     {
@@ -7444,6 +7724,14 @@
       "notes_count": 0
     },
     {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::Ee",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "c6685b65a4563ab6",
+      "notes_count": 0
+    },
+    {
       "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::Me",
       "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
       "kind": "function",
@@ -7484,27 +7772,11 @@
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::qi",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "class",
-      "status": "unread",
-      "content_hash": "4ece40d9f49946eb",
-      "notes_count": 0
-    },
-    {
       "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::qi.constructor",
       "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
       "kind": "method",
       "status": "unread",
       "content_hash": "eeb9a90ecab51f33",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::qi._createPopper",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "method",
-      "status": "unread",
-      "content_hash": "0cac2b0b05051601",
       "notes_count": 0
     },
     {
@@ -7564,14 +7836,6 @@
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::cn",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "class",
-      "status": "unread",
-      "content_hash": "e03531a5b112d5ad",
-      "notes_count": 0
-    },
-    {
       "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::cn.hide",
       "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
       "kind": "method",
@@ -7601,14 +7865,6 @@
       "kind": "method",
       "status": "unread",
       "content_hash": "2cb8e270ac161831",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::cn._applyManipulationCallback",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "method",
-      "status": "unread",
-      "content_hash": "81d76c3f2582aa79",
       "notes_count": 0
     },
     {
@@ -7673,14 +7929,6 @@
       "kind": "method",
       "status": "unread",
       "content_hash": "574b4ba4721861e9",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::Jn._setContent",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "method",
-      "status": "unread",
-      "content_hash": "69429cd7049fcfa8",
       "notes_count": 0
     },
     {
@@ -7764,14 +8012,6 @@
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::Es",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "class",
-      "status": "unread",
-      "content_hash": "21fc596a7de6de2d",
-      "notes_count": 0
-    },
-    {
       "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::Es.constructor",
       "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
       "kind": "method",
@@ -7785,14 +8025,6 @@
       "kind": "method",
       "status": "unread",
       "content_hash": "a9298cf969238415",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::Es._observerCallback",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "method",
-      "status": "unread",
-      "content_hash": "3b1b8c1dd61c9a37",
       "notes_count": 0
     },
     {
@@ -7980,14 +8212,6 @@
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::Se",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "7c4edf308e221361",
-      "notes_count": 0
-    },
-    {
       "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::je",
       "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
       "kind": "function",
@@ -8012,27 +8236,11 @@
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::Le",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "266049cedc057cf9",
-      "notes_count": 0
-    },
-    {
       "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::Fe",
       "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
       "kind": "function",
       "status": "unread",
       "content_hash": "db8133c8ff909e82",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::Qe",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "7f388f2ade8f7739",
       "notes_count": 0
     },
     {
@@ -8084,22 +8292,6 @@
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::It",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "dec4be72fa2a7df2",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::Wt",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "ab889b143c038917",
-      "notes_count": 0
-    },
-    {
       "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::Ft",
       "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
       "kind": "function",
@@ -8108,11 +8300,11 @@
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::c",
+      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::o",
       "file_path": "docs/deps/search-1.0.0/fuse.min.js",
       "kind": "function",
       "status": "unread",
-      "content_hash": "36d4f8efa2c15c87",
+      "content_hash": "de7fb564e269d1b1",
       "notes_count": 0
     },
     {
@@ -8121,14 +8313,6 @@
       "kind": "function",
       "status": "unread",
       "content_hash": "de949a4e287bf297",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::$",
-      "file_path": "docs/deps/search-1.0.0/fuse.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "2c794e0a01611891",
       "notes_count": 0
     },
     {
@@ -8156,6 +8340,14 @@
       "notes_count": 0
     },
     {
+      "qualified_name": "docs/lightswitch.js::bsSetupThemeToggle",
+      "file_path": "docs/lightswitch.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "e561229c485aacdb",
+      "notes_count": 0
+    },
+    {
       "qualified_name": "tests/testthat/test-camera.R::.synthetic_expr",
       "file_path": "tests/testthat/test-camera.R",
       "kind": "function",
@@ -8172,51 +8364,35 @@
       "notes_count": 0
     },
     {
-      "qualified_name": "R/enrichment_analysis.R::.validate_enrichment_args",
-      "file_path": "R/enrichment_analysis.R",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "99581490b5552f8a",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "R/enrichment_analysis.R::.format_enrichment_result",
-      "file_path": "R/enrichment_analysis.R",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "95b6e18a23b8e85a",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "R/import_CTD.R::.read_and_validate_ctd",
-      "file_path": "R/import_CTD.R",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "e33cef79a9f97c01",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "R/plot_CTD.R::.plot_camera",
-      "file_path": "R/plot_CTD.R",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "b4669c9f588f4595",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "R/utils-input.R::.load_geneset_list",
-      "file_path": "R/utils-input.R",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "ca928fb055f8f9e7",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::$",
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::h",
       "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
       "kind": "function",
       "status": "unread",
-      "content_hash": "62289e24156f8c69",
+      "content_hash": "bcbdccd19449d951",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::D",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "e909a847facfa72e",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::H._mergeConfigObj",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "method",
+      "status": "unread",
+      "content_hash": "07507e64a8873f08",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::H._typeCheckConfig",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "method",
+      "status": "unread",
+      "content_hash": "a8c021fe316b69a7",
       "notes_count": 0
     },
     {
@@ -8244,14 +8420,6 @@
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::xt._slide",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "method",
-      "status": "unread",
-      "content_hash": "95150ca7c5138fab",
-      "notes_count": 0
-    },
-    {
       "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::xt._getItems",
       "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
       "kind": "method",
@@ -8268,27 +8436,11 @@
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::Bt",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "class",
-      "status": "unread",
-      "content_hash": "ec0f05e740e5978e",
-      "notes_count": 0
-    },
-    {
       "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::Bt.constructor",
       "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
       "kind": "method",
       "status": "unread",
       "content_hash": "006d9dd23bdda90f",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::Bt.DefaultType",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "method",
-      "status": "unread",
-      "content_hash": "e6dc813333c8a617",
       "notes_count": 0
     },
     {
@@ -8364,51 +8516,35 @@
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::ei",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "b1db31b008e6c8ff",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::qi.jQueryInterface",
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::qi._getConfig",
       "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
       "kind": "method",
       "status": "unread",
-      "content_hash": "97b6d98ec76c734d",
+      "content_hash": "57009626fec8ec27",
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::qi.clearMenus",
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::qi._createPopper",
       "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
       "kind": "method",
       "status": "unread",
-      "content_hash": "3b3fe99f14d06567",
+      "content_hash": "0cac2b0b05051601",
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::qi.dataApiKeydownHandler",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "method",
-      "status": "unread",
-      "content_hash": "317d46bb9002e6ad",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::On",
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::cn",
       "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
       "kind": "class",
       "status": "unread",
-      "content_hash": "66891a61bde2bee2",
+      "content_hash": "e03531a5b112d5ad",
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::On.constructor",
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::cn._applyManipulationCallback",
       "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
       "kind": "method",
       "status": "unread",
-      "content_hash": "20975d8e5258cb34",
+      "content_hash": "81d76c3f2582aa79",
       "notes_count": 0
     },
     {
@@ -8425,30 +8561,6 @@
       "kind": "method",
       "status": "unread",
       "content_hash": "6b41504bd7f875ee",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::qn",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "class",
-      "status": "unread",
-      "content_hash": "ab0c4d4dd6189ffb",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::qn.show",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "method",
-      "status": "unread",
-      "content_hash": "db6518f156a13868",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::qn.hide",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "method",
-      "status": "unread",
-      "content_hash": "c90dbfd5a95391c3",
       "notes_count": 0
     },
     {
@@ -8476,6 +8588,14 @@
       "notes_count": 0
     },
     {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::Jn._setContent",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "method",
+      "status": "unread",
+      "content_hash": "69429cd7049fcfa8",
+      "notes_count": 0
+    },
+    {
       "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::Jn._maybeSanitize",
       "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
       "kind": "method",
@@ -8484,19 +8604,19 @@
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::cs.show",
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::Es",
       "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "method",
+      "kind": "class",
       "status": "unread",
-      "content_hash": "142d62dd6c8a5bfe",
+      "content_hash": "21fc596a7de6de2d",
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::Es.jQueryInterface",
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::Es._observerCallback",
       "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
       "kind": "method",
       "status": "unread",
-      "content_hash": "7b82cc1ed9b15858",
+      "content_hash": "3b1b8c1dd61c9a37",
       "notes_count": 0
     },
     {
@@ -8548,11 +8668,19 @@
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::se",
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::Se",
       "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
       "kind": "function",
       "status": "unread",
-      "content_hash": "f692284c8a218826",
+      "content_hash": "7c4edf308e221361",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::Le",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "266049cedc057cf9",
       "notes_count": 0
     },
     {
@@ -8569,6 +8697,406 @@
       "kind": "function",
       "status": "unread",
       "content_hash": "1237a50089f1c692",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::Qe",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "7f388f2ade8f7739",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::It",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "dec4be72fa2a7df2",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::Wt",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "ab889b143c038917",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::$",
+      "file_path": "docs/deps/search-1.0.0/fuse.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "2c794e0a01611891",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::$",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "62289e24156f8c69",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::st.constructor",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "method",
+      "status": "unread",
+      "content_hash": "f56ecc896afe81ce",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::xt._addEventListeners",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "method",
+      "status": "unread",
+      "content_hash": "a182d112d91782d6",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::xt._addTouchEventListeners",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "method",
+      "status": "unread",
+      "content_hash": "25279db8252c10a1",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::Bt",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "class",
+      "status": "unread",
+      "content_hash": "ec0f05e740e5978e",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::Bt.DefaultType",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "method",
+      "status": "unread",
+      "content_hash": "e6dc813333c8a617",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::Oe",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "fb773342a72c0740",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::Le",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "6350f42e0d07db5f",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::qi",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "class",
+      "status": "unread",
+      "content_hash": "4ece40d9f49946eb",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::qi.show",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "method",
+      "status": "unread",
+      "content_hash": "5726efe276bde6bf",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::qi._completeHide",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "method",
+      "status": "unread",
+      "content_hash": "61fb920455d7ce41",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::On",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "class",
+      "status": "unread",
+      "content_hash": "66891a61bde2bee2",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::On.constructor",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "method",
+      "status": "unread",
+      "content_hash": "20975d8e5258cb34",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::qn",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "class",
+      "status": "unread",
+      "content_hash": "ab0c4d4dd6189ffb",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::qn.show",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "method",
+      "status": "unread",
+      "content_hash": "db6518f156a13868",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::qn.hide",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "method",
+      "status": "unread",
+      "content_hash": "c90dbfd5a95391c3",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::cs.hide",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "method",
+      "status": "unread",
+      "content_hash": "795d9823a4ced9f0",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::cs._getTemplateFactory",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "method",
+      "status": "unread",
+      "content_hash": "dbd02d4bf6447348",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::Es.jQueryInterface",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "method",
+      "status": "unread",
+      "content_hash": "7b82cc1ed9b15858",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::ro.jQueryInterface",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "method",
+      "status": "unread",
+      "content_hash": "3c184aea95da2ebc",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::ae",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "74f56c74b3849a34",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::Oe",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "ab1ebae86a95a278",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::Re",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "990ecaee4b87cd82",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/search-1.0.0/autocomplete.jquery.min.js::c",
+      "file_path": "docs/deps/search-1.0.0/autocomplete.jquery.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "3f9990a49bb82cf1",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "R/enrichment_analysis.R::.validate_enrichment_args",
+      "file_path": "R/enrichment_analysis.R",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "99581490b5552f8a",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "R/enrichment_analysis.R::.format_enrichment_result",
+      "file_path": "R/enrichment_analysis.R",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "95b6e18a23b8e85a",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "R/import_CTD.R::.build_interaction_table",
+      "file_path": "R/import_CTD.R",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "58b31d4a0b2dbb42",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "R/import_CTD.R::.read_and_validate_ctd",
+      "file_path": "R/import_CTD.R",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "c093a4492f644882",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "R/plot_CTD.R::.plot_camera",
+      "file_path": "R/plot_CTD.R",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "b4669c9f588f4595",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "R/utils-input.R::.load_geneset_list",
+      "file_path": "R/utils-input.R",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "ca928fb055f8f9e7",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::xt",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "class",
+      "status": "unread",
+      "content_hash": "9c2f5042fc79e9e5",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::xt._slide",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "method",
+      "status": "unread",
+      "content_hash": "95150ca7c5138fab",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::Bt.show",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "method",
+      "status": "unread",
+      "content_hash": "11c48f90522a6850",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::Bt.jQueryInterface",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "method",
+      "status": "unread",
+      "content_hash": "a5e922157facfb57",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::Te",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "177297798947f14b",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::ei",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "b1db31b008e6c8ff",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::qi.jQueryInterface",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "method",
+      "status": "unread",
+      "content_hash": "97b6d98ec76c734d",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::qi.clearMenus",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "method",
+      "status": "unread",
+      "content_hash": "3b3fe99f14d06567",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::qi.dataApiKeydownHandler",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "method",
+      "status": "unread",
+      "content_hash": "317d46bb9002e6ad",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::On.jQueryInterface",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "method",
+      "status": "unread",
+      "content_hash": "c8e08b88c99ba02b",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::qn.jQueryInterface",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "method",
+      "status": "unread",
+      "content_hash": "09a5c65c54e8207d",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::cs",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "class",
+      "status": "unread",
+      "content_hash": "2cc28c226a368299",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::cs.show",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "method",
+      "status": "unread",
+      "content_hash": "142d62dd6c8a5bfe",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::$",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
+      "kind": "component",
+      "status": "unread",
+      "content_hash": "275f04bdfb512381",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::se",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "f692284c8a218826",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::We",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "cea5db2137e34550",
       "notes_count": 0
     },
     {
@@ -8648,7 +9176,7 @@
       "file_path": "R/camera.R",
       "kind": "function",
       "status": "unread",
-      "content_hash": "29e90f91f1ea1411",
+      "content_hash": "522b3e33f7dca9a7",
       "notes_count": 0
     },
     {
@@ -8656,7 +9184,7 @@
       "file_path": "R/enrichment_analysis.R",
       "kind": "function",
       "status": "unread",
-      "content_hash": "04bd981f5d7ce572",
+      "content_hash": "d4f17cea22bd877e",
       "notes_count": 0
     },
     {
@@ -8664,7 +9192,7 @@
       "file_path": "R/enrichment_analysis.R",
       "kind": "function",
       "status": "unread",
-      "content_hash": "81a9002628223f63",
+      "content_hash": "b87f3986b8767488",
       "notes_count": 0
     },
     {
@@ -8672,7 +9200,7 @@
       "file_path": "R/gsva.R",
       "kind": "function",
       "status": "unread",
-      "content_hash": "00acea71f7900ccf",
+      "content_hash": "5dcecec14b6359cf",
       "notes_count": 0
     },
     {
@@ -8680,7 +9208,7 @@
       "file_path": "R/import_CTD.R",
       "kind": "function",
       "status": "unread",
-      "content_hash": "7a4b6596b5201662",
+      "content_hash": "e7009aa5cac44335",
       "notes_count": 0
     },
     {
@@ -8700,187 +9228,11 @@
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::st.constructor",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "method",
-      "status": "unread",
-      "content_hash": "f56ecc896afe81ce",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::xt",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "class",
-      "status": "unread",
-      "content_hash": "9c2f5042fc79e9e5",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::xt._addEventListeners",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "method",
-      "status": "unread",
-      "content_hash": "a182d112d91782d6",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::xt._addTouchEventListeners",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "method",
-      "status": "unread",
-      "content_hash": "25279db8252c10a1",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::Bt.show",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "method",
-      "status": "unread",
-      "content_hash": "11c48f90522a6850",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::Bt.jQueryInterface",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "method",
-      "status": "unread",
-      "content_hash": "a5e922157facfb57",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::Te",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "177297798947f14b",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::Oe",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "fb773342a72c0740",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::Le",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "6350f42e0d07db5f",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::On.jQueryInterface",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "method",
-      "status": "unread",
-      "content_hash": "c8e08b88c99ba02b",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::qn.jQueryInterface",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "method",
-      "status": "unread",
-      "content_hash": "09a5c65c54e8207d",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::cs",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "class",
-      "status": "unread",
-      "content_hash": "2cc28c226a368299",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::cs._getTemplateFactory",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "method",
-      "status": "unread",
-      "content_hash": "dbd02d4bf6447348",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::ro.jQueryInterface",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "method",
-      "status": "unread",
-      "content_hash": "3c184aea95da2ebc",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::$",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
-      "kind": "component",
-      "status": "unread",
-      "content_hash": "275f04bdfb512381",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::Oe",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "ab1ebae86a95a278",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::Re",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "990ecaee4b87cd82",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::ue",
-      "file_path": "docs/deps/search-1.0.0/fuse.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "7187216412ff10e3",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "R/enrichment_analysis.R::enrichment_CTD",
-      "file_path": "R/enrichment_analysis.R",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "ad42e244c481ffab",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::B",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "25283efda82f1bef",
-      "notes_count": 0
-    },
-    {
       "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::Ce",
       "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
       "kind": "function",
       "status": "unread",
       "content_hash": "80d56cf0fadd874d",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::ke",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "6001f8ae3f63a25b",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::Se",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "61262b501188f72d",
       "notes_count": 0
     },
     {
@@ -8924,14 +9276,6 @@
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::We",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "cea5db2137e34550",
-      "notes_count": 0
-    },
-    {
       "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::xt",
       "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
       "kind": "function",
@@ -8940,7 +9284,7 @@
       "notes_count": 0
     },
     {
-      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::ce",
+      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::ue",
       "file_path": "docs/deps/search-1.0.0/fuse.min.js",
       "kind": "function",
       "status": "unread",
@@ -8953,6 +9297,70 @@
       "kind": "function",
       "status": "unread",
       "content_hash": "a9387cf182befc9c",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "R/enrichment_analysis.R::enrichment_CTD",
+      "file_path": "R/enrichment_analysis.R",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "5be09171b88f6ab8",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::B",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "25283efda82f1bef",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::xt.jQueryInterface",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "method",
+      "status": "unread",
+      "content_hash": "aed98367a97277ea",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::ke",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "6001f8ae3f63a25b",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::Se",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "61262b501188f72d",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::us.jQueryInterface",
+      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
+      "kind": "method",
+      "status": "unread",
+      "content_hash": "19ef294aa323a51d",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::defaultPrefilter",
+      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "c8edf47204e21ffe",
+      "notes_count": 0
+    },
+    {
+      "qualified_name": "docs/deps/search-1.0.0/fuse.min.js::ce",
+      "file_path": "docs/deps/search-1.0.0/fuse.min.js",
+      "kind": "function",
+      "status": "unread",
+      "content_hash": "7187216412ff10e3",
       "notes_count": 0
     },
     {
@@ -9105,30 +9513,6 @@
       "kind": "function",
       "status": "unread",
       "content_hash": "e7f771c0ff729021",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::xt.jQueryInterface",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "method",
-      "status": "unread",
-      "content_hash": "aed98367a97277ea",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js::us.jQueryInterface",
-      "file_path": "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js",
-      "kind": "method",
-      "status": "unread",
-      "content_hash": "19ef294aa323a51d",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.js::defaultPrefilter",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "c8edf47204e21ffe",
       "notes_count": 0
     },
     {
@@ -9361,14 +9745,6 @@
       "kind": "function",
       "status": "unread",
       "content_hash": "7187216412ff10e3",
-      "notes_count": 0
-    },
-    {
-      "qualified_name": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js::ae",
-      "file_path": "docs/deps/jquery-3.6.0/jquery-3.6.0.min.js",
-      "kind": "function",
-      "status": "unread",
-      "content_hash": "74f56c74b3849a34",
       "notes_count": 0
     },
     {
