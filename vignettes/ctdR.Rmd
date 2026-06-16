@@ -285,21 +285,53 @@ head(gsea_real[, c("ChemicalID", "ChemicalName",
 
 #### Real-data ORA
 
-> **Note**: the bundled `CTD_chem_gene_ixns_sample.csv` covers
-> only 10 chemicals and 17 unique genes, so the ORA
-> hypergeometric universe is very small. On a 7-sample DE you
-> should expect ORA to return few or zero significant chemicals
-> here. With the real CTD download (~16,000 chemicals x millions
-> of interactions) ORA is meaningfully powered.
+ORA is statistically meaningful only with the **full CTD download**
+(~16,000 chemicals × millions of gene interactions, available at
+<https://ctdbase.org/reports/CTD_chem_gene_ixns.csv.gz>). The bundled
+`CTD_chem_gene_ixns_sample.csv` covers 10 chemicals × 17 genes — its
+sole purpose is API demonstration. With only 7 samples and a universe
+this small, ORA is expected to return zero enriched chemicals. Set
+`is_subset <- FALSE` in the chunk below to run a fully powered analysis
+on the real CTD. All other methods (GSEA, CAMERA, GSVA) work correctly
+with the bundled data.
+
+```{r ora-is-subset}
+## Set is_subset <- FALSE to run ORA on the full CTD download.
+## Requires CTD_chem_gene_ixns.csv.gz from ctdbase.org, decompressed locally.
+is_subset <- TRUE
+```
 
 ```{r ora-real}
 sig <- de[de$pvalue < 0.05, c("EntrezID", "pvalue")]
-ora_real <- enrichment_CTD(sig, method = "ORA")
-if (nrow(ora_real)) {
-    head(ora_real[, c("ChemicalID", "ChemicalName",
-                      "PValue", "PValueAdjusted", "Count")])
+
+if (is_subset) {
+    ora_real <- enrichment_CTD(sig, method = "ORA")
+    if (nrow(ora_real)) {
+        head(ora_real[, c("ChemicalID", "ChemicalName",
+                          "PValue", "PValueAdjusted", "Count")])
+    } else {
+        message(
+            "ORA returned 0 results on the toy CTD sample (expected).\n",
+            "Set is_subset <- FALSE and provide CTD_chem_gene_ixns.csv",
+            " for a powered analysis."
+        )
+    }
 } else {
-    message("No chemicals enriched on this toy CTD sample.")
+    ## Full CTD path -----------------------------------------------------------
+    ## 1. Download https://ctdbase.org/reports/CTD_chem_gene_ixns.csv.gz
+    ## 2. gunzip CTD_chem_gene_ixns.csv.gz
+    ## 3. Set ctd_path to the decompressed file location
+    ctd_path <- "~/Downloads/CTD_chem_gene_ixns.csv"  # adjust to your path
+    import_CTD(ctd_path)
+    ora_full <- enrichment_CTD(sig, method = "ORA")
+    if (nrow(ora_full)) {
+        head(ora_full[order(ora_full$PValue),
+                      c("ChemicalID", "ChemicalName",
+                        "PValue", "PValueAdjusted",
+                        "FoldEnrichment", "Count")])
+    } else {
+        message("No chemicals enriched — check CTD file path and gene list.")
+    }
 }
 ```
 
