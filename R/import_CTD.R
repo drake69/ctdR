@@ -77,7 +77,9 @@ import_CTD <- function(file_path) {
 
     chemicals_ids <- unique(CTD_chem_gene_ixns$ChemicalID)
     gene_maps <- .map_chemical_genes(CTD_chem_gene_ixns, chemicals_ids)
-    chemicals <- unique(CTD_chem_gene_ixns[, c("ChemicalID", "ChemicalName")])
+    chemicals  <- .deduplicate_chemicals(
+        CTD_chem_gene_ixns[, c("ChemicalID", "ChemicalName")]
+    )
 
     interactions <- .build_interaction_table(CTD_chem_gene_ixns)
 
@@ -85,6 +87,45 @@ import_CTD <- function(file_path) {
                     gene_maps$entrez, gene_maps$symbols, interactions)
     message("CTD data cached successfully in: ", cache_dir)
     invisible(NULL)
+}
+
+#' Deduplicate the chemical metadata table
+#'
+#' Ensures one row per \code{ChemicalID}. Warns if the same ID appears with
+#' multiple names (CTD data quality issue — first occurrence is kept). Reports
+#' as a message if the same name is shared by multiple IDs (legitimate:
+#' parent compound and its derivatives each have distinct MeSH IDs).
+#'
+#' @param chem_df Data frame with columns \code{ChemicalID} and
+#'   \code{ChemicalName}.
+#' @return A data frame with one row per unique \code{ChemicalID}.
+#' @keywords internal
+.deduplicate_chemicals <- function(chem_df) {
+    dup_id <- duplicated(chem_df$ChemicalID)
+    if (any(dup_id)) {
+        ambiguous <- unique(chem_df$ChemicalID[dup_id])
+        warning(
+            length(ambiguous), " ChemicalID(s) appear with more than one ",
+            "ChemicalName in the CTD file; only the first name per ID is ",
+            "retained. Affected IDs: ",
+            paste(head(ambiguous, 5L), collapse = ", "),
+            if (length(ambiguous) > 5L)
+                paste0(" ... (and ", length(ambiguous) - 5L, " more)"),
+            call. = FALSE
+        )
+    }
+    out <- chem_df[!dup_id, ]
+
+    dup_name <- unique(out$ChemicalName[duplicated(out$ChemicalName)])
+    if (length(dup_name) > 0L)
+        message(
+            length(dup_name), " ChemicalName(s) are shared by more than one ",
+            "ChemicalID (e.g., a parent compound and its derivatives). ",
+            "Each ChemicalID is treated as a distinct gene set."
+        )
+
+    rownames(out) <- NULL
+    out
 }
 
 #' Build the long-format chemical–gene–action interaction table
