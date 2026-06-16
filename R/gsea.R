@@ -73,7 +73,6 @@ gsea <- function(ChemicalName_GeneEntrezIds, gene_table, ...) {
     fgsea_results$foldEnrichment <- (
         abs(fgsea_results$ES) / mean(fgsea_results$ES)
     )
-    gene_table$Symbol <- rownames(gene_table)
     fgsea_results$Enriched_GENE <- .annotate_genes(
         fgsea_results, gene_table, ChemicalName_GeneEntrezIds
     )
@@ -88,7 +87,7 @@ gsea <- function(ChemicalName_GeneEntrezIds, gene_table, ...) {
         results$ChemicalID,
         function(x) {
             matched <- gene_table$EntrezID %in% chemical_sets[[x]]
-            paste(gene_table[matched, "Symbol"], collapse = ", ")
+            paste(gene_table[matched, "GeneLabel"], collapse = ", ")
         },
         character(1)
     )

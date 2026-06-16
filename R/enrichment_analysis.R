@@ -140,7 +140,9 @@ enrichment_CTD <- function(x,
     id_type = NULL,
     pAdjustMethod = "BH",
     interaction_types = NULL,
+    gene_id_type = c("symbol", "entrez"),
     ...) {
+    gene_id_type <- match.arg(gene_id_type)
     if (missing(x)) {
         stop("Argument 'x' is required.", call. = FALSE)
     }
@@ -156,9 +158,11 @@ enrichment_CTD <- function(x,
 
     switch(method,
         ORA = .run_ora(x, chemicals, cache_dir, pAdjustMethod,
-                       interaction_types = interaction_types, ...),
+                       interaction_types = interaction_types,
+                       gene_id_type = gene_id_type, ...),
         GSEA = .run_gsea(x, chemicals, cache_dir, pAdjustMethod,
-                         interaction_types = interaction_types, ...),
+                         interaction_types = interaction_types,
+                         gene_id_type = gene_id_type, ...),
         CAMERA = .run_camera(
             expr = x, design = design, contrast = contrast,
             id_type = id_type, pAdjustMethod = pAdjustMethod,
@@ -257,26 +261,39 @@ enrichment_CTD <- function(x,
 #' @return A data frame of ORA enrichment results.
 #' @keywords internal
 .run_ora <- function(x, chemicals_meta, cache_dir, pAdjustMethod,
-    interaction_types = NULL, ...) {
-    if (!is.null(interaction_types)) {
-        gs <- .filter_gene_sets(cache_dir, interaction_types)
-        term2gene <- gs$symbols
+    interaction_types = NULL, gene_id_type = "symbol", ...) {
+    if (gene_id_type == "entrez") {
+        if (!is.null(interaction_types)) {
+            entrez_list <- .filter_gene_sets(cache_dir, interaction_types)$entrez
+        } else {
+            e <- new.env(parent = emptyenv())
+            load(file.path(cache_dir, "ChemicalName_GeneEntrezIds.rda"), envir = e)
+            entrez_list <- e$ChemicalName_GeneEntrezIds
+        }
+        term2gene   <- do.call(rbind, lapply(names(entrez_list), function(chem)
+            data.frame(term = chem, gene = entrez_list[[chem]],
+                       stringsAsFactors = FALSE)))
+        input_genes <- as.character(x$EntrezID)
     } else {
-        e <- new.env(parent = emptyenv())
-        load(file.path(cache_dir, "ChemicalName_GeneSymbols.rda"), envir = e)
-        term2gene <- e$ChemicalName_GeneSymbols
+        if (!is.null(interaction_types)) {
+            gs       <- .filter_gene_sets(cache_dir, interaction_types)
+            term2gene <- gs$symbols
+        } else {
+            e <- new.env(parent = emptyenv())
+            load(file.path(cache_dir, "ChemicalName_GeneSymbols.rda"), envir = e)
+            term2gene <- e$ChemicalName_GeneSymbols
+        }
+        sym_map <- suppressMessages(AnnotationDbi::mapIds(
+            org.Hs.eg.db::org.Hs.eg.db,
+            keys = as.character(x$EntrezID),
+            column = "SYMBOL", keytype = "ENTREZID", multiVals = "first"
+        ))
+        # Fallback to Entrez ID for unmapped genes
+        input_genes <- ifelse(is.na(sym_map), names(sym_map), sym_map)
     }
 
-    gene_symbols <- AnnotationDbi::select(
-        org.Hs.eg.db::org.Hs.eg.db,
-        keys = x$EntrezID,
-        column = "SYMBOL",
-        keytype = "ENTREZID",
-        multiVals = "first"
-    )[, "SYMBOL"]
-
     res <- ora(
-        term2gene, gene_symbols,
+        term2gene, input_genes,
         pAdjustMethod = pAdjustMethod,
         ...
     )
@@ -311,7 +328,7 @@ enrichment_CTD <- function(x,
 #'   \code{\link{.format_enrichment_result}}.
 #' @keywords internal
 .run_gsea <- function(x, chemicals_meta, cache_dir, pAdjustMethod,
-    interaction_types = NULL, ...) {
+    interaction_types = NULL, gene_id_type = "symbol", ...) {
     if (!is.null(interaction_types)) {
         entrez_sets <- .filter_gene_sets(cache_dir, interaction_types)$entrez
     } else {
@@ -321,6 +338,20 @@ enrichment_CTD <- function(x,
     }
     gene_table <- as.data.frame(x)
     gene_table <- gene_table[!is.na(gene_table$EntrezID), ]
+
+    # Build the label column used by .annotate_genes() for EnrichedGenes
+    if (gene_id_type == "entrez") {
+        gene_table$GeneLabel <- as.character(gene_table$EntrezID)
+    } else {
+        sym_map <- suppressMessages(AnnotationDbi::mapIds(
+            org.Hs.eg.db::org.Hs.eg.db,
+            keys = as.character(gene_table$EntrezID),
+            column = "SYMBOL", keytype = "ENTREZID", multiVals = "first"
+        ))
+        gene_table$GeneLabel <- ifelse(is.na(sym_map),
+                                       as.character(gene_table$EntrezID),
+                                       sym_map)
+    }
     res <- gsea(entrez_sets, gene_table, ...)
 
     .format_enrichment_result(res, chemicals_meta, pAdjustMethod,
