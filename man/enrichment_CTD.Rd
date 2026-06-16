@@ -61,6 +61,12 @@ interaction actions matches one of the specified types. Requires that
 \code{ctd_interactions.rda} file). Restricting to expression interactions
 is recommended for RNA-seq analyses to improve biological specificity.}
 
+\item{gene_id_type}{Character. Identifier type used in the \code{EnrichedGenes}
+output column: \code{"symbol"} (default) returns HGNC gene symbols with
+Entrez ID as fallback for unmapped genes; \code{"entrez"} skips the
+symbol lookup and returns Entrez IDs directly. Only applies to \code{"ORA"}
+and \code{"GSEA"}; ignored by \code{"CAMERA"} and \code{"GSVA"}.}
+
 \item{...}{Additional arguments forwarded to the underlying engine:
 \code{\link[clusterProfiler]{enricher}} for ORA (e.g. \code{universe},
 \code{minGSSize}, \code{maxGSSize}),

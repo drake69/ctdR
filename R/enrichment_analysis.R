@@ -67,6 +67,11 @@
 #'   one of \code{"BH"} (Benjamini-Hochberg, default), \code{"bonferroni"},
 #'   \code{"fdr"} (alias for BH), or \code{"none"}. Not used for
 #'   \code{method = "GSVA"} (which returns scores rather than p-values).
+#' @param gene_id_type Character. Identifier type used in the \code{EnrichedGenes}
+#'   output column: \code{"symbol"} (default) returns HGNC gene symbols with
+#'   Entrez ID as fallback for unmapped genes; \code{"entrez"} skips the
+#'   symbol lookup and returns Entrez IDs directly. Only applies to \code{"ORA"}
+#'   and \code{"GSEA"}; ignored by \code{"CAMERA"} and \code{"GSVA"}.
 #' @param interaction_types Character vector of CTD \code{InteractionActions}
 #'   values to retain when building gene sets, or \code{NULL} (default) to
 #'   use all cached interactions. Values follow the \code{verb\^{}noun}
