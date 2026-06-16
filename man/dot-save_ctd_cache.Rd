@@ -4,7 +4,7 @@
 \alias{.save_ctd_cache}
 \title{Save CTD cache files}
 \usage{
-.save_ctd_cache(cache_dir, chemicals, entrez, symbols)
+.save_ctd_cache(cache_dir, chemicals, entrez, symbols, interactions)
 }
 \arguments{
 \item{cache_dir}{Path to the cache directory.}
@@ -14,10 +14,12 @@
 \item{entrez}{Named list of Entrez IDs per chemical.}
 
 \item{symbols}{Data frame of term-gene symbol mappings.}
+
+\item{interactions}{Long-format data frame (ChemicalID, EntrezID,
+InteractionActions).}
 }
 \value{
-Invisible \code{NULL}. Called for its side effect of saving
-  cache files.
+Invisible \code{NULL}.
 }
 \description{
 Save CTD cache files

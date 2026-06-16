@@ -4,7 +4,7 @@
 \alias{.run_gsva}
 \title{Per-sample gene-set scoring with GSVA}
 \usage{
-.run_gsva(expr, id_type = NULL, cache_dir, ...)
+.run_gsva(expr, id_type = NULL, cache_dir, interaction_types = NULL, ...)
 }
 \arguments{
 \item{expr}{Numeric expression matrix (genes x samples).

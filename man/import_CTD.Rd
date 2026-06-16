@@ -7,9 +7,8 @@
 import_CTD(file_path)
 }
 \arguments{
-\item{file_path}{Character. Path to the decompressed
-\code{CTD_chem_gene_ixns.csv} file (e.g.
-\code{"~/Downloads/CTD_chem_gene_ixns.csv"}).}
+\item{file_path}{Character. Path to the CTD chemical-gene interactions file
+(\code{CTD_chem_gene_ixns.csv} or \code{CTD_chem_gene_ixns.csv.gz}).}
 }
 \value{
 Invisible \code{NULL}. Called for its side effect of caching the
@@ -22,9 +21,7 @@ it can be used by \code{\link{enrichment_CTD}}. This function must be called
 
 The raw data file must be downloaded manually from the CTD website. The
 required file is \strong{CTD_chem_gene_ixns.csv.gz}, available at
-\url{https://ctdbase.org/reports/CTD_chem_gene_ixns.csv.gz}. Decompress it
-(e.g. \code{gunzip CTD_chem_gene_ixns.csv.gz}) and pass the resulting
-\code{CTD_chem_gene_ixns.csv} file path to this function.
+\url{https://ctdbase.org/reports/CTD_chem_gene_ixns.csv.gz}.
 }
 \details{
 Processing steps performed by \code{import_CTD}:
@@ -33,15 +30,22 @@ Processing steps performed by \code{import_CTD}:
   \item Filters interactions to \strong{Homo sapiens} only (OrganismID 9606).
   \item For each chemical, collects the associated Entrez gene IDs.
   \item Maps Entrez IDs to HGNC gene symbols via \pkg{org.Hs.eg.db}.
-  \item Saves three cached objects (\code{chemicals},
-    \code{ChemicalName_GeneEntrezIds},
-    \code{ChemicalName_GeneSymbols}) to the user cache
-    directory (\code{\link[rappdirs]{user_cache_dir}}).
+  \item Saves four cached objects to the user cache directory:
+    \code{chemicals}, \code{ChemicalName_GeneEntrezIds},
+    \code{ChemicalName_GeneSymbols}, and \code{ctd_interactions}
+    (a long-format table of chemical--gene--action triples used by
+    \code{enrichment_CTD(interaction_types = ...)}).
 }
 
 The cache is stored under \code{rappdirs::user_cache_dir("ctdR")}. To
 re-import (e.g. after downloading a newer CTD release), simply call
 \code{import_CTD()} again — existing cache files will be overwritten.
+
+Filtering by interaction type (e.g., to retain only
+\code{"increases^expression"} interactions) is done at enrichment time via
+the \code{interaction_types} argument of \code{\link{enrichment_CTD}},
+not here — so a single import supports any combination of filters without
+re-running this step.
 }
 \section{Data Licensing Disclaimer}{
 
@@ -55,7 +59,6 @@ acknowledge that you have read and accepted those terms.
 }
 
 \examples{
-# Import the bundled sample data:
 sample_file <- system.file(
     "extdata", "CTD_chem_gene_ixns_sample.csv",
     package = "ctdR"
@@ -65,5 +68,5 @@ import_CTD(sample_file)
 }
 \seealso{
 \code{\link{enrichment_CTD}} for running enrichment analysis after
-  import.
+  import, including the \code{interaction_types} filter.
 }

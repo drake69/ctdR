@@ -11,6 +11,8 @@ enrichment_CTD(
   contrast = NULL,
   id_type = NULL,
   pAdjustMethod = "BH",
+  interaction_types = NULL,
+  gene_id_type = c("symbol", "entrez"),
   ...
 )
 }
@@ -19,8 +21,12 @@ enrichment_CTD(
 \itemize{
   \item For \code{"ORA"} and \code{"GSEA"}: a data frame with at least two
     columns, \code{EntrezID} (character or numeric Entrez gene IDs)
-    and a numeric value column (e.g. p-value, log fold-change). The
-    numeric column is used for ranking in GSEA and ignored in ORA.
+    and a numeric value column (e.g. p-value). For GSEA, an optional
+    column named \code{stat} can be added with a signed ranking statistic
+    (e.g. the moderated t-statistic from \code{limma::eBayes()});
+    when present it is used directly for ranking, preserving directionality
+    and avoiding ties. When absent, the second column is transformed via
+    \code{-log10()} with a warning. The second column is ignored by ORA.
   \item For \code{"CAMERA"} and \code{"GSVA"}: a numeric expression
     matrix with genes in rows and samples in columns. \code{rownames(x)}
     must be either Entrez IDs or HGNC SYMBOLs.
@@ -44,11 +50,30 @@ one of \code{"BH"} (Benjamini-Hochberg, default), \code{"bonferroni"},
 \code{"fdr"} (alias for BH), or \code{"none"}. Not used for
 \code{method = "GSVA"} (which returns scores rather than p-values).}
 
+\item{interaction_types}{Character vector of CTD \code{InteractionActions}
+values to retain when building gene sets, or \code{NULL} (default) to
+use all cached interactions. Values follow the \code{verb\^{}noun}
+convention used by CTD, e.g. \code{"increases\^{}expression"},
+\code{"decreases\^{}expression"}, \code{"affects\^{}binding"}.
+A gene is included in a chemical's set if \emph{any} of its recorded
+interaction actions matches one of the specified types. Requires that
+\code{import_CTD()} has been run (the filter is applied to the cached
+\code{ctd_interactions.rda} file). Restricting to expression interactions
+is recommended for RNA-seq analyses to improve biological specificity.}
+
+\item{gene_id_type}{Character. Identifier type used in the \code{EnrichedGenes}
+output column: \code{"symbol"} (default) returns HGNC gene symbols with
+Entrez ID as fallback for unmapped genes; \code{"entrez"} skips the
+symbol lookup and returns Entrez IDs directly. Only applies to \code{"ORA"}
+and \code{"GSEA"}; ignored by \code{"CAMERA"} and \code{"GSVA"}.}
+
 \item{...}{Additional arguments forwarded to the underlying engine:
-\code{\link[clusterProfiler]{enricher}} for ORA,
-\code{\link[fgsea]{fgsea}} for GSEA,
+\code{\link[clusterProfiler]{enricher}} for ORA (e.g. \code{universe},
+\code{minGSSize}, \code{maxGSSize}),
+\code{\link[fgsea]{fgseaMultilevel}} for GSEA (e.g. \code{minSize},
+\code{maxSize}, \code{nproc}),
 \code{\link[limma]{camera}} for CAMERA,
-\code{\link[GSVA]{gsva}} for GSVA.}
+\code{\link[GSVA]{gsva}} for GSVA (e.g. \code{minSize}, \code{maxSize}).}
 }
 \value{
 \itemize{

@@ -7,9 +7,7 @@
 #'
 #' The raw data file must be downloaded manually from the CTD website. The
 #' required file is \strong{CTD_chem_gene_ixns.csv.gz}, available at
-#' \url{https://ctdbase.org/reports/CTD_chem_gene_ixns.csv.gz}. Decompress it
-#' (e.g. \code{gunzip CTD_chem_gene_ixns.csv.gz}) and pass the resulting
-#' \code{CTD_chem_gene_ixns.csv} file path to this function.
+#' \url{https://ctdbase.org/reports/CTD_chem_gene_ixns.csv.gz}.
 #'
 #' @section Data Licensing Disclaimer:
 #' This package does \strong{not} bundle or redistribute any CTD data. The
@@ -27,28 +25,33 @@
 #'   \item Filters interactions to \strong{Homo sapiens} only (OrganismID 9606).
 #'   \item For each chemical, collects the associated Entrez gene IDs.
 #'   \item Maps Entrez IDs to HGNC gene symbols via \pkg{org.Hs.eg.db}.
-#'   \item Saves three cached objects (\code{chemicals},
-#'     \code{ChemicalName_GeneEntrezIds},
-#'     \code{ChemicalName_GeneSymbols}) to the user cache
-#'     directory (\code{\link[rappdirs]{user_cache_dir}}).
+#'   \item Saves four cached objects to the user cache directory:
+#'     \code{chemicals}, \code{ChemicalName_GeneEntrezIds},
+#'     \code{ChemicalName_GeneSymbols}, and \code{ctd_interactions}
+#'     (a long-format table of chemical--gene--action triples used by
+#'     \code{enrichment_CTD(interaction_types = ...)}).
 #' }
 #'
 #' The cache is stored under \code{rappdirs::user_cache_dir("ctdR")}. To
 #' re-import (e.g. after downloading a newer CTD release), simply call
 #' \code{import_CTD()} again — existing cache files will be overwritten.
 #'
-#' @param file_path Character. Path to the decompressed
-#'   \code{CTD_chem_gene_ixns.csv} file (e.g.
-#'   \code{"~/Downloads/CTD_chem_gene_ixns.csv"}).
+#' Filtering by interaction type (e.g., to retain only
+#' \code{"increases^expression"} interactions) is done at enrichment time via
+#' the \code{interaction_types} argument of \code{\link{enrichment_CTD}},
+#' not here — so a single import supports any combination of filters without
+#' re-running this step.
+#'
+#' @param file_path Character. Path to the CTD chemical-gene interactions file
+#'   (\code{CTD_chem_gene_ixns.csv} or \code{CTD_chem_gene_ixns.csv.gz}).
 #'
 #' @return Invisible \code{NULL}. Called for its side effect of caching the
 #'   processed data.
 #'
 #' @seealso \code{\link{enrichment_CTD}} for running enrichment analysis after
-#'   import.
+#'   import, including the \code{interaction_types} filter.
 #'
 #' @examples
-#' # Import the bundled sample data:
 #' sample_file <- system.file(
 #'     "extdata", "CTD_chem_gene_ixns_sample.csv",
 #'     package = "ctdR"
@@ -63,7 +66,6 @@ import_CTD <- function(file_path) {
             "Please download CTD_chem_gene_ixns.csv.gz from:\n",
             "  https://ctdbase.org/reports/",
             "CTD_chem_gene_ixns.csv.gz\n",
-            "Decompress and provide the .csv path.\n",
             call. = FALSE
         )
     }
@@ -71,22 +73,102 @@ import_CTD <- function(file_path) {
     cache_dir <- rappdirs::user_cache_dir("ctdR")
     dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
 
+    t0 <- proc.time()[["elapsed"]]
+
     CTD_chem_gene_ixns <- .read_and_validate_ctd(file_path)
 
     chemicals_ids <- unique(CTD_chem_gene_ixns$ChemicalID)
-    gene_maps <- .map_chemical_genes(
-        CTD_chem_gene_ixns, chemicals_ids
-    )
-    chemicals <- unique(
+    gene_maps <- .map_chemical_genes(CTD_chem_gene_ixns, chemicals_ids)
+    chemicals  <- .deduplicate_chemicals(
         CTD_chem_gene_ixns[, c("ChemicalID", "ChemicalName")]
     )
 
-    .save_ctd_cache(
-        cache_dir, chemicals,
-        gene_maps$entrez, gene_maps$symbols
-    )
-    message("CTD data cached successfully in: ", cache_dir)
+    interactions <- .build_interaction_table(CTD_chem_gene_ixns)
+
+    .save_ctd_cache(cache_dir, chemicals,
+                    gene_maps$entrez, gene_maps$symbols, interactions)
+
+    elapsed <- proc.time()[["elapsed"]] - t0
+    message(sprintf(
+        "CTD data cached successfully in: %s\n  %d chemicals | %d unique genes | %.0f s",
+        cache_dir,
+        nrow(chemicals),
+        length(unique(interactions$EntrezID)),
+        elapsed
+    ))
     invisible(NULL)
+}
+
+#' Deduplicate the chemical metadata table
+#'
+#' Ensures one row per \code{ChemicalID}. Warns if the same ID appears with
+#' multiple names (CTD data quality issue — first occurrence is kept). Reports
+#' as a message if the same name is shared by multiple IDs (legitimate:
+#' parent compound and its derivatives each have distinct MeSH IDs).
+#'
+#' @param chem_df Data frame with columns \code{ChemicalID} and
+#'   \code{ChemicalName}.
+#' @return A data frame with one row per unique \code{ChemicalID}.
+#' @keywords internal
+.deduplicate_chemicals <- function(chem_df) {
+    dup_id <- duplicated(chem_df$ChemicalID)
+    if (any(dup_id)) {
+        ambiguous <- unique(chem_df$ChemicalID[dup_id])
+        warning(
+            length(ambiguous), " ChemicalID(s) appear with more than one ",
+            "ChemicalName in the CTD file; only the first name per ID is ",
+            "retained. Affected IDs: ",
+            paste(head(ambiguous, 5L), collapse = ", "),
+            if (length(ambiguous) > 5L)
+                paste0(" ... (and ", length(ambiguous) - 5L, " more)"),
+            call. = FALSE
+        )
+    }
+    out <- chem_df[!dup_id, ]
+
+    dup_name <- unique(out$ChemicalName[duplicated(out$ChemicalName)])
+    if (length(dup_name) > 0L)
+        message(
+            length(dup_name), " ChemicalName(s) are shared by more than one ",
+            "ChemicalID (e.g., a parent compound and its derivatives). ",
+            "Each ChemicalID is treated as a distinct gene set."
+        )
+
+    rownames(out) <- NULL
+    out
+}
+
+#' Build the long-format chemical–gene–action interaction table
+#'
+#' For each (ChemicalID, GeneID) pair, collapses all observed
+#' InteractionActions values (pipe-separated) into a single string.
+#' This table is cached and used at enrichment time when
+#' \code{interaction_types} is specified.
+#'
+#' @param ctd_data Filtered CTD interaction data frame.
+#' @return A data frame with columns \code{ChemicalID}, \code{EntrezID},
+#'   and \code{InteractionActions} (pipe-collapsed per pair).
+#' @keywords internal
+.build_interaction_table <- function(ctd_data) {
+    pairs <- ctd_data[, c("ChemicalID", "GeneID", "InteractionActions")]
+    pairs <- pairs[!is.na(pairs$GeneID) & nzchar(pairs$GeneID), ]
+    pairs$GeneID <- as.character(pairs$GeneID)
+    # Collapse multiple InteractionActions per (ChemicalID, GeneID) pair
+    result <- do.call(rbind, lapply(
+        split(pairs, paste(pairs$ChemicalID, pairs$GeneID, sep = "\t")),
+        function(g) {
+            ia_all <- unlist(strsplit(g$InteractionActions, "|", fixed = TRUE))
+            ia_all <- unique(ia_all[!is.na(ia_all) & nzchar(ia_all)])
+            data.frame(
+                ChemicalID         = g$ChemicalID[1],
+                EntrezID           = g$GeneID[1],
+                InteractionActions = if (length(ia_all)) paste(ia_all, collapse = "|") else NA_character_,
+                stringsAsFactors   = FALSE
+            )
+        }
+    ))
+    rownames(result) <- NULL
+    result
 }
 
 #' Map chemicals to gene IDs and symbols
@@ -96,37 +178,32 @@ import_CTD <- function(file_path) {
 #'   \code{symbols} (data frame).
 #' @keywords internal
 .map_chemical_genes <- function(ctd_data, chemicals_ids) {
-    entrez_map <- list()
-    symbols_df <- data.frame()
-    message(
-        "Mapping genes for ", length(chemicals_ids),
-        " chemicals (this may take a while)..."
-    )
-    for (i in seq_along(chemicals_ids)) {
-        chemical <- chemicals_ids[i]
-        rows <- ctd_data$ChemicalID == chemical
-        gene_ids <- unique(ctd_data[rows, "GeneID"])
-        gene_ids <- as.data.frame(gene_ids)[, 1]
-        entrez_map[[chemical]] <- gene_ids
-        gene_ids <- as.character(gene_ids)
-        tryCatch(
-            {
-                syms <- AnnotationDbi::mapIds(
-                    org.Hs.eg.db::org.Hs.eg.db,
-                    keys = gene_ids,
-                    column = "SYMBOL",
-                    keytype = "ENTREZID",
-                    multiVals = "first"
-                )
-                tt <- expand.grid(
-                    term = chemical, gene = syms,
-                    stringsAsFactors = FALSE
-                )
-                symbols_df <- plyr::rbind.fill(tt, symbols_df)
-            },
-            error = function(e) {}
-        )
-    }
+    message("Mapping genes for ", length(chemicals_ids), " chemicals...")
+
+    entrez_map <- lapply(chemicals_ids, function(chem) {
+        unique(as.character(
+            ctd_data[ctd_data$ChemicalID == chem, "GeneID"][[1]]
+        ))
+    })
+    names(entrez_map) <- chemicals_ids
+
+    all_entrez <- unique(unlist(entrez_map, use.names = FALSE))
+    sym_vec <- suppressMessages(AnnotationDbi::mapIds(
+        org.Hs.eg.db::org.Hs.eg.db,
+        keys      = all_entrez,
+        column    = "SYMBOL",
+        keytype   = "ENTREZID",
+        multiVals = "first"
+    ))
+
+    symbols_df <- do.call(rbind, lapply(chemicals_ids, function(chem) {
+        syms <- sym_vec[entrez_map[[chem]]]
+        syms <- syms[!is.na(syms)]
+        if (length(syms) == 0L) return(NULL)
+        data.frame(term = chem, gene = unname(syms),
+                   stringsAsFactors = FALSE)
+    }))
+
     list(entrez = entrez_map, symbols = symbols_df)
 }
 
@@ -136,9 +213,10 @@ import_CTD <- function(file_path) {
 #' @keywords internal
 .read_and_validate_ctd <- function(file_path) {
     message("Reading CTD chemical-gene interactions from: ", file_path)
-    ctd <- readr::read_csv(file_path,
-        skip = 27, show_col_types = FALSE
-    )
+    ctd <- suppressWarnings(readr::read_csv(file_path,
+        skip = 27, show_col_types = FALSE,
+        col_types = readr::cols(.default = readr::col_character())
+    ))
     if (nrow(ctd) < 2) {
         stop("File appears empty or has too few rows. ",
             "Use CTD_chem_gene_ixns.csv",
@@ -169,24 +247,21 @@ import_CTD <- function(file_path) {
 #' @param chemicals Data frame of chemical IDs and names.
 #' @param entrez Named list of Entrez IDs per chemical.
 #' @param symbols Data frame of term-gene symbol mappings.
-#' @return Invisible \code{NULL}. Called for its side effect of saving
-#'   cache files.
+#' @param interactions Long-format data frame (ChemicalID, EntrezID,
+#'   InteractionActions).
+#' @return Invisible \code{NULL}.
 #' @keywords internal
-.save_ctd_cache <- function(cache_dir, chemicals,
-    entrez, symbols) {
+.save_ctd_cache <- function(cache_dir, chemicals, entrez, symbols,
+    interactions) {
     ChemicalName_GeneEntrezIds <- entrez
-    ChemicalName_GeneSymbols <- symbols
+    ChemicalName_GeneSymbols   <- symbols
+    ctd_interactions           <- interactions
     save(chemicals,
-        file = file.path(cache_dir, "chemicals.rda")
-    )
+        file = file.path(cache_dir, "chemicals.rda"))
     save(ChemicalName_GeneEntrezIds,
-        file = file.path(
-            cache_dir, "ChemicalName_GeneEntrezIds.rda"
-        )
-    )
+        file = file.path(cache_dir, "ChemicalName_GeneEntrezIds.rda"))
     save(ChemicalName_GeneSymbols,
-        file = file.path(
-            cache_dir, "ChemicalName_GeneSymbols.rda"
-        )
-    )
+        file = file.path(cache_dir, "ChemicalName_GeneSymbols.rda"))
+    save(ctd_interactions,
+        file = file.path(cache_dir, "ctd_interactions.rda"))
 }

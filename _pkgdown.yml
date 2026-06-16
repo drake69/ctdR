@@ -40,6 +40,10 @@ articles:
     navbar: ~
     contents:
       - ctdR
+  - title: "Tutorials"
+    navbar: "Tutorials"
+    contents:
+      - articles/tutorial_rnaseq_workflow
 
 news:
   releases:

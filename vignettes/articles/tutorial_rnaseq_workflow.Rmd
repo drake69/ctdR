@@ -1,0 +1,601 @@
+---
+title: "From RNA-seq to chemical enrichment: a complete workflow"
+author:
+  - name: Luigi Corsaro
+    orcid: 0000-0003-1218-230X
+date: "`r Sys.Date()`"
+output:
+  BiocStyle::html_document:
+    toc: true
+    toc_depth: 3
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+    collapse = TRUE,
+    comment  = "#>",
+    message  = FALSE,
+    warning  = FALSE
+)
+```
+
+# Biological context
+
+Dexamethasone is a synthetic glucocorticoid widely used as an
+anti-inflammatory and immunosuppressive agent. Its transcriptomic
+effects on immune cells are well characterised: it suppresses
+pro-inflammatory cytokines, reprograms monocyte and lymphocyte gene
+programmes, and leaves a distinctive signature in peripheral blood
+mononuclear cells (PBMCs).
+
+This tutorial asks a straightforward question: **given the RNA-seq
+signature of dexamethasone treatment in human PBMCs, which chemicals in
+the Comparative Toxicogenomics Database (CTD) share that signature?**
+
+We answer it using all four methods provided by ctdR — GSEA, ORA,
+CAMERA, and GSVA — and show how to visualise and interpret each result.
+
+**Data source**: we use
+[GSE311566](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE311566),
+a public GEO series comparing the effects of PFAS chemicals and
+dexamethasone on human PBMCs from female donors. We work with the
+Dexamethasone vs. vehicle (DMSO/Ctrl) contrast, female samples only (7
+samples total: 4 Ctrl + 3 Dex).
+
+------------------------------------------------------------------------
+
+> **What this tutorial covers**
+>
+> - Downloading and preparing public RNA-seq count data from GEO
+> - Differential expression with `limma`
+> - Chemical enrichment analysis (GSEA, ORA, CAMERA, GSVA) using `ctdR`
+> - Visualisation with `plot_CTD()`
+>
+> **What this tutorial does NOT cover**
+>
+> - Raw read quality control (FastQC, trimming)
+> - Alignment and count generation
+> - Normalisation strategy selection (TMM, VST, etc.)
+> - Batch correction or covariate adjustment
+> - Biological replicate adequacy or power analysis
+>
+> This is an end-to-end illustration of the `ctdR` workflow on publicly
+> available processed data, not a template for a production differential
+> expression pipeline.
+
+------------------------------------------------------------------------
+
+# Setup
+
+```{r libraries}
+library(ctdR)
+library(limma)
+library(org.Hs.eg.db)
+library(AnnotationDbi)
+```
+
+# Step 1 — Download data from GEO
+
+The normalised count matrix for GSE311566 is available directly from
+NCBI FTP. We download it once and cache it in the session temporary
+directory; re-running this chunk skips the download if the file already
+exists.
+
+```{r download}
+GEO_URL <- paste0(
+    "https://ftp.ncbi.nlm.nih.gov/geo/series/GSE311nnn/GSE311566/",
+    "suppl/GSE311566_PBMCs_Female_normalized_counts.txt.gz"
+)
+tmp_gz <- file.path(tempdir(), "GSE311566_Female_normalized_counts.txt.gz")
+if (!file.exists(tmp_gz)) {
+    message("Downloading GSE311566 from NCBI FTP ...")
+    utils::download.file(GEO_URL, tmp_gz, mode = "wb", quiet = FALSE)
+}
+```
+
+# Step 2 — Prepare the expression matrix
+
+```{r prepare-counts}
+counts <- utils::read.table(
+    gzfile(tmp_gz),
+    header = TRUE, sep = "\t", row.names = 1,
+    check.names = FALSE, stringsAsFactors = FALSE
+)
+counts$DESCRIPTION <- NULL  # all NA in this dataset
+
+# Female Ctrl and DEX samples only
+keep_cols <- grep("^(Ctrl|DEX)_F_", colnames(counts), value = TRUE)
+counts <- counts[, keep_cols]
+group <- factor(
+    ifelse(grepl("^DEX_", keep_cols), "Dex", "DMSO"),
+    levels = c("DMSO", "Dex")
+)
+message(nrow(counts), " genes, ", ncol(counts), " samples: ",
+    paste(table(group), names(table(group)), sep = " ", collapse = " / "))
+```
+
+The GEO file uses Ensembl gene IDs. We strip version suffixes and map to
+Entrez IDs, which are the identifier type required by `ctdR`.
+
+```{r map-entrez}
+ensg <- sub("\\..*$", "", rownames(counts))
+entrez_map <- AnnotationDbi::mapIds(
+    org.Hs.eg.db,
+    keys     = ensg,
+    keytype  = "ENSEMBL",
+    column   = "ENTREZID",
+    multiVals = "first"
+)
+keep_g <- !is.na(entrez_map) & !duplicated(entrez_map)
+counts <- counts[keep_g, ]
+rownames(counts) <- entrez_map[keep_g]
+expr <- log2(as.matrix(counts) + 1)
+message(nrow(expr), " genes retained after Entrez mapping")
+```
+
+# Step 3 — Import CTD data
+
+```{r import-ctd}
+ctd_csv <- "~/Downloads/CTD_chem_gene_ixns.csv"
+ctd_gz  <- "~/Downloads/CTD_chem_gene_ixns.csv.gz"
+
+if (file.exists(ctd_csv)) {
+    message("Using full CTD: ", ctd_csv)
+    import_CTD(ctd_csv)
+} else if (file.exists(ctd_gz)) {
+    message("Using full CTD (compressed): ", ctd_gz)
+    import_CTD(ctd_gz)
+} else {
+    message(
+        "Full CTD not found in ~/Downloads/ — using bundled toy sample ",
+        "(10 chemicals). Results will be illustrative only.\n",
+        "Download CTD_chem_gene_ixns.csv.gz from ctdbase.org for a ",
+        "powered analysis."
+    )
+    import_CTD(system.file(
+        "extdata", "CTD_chem_gene_ixns_sample.csv",
+        package = "ctdR"
+    ))
+}
+```
+
+> **Note on CTD coverage**: this tutorial uses the small toy dataset
+> bundled with `ctdR` (10 chemicals, 17 genes). It is sufficient to
+> demonstrate the API and visualisations. For a powered analysis capable
+> of discovering novel chemical associations, download the full
+> `CTD_chem_gene_ixns.csv.gz` from
+> <https://ctdbase.org/reports/CTD_chem_gene_ixns.csv.gz> and run
+> `import_CTD()` on that file instead.
+
+# Step 4 — Differential expression with limma
+
+We fit a linear model and apply empirical Bayes moderation. The design
+matrix has two columns: the intercept (DMSO baseline) and `groupDex`
+(Dex vs DMSO contrast, coefficient 2).
+
+```{r limma-de}
+design <- model.matrix(~ group)
+colnames(design)
+
+fit <- limma::lmFit(expr, design)
+fit <- limma::eBayes(fit)
+
+de <- limma::topTable(fit, coef = 2, n = Inf, sort.by = "P")
+de$EntrezID <- rownames(de)
+
+head(de[, c("EntrezID", "logFC", "t", "P.Value", "adj.P.Val")])
+```
+
+A brief look at significance:
+
+```{r de-summary}
+c(
+    total_genes   = nrow(de),
+    padj_lt_05    = sum(de$adj.P.Val < 0.05),
+    pvalue_lt_05  = sum(de$P.Value  < 0.05)
+)
+```
+
+# Step 5 — Chemical enrichment
+
+## GSEA — Gene Set Enrichment Analysis
+
+GSEA uses the **full ranked gene list** to detect chemicals whose known
+target genes collectively cluster toward one extreme of the ranking,
+without requiring a significance threshold. We supply the moderated
+t-statistic from limma as the `stat` column so that directionality
+(up vs down) is preserved and ties at non-significant genes are avoided.
+Pass `nproc = N` to parallelise across N cores.
+
+```{r gsea}
+gsea_input <- data.frame(
+    EntrezID = de$EntrezID,
+    pvalue   = de$P.Value,
+    stat     = de$t,       # signed ranking: positive = up in Dex
+    row.names = NULL
+)
+gsea_results <- enrichment_CTD(
+    gsea_input, method = "GSEA",
+    minSize = 3, maxSize = 500   # gene set size filter
+)
+head(gsea_results[, c(
+    "ChemicalName", "PValue", "PValueAdjusted",
+    "NormalizedEnrichmentScore", "FoldEnrichment"
+)])
+```
+
+`FoldEnrichment` here is `|ES| / mean(|ES|)` across all tested chemicals
+— a relative measure of how strongly enriched this chemical's gene set
+is compared to the average. `NES` (Normalized Enrichment Score) accounts
+for gene set size differences and is the primary statistic for ranking
+chemicals.
+
+```{r plot-gsea, fig.width=7, fig.height=5}
+plot_CTD(gsea_results, type = "bar", n = 10,
+         title = "GSEA — top chemicals by NES")
+```
+
+```{r plot-gsea-dot, fig.width=7, fig.height=5}
+plot_CTD(gsea_results, type = "dot", n = 10,
+         title = "GSEA — top chemicals (dot)")
+```
+
+### Where is Dexamethasone?
+
+The top-ranked chemical may or may not be Dexamethasone depending on
+which CTD dataset is loaded. With the full CTD (\~11 000 chemicals and
+strict BH correction) Dexamethasone competes against many other
+chemicals and may rank lower than expected, or may not reach
+significance after correction. The code below locates it regardless of
+its rank:
+
+```{r gsea-dex}
+dex_idx  <- grep("dexamethasone", gsea_results$ChemicalName,
+                 ignore.case = TRUE)
+if (length(dex_idx) > 0) {
+    cat("Dexamethasone: rank", dex_idx, "of", nrow(gsea_results), "\n")
+    gsea_results[dex_idx, c("ChemicalName", "PValue", "PValueAdjusted",
+                             "NormalizedEnrichmentScore", "FoldEnrichment")]
+} else {
+    message("Dexamethasone not found — it may be absent from the loaded CTD cache.")
+}
+```
+
+> **Why Dexamethasone may not top the list with the full CTD:**
+>
+> 1.  **Multiple testing burden** — 11 000 tests vs 10 in the toy
+>     sample; the BH threshold is \~1 000× more stringent.
+> 2.  **Larger gene sets** — in the full CTD, Dexamethasone has hundreds
+>     of annotated targets; very large sets dilute the GSEA signal in
+>     small cohorts (7 samples here).
+> 3.  **Competing chemicals** — other chemicals may have gene sets that
+>     overlap more tightly with the top-ranked DE genes.
+
+### Direction-aware GSEA with `interaction_types`
+
+The standard GSEA above uses all CTD interactions regardless of direction.
+With `interaction_types` we can restrict each chemical's gene set to
+interactions of a specific type, creating a **concordance test**: do
+chemicals that are known to *increase* gene expression share targets with
+genes we observe *up*-regulated?
+
+```{r gsea-direction}
+# Chemicals whose INCREASE-expression targets are enriched among up-regulated genes
+gsea_up <- enrichment_CTD(
+    gsea_input, method = "GSEA",
+    minSize = 3, maxSize = 500,
+    interaction_types = "increases^expression"
+)
+
+# Chemicals whose DECREASE-expression targets are enriched among down-regulated genes
+# Flip stat sign so down-regulated genes (negative t) rank at the top
+gsea_input_down <- transform(gsea_input, stat = -stat)
+gsea_down <- enrichment_CTD(
+    gsea_input_down, method = "GSEA",
+    minSize = 3, maxSize = 500,
+    interaction_types = "decreases^expression"
+)
+
+# Chemicals consistent with Dex treatment (up or down, direction-matched)
+message("Direction-aware GSEA — increases^expression: ",
+        nrow(gsea_up), " chemicals tested")
+message("Direction-aware GSEA — decreases^expression: ",
+        nrow(gsea_down), " chemicals tested")
+```
+
+A chemical appearing in **both** `gsea_up` and `gsea_down` with positive
+NES in each is particularly strong evidence of a concordant transcriptomic
+footprint.
+
+## ORA — Over-Representation Analysis
+
+ORA works on a **binary gene list**: genes declared significant vs the
+rest of the universe. It asks whether the overlap between your
+significant genes and each chemical's known targets is larger than
+expected by chance (hypergeometric test).
+
+```{r ora}
+sig <- de[de$adj.P.Val < 0.05, c("EntrezID", "P.Value")]
+colnames(sig)[2] <- "pvalue"
+message(nrow(sig), " genes at adj.P.Val < 0.05")
+
+ora_results <- enrichment_CTD(
+    sig, method = "ORA",
+    universe   = de$EntrezID,  # restrict background to measured genes
+    minGSSize  = 3,
+    maxGSSize  = 500
+)
+```
+
+```{r ora-results}
+if (nrow(ora_results) > 0) {
+    head(ora_results[, c(
+        "ChemicalName", "PValue", "PValueAdjusted",
+        "FoldEnrichment", "Count", "EnrichedGenes"
+    )])
+} else {
+    message(
+        "ORA returned 0 results — expected with the toy CTD sample.\n",
+        "Run import_CTD() on the full CTD file for a powered analysis."
+    )
+}
+```
+
+```{r ora-dex}
+if (nrow(ora_results) > 0) {
+    dex_idx <- grep("dexamethasone", ora_results$ChemicalName,
+                    ignore.case = TRUE)
+    if (length(dex_idx) > 0) {
+        cat("Dexamethasone: rank", dex_idx, "of", nrow(ora_results), "\n")
+        ora_results[dex_idx, c("ChemicalName", "PValue", "PValueAdjusted",
+                                "FoldEnrichment", "Count")]
+    } else {
+        message("Dexamethasone not found in ORA results.")
+    }
+}
+```
+
+```{r plot-ora, eval=nrow(ora_results) > 0, fig.width=7, fig.height=5}
+plot_CTD(ora_results, type = "dot", n = 10,
+         title = "ORA — top chemicals by fold enrichment")
+```
+
+`FoldEnrichment` in ORA is `GeneRatio / BackgroundRatio`: the proportion
+of your significant genes that are targets of this chemical, divided by
+the same proportion in the background universe. A value greater than 1
+indicates over-representation.
+
+## CAMERA — Competitive gene-set test
+
+CAMERA tests, for each chemical, whether its target genes show a
+**stronger differential signal** than the rest of the transcriptome,
+while correcting for inter-gene correlation within the gene set. It is
+particularly well suited to expression matrix experiments with a clear
+design and contrast.
+
+We reuse the `design` matrix built for limma. `contrast = 2` selects the
+`groupDex` coefficient (Dex vs DMSO).
+
+```{r camera}
+camera_results <- enrichment_CTD(
+    expr,
+    method   = "CAMERA",
+    design   = design,
+    contrast = 2
+)
+head(camera_results[, c(
+    "ChemicalName", "PValue", "PValueAdjusted",
+    "GeneSetSize", "Direction"
+)])
+```
+
+Unlike ORA and GSEA, CAMERA does not report a `FoldEnrichment` value —
+it reports `Direction` (`"Up"` or `"Down"`), indicating whether the
+chemical's target genes are predominantly up- or down-regulated under
+the tested contrast.
+
+```{r plot-camera, fig.width=7, fig.height=5}
+plot_CTD(camera_results, type = "bar", n = 10,
+         title = "CAMERA — direction-aware chemical enrichment")
+```
+
+```{r camera-dex}
+dex_idx <- grep("dexamethasone", camera_results$ChemicalName,
+                ignore.case = TRUE)
+if (length(dex_idx) > 0) {
+    cat("Dexamethasone: rank", dex_idx, "of", nrow(camera_results), "\n")
+    camera_results[dex_idx, c("ChemicalName", "PValue", "PValueAdjusted",
+                               "GeneSetSize", "Direction")]
+} else {
+    message("Dexamethasone not found in CAMERA results.")
+}
+```
+
+## GSVA — Gene Set Variation Analysis
+
+GSVA produces a **per-sample enrichment score** for each chemical: a
+matrix with chemicals in rows and samples in columns. There is no single
+group-level p-value; instead, these scores can be used for clustering,
+heatmap visualisation, survival association, or as input to downstream
+tests.
+
+> **Computation time**: GSVA scores all chemicals across all samples. On
+> the full expression matrix this may take a few minutes. Use
+> `BiocParallel::register()` to speed it up on multi-core machines.
+
+```{r gsva}
+gsva_scores <- enrichment_CTD(
+    expr, method = "GSVA",
+    minSize = 3, maxSize = 500
+)
+dim(gsva_scores)  # chemicals x samples
+```
+
+```{r plot-gsva, fig.width=7, fig.height=6}
+plot_CTD(gsva_scores,
+         title = "GSVA — per-sample chemical enrichment scores")
+```
+
+The heatmap rows are chemicals ranked by across-sample variance
+(top-variance chemicals shown first). Samples that cluster together
+share a similar chemical-exposure transcriptomic profile.
+
+To inspect Dexamethasone's per-sample scores directly:
+
+```{r gsva-dex}
+dex_idx <- grep("dexamethasone", rownames(gsva_scores),
+                ignore.case = TRUE)
+if (length(dex_idx) > 0) {
+    cat("Dexamethasone row(s):", rownames(gsva_scores)[dex_idx], "\n")
+    gsva_scores[dex_idx, , drop = FALSE]
+} else {
+    message("Dexamethasone not found in GSVA score matrix.")
+}
+```
+
+Positive scores indicate that Dexamethasone's target genes are
+collectively up-regulated in that sample relative to the background;
+negative scores indicate down-regulation. A clear separation between Dex
+and Ctrl samples (positive scores in Dex, negative in Ctrl, or vice
+versa) would support the expected glucocorticoid signature.
+
+# Step 6 — Comparing results across methods
+
+Each method answers a subtly different question:
+
+| Method | Input | Question answered | Key output column |
+|------------------|------------------|------------------|------------------|
+| GSEA | Full ranked list | Do this chemical's targets cluster at the extreme of the ranking? | `NES`, `FoldEnrichment` |
+| ORA | Significant gene list | Is the overlap larger than expected by chance? | `FoldEnrichment`, `Count` |
+| CAMERA | Expression matrix + design | Is the differential signal stronger than the transcriptome average? | `Direction` |
+| GSVA | Expression matrix | What is the per-sample enrichment score? | score matrix |
+
+GSEA and ORA both report `FoldEnrichment`, but it means different
+things: in GSEA it is relative to the mean ES across chemicals
+(`|ES| / mean(|ES|)`); in ORA it is the ratio of observed to expected
+overlap (`GeneRatio / BackgroundRatio`). Do not compare these numbers
+across methods.
+
+For a discovery workflow on a single contrast, **GSEA is recommended as
+the primary method** — it uses all genes and is robust to the choice of
+significance threshold. ORA is useful as a complementary check when a
+reliable binary gene list is available. CAMERA is the method of choice
+when inter-gene correlation is a concern. GSVA is best reserved for
+multi-sample stratification or when you want to visualise chemical
+signatures across a cohort.
+
+# Dexamethasone — ranking recap across all methods
+
+Since Dexamethasone is the treatment used in GSE311566, we expect its
+CTD gene set to carry a strong signal in this dataset. The code below
+collects its position and key statistics from each method into a single
+summary, regardless of whether it reached the top rank.
+
+```{r dex-recap-gsea}
+dex_gsea <- local({
+    idx <- which(tolower(gsea_results$ChemicalName) == "dexamethasone")
+    if (length(idx) == 0L) return(NULL)
+    r <- gsea_results[idx, ]
+    data.frame(
+        Method    = "GSEA",
+        Rank      = idx,
+        Total     = nrow(gsea_results),
+        PValue    = signif(r$PValue, 3),
+        PAdj      = signif(r$PValueAdjusted, 3),
+        StatLabel = "NES",
+        Stat      = signif(r$NormalizedEnrichmentScore, 3)
+    )
+})
+```
+
+```{r dex-recap-ora}
+dex_ora <- local({
+    if (nrow(ora_results) == 0L) return(NULL)
+    idx <- which(tolower(ora_results$ChemicalName) == "dexamethasone")
+    if (length(idx) == 0L) return(NULL)
+    r <- ora_results[idx, ]
+    data.frame(
+        Method    = "ORA",
+        Rank      = idx,
+        Total     = nrow(ora_results),
+        PValue    = signif(r$PValue, 3),
+        PAdj      = signif(r$PValueAdjusted, 3),
+        StatLabel = "FoldEnrichment",
+        Stat      = signif(r$FoldEnrichment, 3)
+    )
+})
+```
+
+```{r dex-recap-camera}
+dex_camera <- local({
+    idx <- which(tolower(camera_results$ChemicalName) == "dexamethasone")
+    if (length(idx) == 0L) return(NULL)
+    r <- camera_results[idx, ]
+    data.frame(
+        Method    = "CAMERA",
+        Rank      = idx,
+        Total     = nrow(camera_results),
+        PValue    = signif(r$PValue, 3),
+        PAdj      = signif(r$PValueAdjusted, 3),
+        StatLabel = "Direction",
+        Stat      = r$Direction
+    )
+})
+```
+
+```{r dex-recap-gsva}
+dex_gsva <- local({
+    # GSVA rownames are ChemicalIDs (e.g. "D003907"), not names.
+    # Load the chemicals metadata to map name -> ID.
+    e <- new.env(parent = emptyenv())
+    load(file.path(rappdirs::user_cache_dir("ctdR"), "chemicals.rda"),
+         envir = e)
+    dex_id <- e$chemicals$ChemicalID[
+        tolower(e$chemicals$ChemicalName) == "dexamethasone"
+    ]
+    if (length(dex_id) == 0L || !dex_id %in% rownames(gsva_scores))
+        return(NULL)
+    scores       <- gsva_scores[dex_id, , drop = FALSE]
+    dex_samples  <- grepl("^DEX_",  colnames(gsva_scores))
+    ctrl_samples <- grepl("^Ctrl_", colnames(gsva_scores))
+    mean_dex     <- mean(scores[, dex_samples])
+    mean_ctrl    <- mean(scores[, ctrl_samples])
+    data.frame(
+        Method    = "GSVA",
+        Rank      = NA_integer_,
+        Total     = nrow(gsva_scores),
+        PValue    = NA_real_,
+        PAdj      = NA_real_,
+        StatLabel = "mean(Dex) - mean(Ctrl)",
+        Stat      = signif(mean_dex - mean_ctrl, 3)
+    )
+})
+```
+
+```{r dex-recap-table}
+recap <- do.call(rbind, Filter(Negate(is.null),
+                               list(dex_gsea, dex_ora, dex_camera, dex_gsva)))
+
+if (is.null(recap) || nrow(recap) == 0L) {
+    message("Dexamethasone not found in any method's results.")
+} else {
+    recap$RankOf <- ifelse(
+        is.na(recap$Rank), "—",
+        paste0(recap$Rank, " / ", recap$Total)
+    )
+    print(recap[, c("Method", "RankOf", "PValue", "PAdj",
+                    "StatLabel", "Stat")],
+          row.names = FALSE)
+}
+```
+
+`RankOf` is the position of Dexamethasone in each result table sorted
+by adjusted p-value (GSEA, ORA, CAMERA) or — for GSVA — the
+difference between the mean per-sample score in treated vs control
+samples (positive = target genes up-regulated in Dex samples).
+
+# Session information
+
+```{r sessionInfo}
+sessionInfo()
+```

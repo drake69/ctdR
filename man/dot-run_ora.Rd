@@ -4,7 +4,15 @@
 \alias{.run_ora}
 \title{Run ORA branch of enrichment analysis}
 \usage{
-.run_ora(x, chemicals_meta, cache_dir, pAdjustMethod)
+.run_ora(
+  x,
+  chemicals_meta,
+  cache_dir,
+  pAdjustMethod,
+  interaction_types = NULL,
+  gene_id_type = "symbol",
+  ...
+)
 }
 \arguments{
 \item{x}{Data frame with column \code{EntrezID}.}
