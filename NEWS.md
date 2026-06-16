@@ -1,6 +1,65 @@
 # Changes in version 0.99.6
 
+## New features
+
+* `enrichment_CTD()` gains an `interaction_types` argument: a character
+  vector of CTD `InteractionActions` values (e.g.
+  `"increases^expression"`, `"decreases^expression"`) that filters each
+  chemical's gene set at enrichment time. Gene sets are rebuilt on the
+  fly from the new `ctd_interactions.rda` cache without re-importing;
+  `NULL` (default) retains full backward compatibility. Supported by all
+  four methods (ORA, GSEA, CAMERA, GSVA). Requires `import_CTD()` to be
+  re-run once to generate `ctd_interactions.rda`.
+
+* `enrichment_CTD()` gains a `gene_id_type` argument (`"symbol"` or
+  `"entrez"`) controlling whether the `EnrichedGenes` output column
+  reports HGNC symbols (with Entrez ID fallback for unmapped genes) or
+  raw Entrez IDs. Default `"symbol"` is backward compatible.
+
+* `enrichment_CTD(method = "ORA")` now forwards `universe`, `minGSSize`,
+  and `maxGSSize` to `clusterProfiler::enricher()` via `...`. Setting
+  `universe = de$EntrezID` restricts the background to measured genes,
+  avoiding inflated fold-enrichment estimates. GSEA and GSVA already
+  exposed `minSize`/`maxSize`; CAMERA `...` was already forwarded.
+
+* `import_CTD()` now caches `ctd_interactions.rda`, a long-format table
+  of `(ChemicalID, EntrezID, InteractionActions)` triples used by the
+  new `interaction_types` filter.
+
+* `import_CTD()` reports elapsed time, chemical count, and unique gene
+  count on completion.
+
+* `import_CTD()` detects and warns when the same `ChemicalID` appears
+  with multiple `ChemicalName` values (CTD data quality issue; first
+  name retained). Reports an informational message when the same name
+  is shared by multiple `ChemicalID`s (legitimate parent/derivative
+  pairs).
+
+## Bug fixes
+
+* Fixed `EnrichedGenes` column in GSEA output: was incorrectly set to
+  data frame row indices instead of gene identifiers. Gene labels are
+  now mapped via `AnnotationDbi::mapIds()` in `.run_gsea()`.
+
+* `clusterProfiler::enricher()` messages ("No gene can be mapped",
+  "Expected input gene ID", etc.) are now suppressed via
+  `suppressMessages()`.
+
 ## Documentation
+
+* New pkgdown article `vignettes/articles/tutorial_rnaseq_workflow.Rmd`:
+  a complete RNA-seq → chemical enrichment workflow using the full
+  GSE311566 dataset (downloaded from GEO at runtime), `limma` DE, all
+  four methods with recommended parameters, direction-aware GSEA, and a
+  per-method Dexamethasone ranking recap.
+
+* Vignette gains a "Gene set size filters and background universe"
+  section documenting `universe`, `minGSSize`/`maxGSSize` (ORA),
+  `minSize`/`maxSize` (GSEA, GSVA), and CAMERA's implicit minimum of 2
+  genes.
+
+* Added a new `interaction_types` parameter description to the vignette
+  explaining the CTD `verb^noun` vocabulary and direction-aware analysis.
 
 * Added a full end-to-end pipeline example at
   `inst/scripts/example_gse311566_full_pipeline.R`. The script
