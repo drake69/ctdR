@@ -4,7 +4,7 @@
 \alias{ora}
 \title{Over-Representation Analysis (ORA)}
 \usage{
-ora(ChemicalName_GeneSymbols, gene_symbols, pAdjustMethod = "BH")
+ora(ChemicalName_GeneSymbols, gene_symbols, pAdjustMethod = "BH", ...)
 }
 \arguments{
 \item{ChemicalName_GeneSymbols}{A data frame with two columns
@@ -18,6 +18,18 @@ for enrichment.}
 \item{pAdjustMethod}{Character. Method for multiple testing
 correction (default \code{"BH"}). Passed to
 \code{\link[clusterProfiler]{enricher}}.}
+
+\item{...}{Additional arguments forwarded to
+\code{\link[clusterProfiler]{enricher}}, e.g.:
+\describe{
+  \item{\code{universe}}{Character vector of background gene symbols
+    (default: all genes in the TERM2GENE table). Set to
+    \code{rownames(expr)} or the full tested gene list to restrict
+    the background to measured genes only.}
+  \item{\code{minGSSize}}{Minimum gene set size after intersection
+    with the universe (default 1).}
+  \item{\code{maxGSSize}}{Maximum gene set size (default 500).}
+}}
 }
 \value{
 A data frame with \code{clusterProfiler::enricher}'s native

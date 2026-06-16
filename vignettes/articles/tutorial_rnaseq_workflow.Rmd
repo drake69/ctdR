@@ -200,20 +200,24 @@ c(
 
 ## GSEA — Gene Set Enrichment Analysis
 
-GSEA uses the **full ranked gene list** (here ranked by nominal p-value;
-internally converted to `-log10(p)` as the running-sum statistic). It
-detects chemicals whose known target genes collectively cluster toward
-the most significant end of the ranking, without requiring a
-significance threshold.
+GSEA uses the **full ranked gene list** to detect chemicals whose known
+target genes collectively cluster toward one extreme of the ranking,
+without requiring a significance threshold. We supply the moderated
+t-statistic from limma as the `stat` column so that directionality
+(up vs down) is preserved and ties at non-significant genes are avoided.
+Pass `nproc = N` to parallelise across N cores.
 
 ```{r gsea}
 gsea_input <- data.frame(
     EntrezID = de$EntrezID,
     pvalue   = de$P.Value,
-    stat     = de$t,
+    stat     = de$t,       # signed ranking: positive = up in Dex
     row.names = NULL
 )
-gsea_results <- enrichment_CTD(gsea_input, method = "GSEA")
+gsea_results <- enrichment_CTD(
+    gsea_input, method = "GSEA",
+    minSize = 3, maxSize = 500   # gene set size filter
+)
 head(gsea_results[, c(
     "ChemicalName", "PValue", "PValueAdjusted",
     "NormalizedEnrichmentScore", "FoldEnrichment"
@@ -267,6 +271,42 @@ if (length(dex_idx) > 0) {
 > 3.  **Competing chemicals** — other chemicals may have gene sets that
 >     overlap more tightly with the top-ranked DE genes.
 
+### Direction-aware GSEA with `interaction_types`
+
+The standard GSEA above uses all CTD interactions regardless of direction.
+With `interaction_types` we can restrict each chemical's gene set to
+interactions of a specific type, creating a **concordance test**: do
+chemicals that are known to *increase* gene expression share targets with
+genes we observe *up*-regulated?
+
+```{r gsea-direction}
+# Chemicals whose INCREASE-expression targets are enriched among up-regulated genes
+gsea_up <- enrichment_CTD(
+    gsea_input, method = "GSEA",
+    minSize = 3, maxSize = 500,
+    interaction_types = "increases^expression"
+)
+
+# Chemicals whose DECREASE-expression targets are enriched among down-regulated genes
+# Flip stat sign so down-regulated genes (negative t) rank at the top
+gsea_input_down <- transform(gsea_input, stat = -stat)
+gsea_down <- enrichment_CTD(
+    gsea_input_down, method = "GSEA",
+    minSize = 3, maxSize = 500,
+    interaction_types = "decreases^expression"
+)
+
+# Chemicals consistent with Dex treatment (up or down, direction-matched)
+message("Direction-aware GSEA — increases^expression: ",
+        nrow(gsea_up), " chemicals tested")
+message("Direction-aware GSEA — decreases^expression: ",
+        nrow(gsea_down), " chemicals tested")
+```
+
+A chemical appearing in **both** `gsea_up` and `gsea_down` with positive
+NES in each is particularly strong evidence of a concordant transcriptomic
+footprint.
+
 ## ORA — Over-Representation Analysis
 
 ORA works on a **binary gene list**: genes declared significant vs the
@@ -279,7 +319,12 @@ sig <- de[de$adj.P.Val < 0.05, c("EntrezID", "P.Value")]
 colnames(sig)[2] <- "pvalue"
 message(nrow(sig), " genes at adj.P.Val < 0.05")
 
-ora_results <- enrichment_CTD(sig, method = "ORA")
+ora_results <- enrichment_CTD(
+    sig, method = "ORA",
+    universe   = de$EntrezID,  # restrict background to measured genes
+    minGSSize  = 3,
+    maxGSSize  = 500
+)
 ```
 
 ```{r ora-results}
@@ -379,7 +424,10 @@ tests.
 > `BiocParallel::register()` to speed it up on multi-core machines.
 
 ```{r gsva}
-gsva_scores <- enrichment_CTD(expr, method = "GSVA")
+gsva_scores <- enrichment_CTD(
+    expr, method = "GSVA",
+    minSize = 3, maxSize = 500
+)
 dim(gsva_scores)  # chemicals x samples
 ```
 
@@ -497,9 +545,17 @@ dex_camera <- local({
 
 ```{r dex-recap-gsva}
 dex_gsva <- local({
-    idx <- which(tolower(rownames(gsva_scores)) == "dexamethasone")
-    if (length(idx) == 0L) return(NULL)
-    scores       <- gsva_scores[idx, , drop = FALSE]
+    # GSVA rownames are ChemicalIDs (e.g. "D003907"), not names.
+    # Load the chemicals metadata to map name -> ID.
+    e <- new.env(parent = emptyenv())
+    load(file.path(rappdirs::user_cache_dir("ctdR"), "chemicals.rda"),
+         envir = e)
+    dex_id <- e$chemicals$ChemicalID[
+        tolower(e$chemicals$ChemicalName) == "dexamethasone"
+    ]
+    if (length(dex_id) == 0L || !dex_id %in% rownames(gsva_scores))
+        return(NULL)
+    scores       <- gsva_scores[dex_id, , drop = FALSE]
     dex_samples  <- grepl("^DEX_",  colnames(gsva_scores))
     ctrl_samples <- grepl("^Ctrl_", colnames(gsva_scores))
     mean_dex     <- mean(scores[, dex_samples])
