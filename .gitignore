@@ -11,5 +11,8 @@ ctdR.Rcheck/
 # .sestante/ — backlog locale, mai committato
 .sestante/
 
+# .coding_agent/ — diari di sessione AI, mai committati
+.coding_agent/
+
 # vignette HTML è artefatto di rmarkdown::render(), non sorgente
 vignettes/*.html
