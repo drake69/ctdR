@@ -349,9 +349,26 @@ if (is_subset) {
 
 CAMERA tests, for each chemical, whether its target
 genes show a stronger differential signal than the rest
-of the transcriptome under a user-supplied design and
-contrast, while correcting for inter-gene correlation
-within the gene set. Reusing the real `expr` / `grp` above:
+of the transcriptome, while correcting for inter-gene
+correlation within the gene set.
+
+Unlike ORA or GSEA, CAMERA does **not** take a pre-computed
+list of differentially expressed genes. Its inputs are the
+**full expression matrix** (`expr`, all genes × all samples)
+together with a **`design`** matrix and a **`contrast`**:
+CAMERA fits the differential model and computes the test
+*internally*. The chemical-to-gene mapping (the gene-set
+"index", built by `ctdR` from CTD targets intersected with
+`rownames(expr)`) is handled for you. Note that `design` and
+`contrast` are two distinct inputs: `design`
+(e.g. `model.matrix(~ grp)`) describes the *whole*
+experimental layout — intercept plus any covariates — while
+`contrast` selects *which* coefficient to test (here column 2,
+Dex vs DMSO). This separation lets you adjust for batch or
+other nuisance covariates while keeping the test focused on a
+single comparison.
+
+Reusing the real `expr` / `grp` above:
 
 ```{r camera}
 design <- model.matrix(~ grp)

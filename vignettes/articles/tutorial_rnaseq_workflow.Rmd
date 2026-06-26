@@ -373,8 +373,12 @@ while correcting for inter-gene correlation within the gene set. It is
 particularly well suited to expression matrix experiments with a clear
 design and contrast.
 
-We reuse the `design` matrix built for limma. `contrast = 2` selects the
-`groupDex` coefficient (Dex vs DMSO).
+CAMERA does not consume a pre-computed DEG result: it takes the **full
+expression matrix** plus a **`design`** and a **`contrast`**, and
+recomputes the differential signal internally. The chemical→gene "index"
+is built by `ctdR` from CTD targets. We reuse the `design` matrix built
+for limma; here `design` carries the whole layout while `contrast = 2`
+selects *which* coefficient to test — the `groupDex` effect (Dex vs DMSO).
 
 ```{r camera}
 camera_results <- enrichment_CTD(
