@@ -20,7 +20,7 @@ jobs:
       R_KEEP_PKG_SOURCE: yes
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       # Fast, version-independent guard: BiocCheck's check for tracked
       # system files exists only in devel (>= 1.49.x), so a stable
