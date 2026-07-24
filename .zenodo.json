@@ -1,0 +1,26 @@
+{
+  "upload_type": "software",
+  "title": "ctdR: Chemical enrichment analysis using the Comparative Toxicogenomics Database",
+  "creators": [
+    { "name": "Corsaro, Luigi", "orcid": "0000-0003-1218-230X" }
+  ],
+  "description": "<p><strong>ctdR</strong> identifies chemicals significantly associated with a set of genes using data from the <a href=\"https://ctdbase.org\">Comparative Toxicogenomics Database</a> (CTD). It exposes four enrichment frameworks through a single interface (<code>enrichment_CTD()</code>): Over-Representation Analysis (ORA) via <code>clusterProfiler</code>, Gene Set Enrichment Analysis (GSEA) via <code>fgsea</code>, the competitive gene-set test CAMERA via <code>limma</code>, and per-sample Gene Set Variation Analysis (GSVA) via <code>GSVA</code>. The user imports the CTD chemical-gene interactions file once with <code>import_CTD()</code> (or reads it as a <code>CTDFile</code> via the Bioconductor <code>BiocIO</code> <code>import()</code> convention) and then runs enrichment on either a gene list (ORA, GSEA) or an expression matrix (CAMERA, GSVA). Results share a unified output schema, and the CTD gene sets can be exported with <code>as_genesets_CTD()</code> for use with other enrichment engines. The package does not bundle or redistribute CTD data.</p><p>📖 <a href=\"https://drake69.github.io/ctdR/\">Documentation and tutorials</a></p>",
+  "license": "Apache-2.0",
+  "keywords": [
+    "Comparative Toxicogenomics Database",
+    "CTD",
+    "chemical-gene interactions",
+    "toxicogenomics",
+    "gene set enrichment",
+    "ORA",
+    "GSEA",
+    "CAMERA",
+    "GSVA",
+    "Bioconductor",
+    "R"
+  ],
+  "related_identifiers": [
+    { "relation": "isDocumentedBy", "identifier": "https://drake69.github.io/ctdR/", "scheme": "url", "resource_type": "other" },
+    { "relation": "isSupplementTo", "identifier": "https://github.com/drake69/ctdR", "scheme": "url" }
+  ]
+}

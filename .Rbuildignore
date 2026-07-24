@@ -10,4 +10,6 @@
 ^\.sestante$
 ^\.code_reader$
 ^\.coding_agent$
+^\.zenodo\.json$
+^CITATION\.cff$
 ^tests/testthat/_problems$
