@@ -1,0 +1,21 @@
+# ctdR — https://drake69.github.io/ctdR/
+# Traditional search crawlers: allow full indexing.
+User-agent: *
+Allow: /
+
+# AI / answer-engine crawlers: explicitly allowed.
+# Being cited as a tool by answer engines is a legitimate discovery channel (GEO);
+# this is a conscious opt-in, not a default.
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://drake69.github.io/ctdR/sitemap.xml
