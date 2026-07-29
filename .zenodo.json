@@ -1,0 +1,25 @@
+{
+  "upload_type": "software",
+  "title": "ctdR: Enrichment Analysis of Chemical-Gene Interactions from the Comparative Toxicogenomics Database",
+  "creators": [
+    { "name": "Corsaro, Luigi", "orcid": "0000-0003-1218-230X" }
+  ],
+  "description": "<p><strong>ctdR</strong> is an R tool for <strong>hypothesis discovery</strong>: it surfaces candidate chemicals associated with a set of genes, using data from the <a href=\"https://ctdbase.org\">Comparative Toxicogenomics Database (CTD)</a>, for exploratory follow-up rather than confirmatory inference. The four enrichment methods it exposes through a unified interface — ORA, GSEA, CAMERA and GSVA — are the underlying means, not the end.</p><p>📖 <a href=\"https://drake69.github.io/ctdR/\">Documentation, tutorials &amp; function reference</a></p>",
+  "license": "Apache-2.0",
+  "keywords": [
+    "hypothesis discovery",
+    "candidate chemical discovery",
+    "chemical-gene interactions",
+    "R",
+    "Bioconductor",
+    "enrichment analysis",
+    "GSEA",
+    "toxicogenomics",
+    "CTD",
+    "RNA-seq"
+  ],
+  "related_identifiers": [
+    { "relation": "isDocumentedBy", "identifier": "https://drake69.github.io/ctdR/", "scheme": "url", "resource_type": "other" },
+    { "relation": "isSupplementTo", "identifier": "https://github.com/drake69/ctdR", "scheme": "url" }
+  ]
+}
