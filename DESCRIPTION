@@ -2,7 +2,7 @@ Package: ctdR
 Type: Package
 Title: Enrichment Analysis of Chemical-Gene Interactions from the
     Comparative Toxicogenomics Database
-Version: 0.99.7
+Version: 0.99.8
 Authors@R: person(
     given = "Luigi",
     family = "Corsaro",
@@ -40,6 +40,7 @@ Imports:
     BiocIO,
     BiocFileCache,
     S4Vectors,
+    SummarizedExperiment,
     methods
 Suggests:
     testthat (>= 3.0.0),

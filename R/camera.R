@@ -38,8 +38,9 @@
     chemicals_meta,
     cache_dir,
     interaction_types = NULL,
+    assay = NULL,
     ...) {
-    .validate_expr_matrix(expr)
+    expr <- .as_expr_matrix(expr, assay)
 
     if (is.null(id_type)) {
         id_type <- .detect_id_type(rownames(expr))

@@ -14,7 +14,7 @@
 )
 }
 \arguments{
-\item{x}{The user input (data.frame or matrix).}
+\item{x}{The user input (data.frame, matrix, or SummarizedExperiment).}
 
 \item{method}{Already normalized via match.arg().}
 

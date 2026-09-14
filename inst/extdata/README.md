@@ -38,11 +38,14 @@ A small subset of the **GSE311566** RNA-seq series:
   vehicle (DMSO/Ctrl)** contrast only. 7 samples
   (4 Ctrl + 3 Dex), 1,514 top-variance genes plus all 17 genes
   referenced by the bundled toy `CTD_chem_gene_ixns_sample.csv`.
-- **Format**: an `.rds` of a named list
-  `list(expr = <matrix>, coldata = <data.frame>)`. `expr` is
-  `log2(normalised_count + 1)` with **Entrez gene IDs** as
-  rownames and GEO sample names as colnames. `coldata` has columns
-  `sample` and `group` (`factor` with levels `DMSO`, `Dex`).
+- **Format**: an `.rds` of a
+  [`SummarizedExperiment`](https://bioconductor.org/packages/SummarizedExperiment).
+  The single assay, `logcounts`, is `log2(normalised_count + 1)` with
+  **Entrez gene IDs** as rownames and GEO sample names as colnames.
+  `colData` has columns `sample` and `group` (`factor` with levels
+  `DMSO`, `Dex`), and `metadata()` records the GEO source, the
+  subsetting applied, and the assay units. Reach the matrix with
+  `assay(se)` and the groups with `se$group`.
 - **Provenance**: regenerated from the GEO supplementary file
   `GSE311566_PBMCs_Female_normalized_counts.txt.gz` via
   `inst/scripts/make_gse311566_subset.R`.

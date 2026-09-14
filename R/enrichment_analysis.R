@@ -50,9 +50,11 @@
 #'       when present it is used directly for ranking, preserving directionality
 #'       and avoiding ties. When absent, the second column is transformed via
 #'       \code{-log10()} with a warning. The second column is ignored by ORA.
-#'     \item For \code{"CAMERA"} and \code{"GSVA"}: a numeric expression
-#'       matrix with genes in rows and samples in columns. \code{rownames(x)}
-#'       must be either Entrez IDs or HGNC SYMBOLs.
+#'     \item For \code{"CAMERA"} and \code{"GSVA"}: either a numeric
+#'       expression matrix with genes in rows and samples in columns, or a
+#'       \code{\link[SummarizedExperiment]{SummarizedExperiment}} whose
+#'       assay holds that matrix (see \code{assay} to choose which one).
+#'       \code{rownames(x)} must be either Entrez IDs or HGNC SYMBOLs.
 #'   }
 #' @param method Character. Enrichment method: \code{"ORA"} (default),
 #'   \code{"GSEA"}, \code{"CAMERA"}, or \code{"GSVA"}.
@@ -86,6 +88,10 @@
 #'   \code{import_CTD()} has been run (the filter is applied to the cached
 #'   \code{ctd_interactions.rda} file). Restricting to expression interactions
 #'   is recommended for RNA-seq analyses to improve biological specificity.
+#' @param assay Which assay to use when \code{x} is a
+#'   \code{\link[SummarizedExperiment]{SummarizedExperiment}}: an assay name,
+#'   a positive index, or \code{NULL} (default) for the first assay. Ignored
+#'   when \code{x} is a matrix or a data frame.
 #' @param ... Additional arguments forwarded to the underlying engine:
 #'   \code{\link[clusterProfiler]{enricher}} for ORA (e.g. \code{universe},
 #'   \code{minGSSize}, \code{maxGSSize}),
@@ -102,8 +108,13 @@
 #'     \code{ChemicalName}, \code{Method}, \code{PValue},
 #'     \code{PValueAdjusted}; method-specific extras follow (see the
 #'     package vignette for the full per-method schema).
-#'   \item For \code{"GSVA"}: a numeric matrix of enrichment scores with
-#'     chemicals (CTD chemical IDs) in rows and samples in columns.
+#'   \item For \code{"GSVA"}: enrichment scores with chemicals (CTD chemical
+#'     IDs) in rows and samples in columns. The container follows the input:
+#'     a matrix in returns a numeric matrix, while a
+#'     \code{\link[SummarizedExperiment]{SummarizedExperiment}} in returns a
+#'     \code{SummarizedExperiment} whose assay holds the scores and whose
+#'     \code{colData} is carried over from the input, so sample annotation
+#'     stays attached to the results.
 #' }
 #'
 #' @seealso \code{\link{import_CTD}} to import and cache the CTD data;
@@ -126,19 +137,19 @@
 #' gsea_results <- enrichment_CTD(genes, method = "GSEA")
 #'
 #' # CAMERA / GSVA: expression matrix + design + contrast.
-#' # Uses the bundled GSE311566 subset
+#' # Uses the bundled GSE311566 subset, a SummarizedExperiment
 #' # (Dex vs DMSO, female PBMCs; see inst/extdata/README.md).
-#' gse <- readRDS(system.file(
+#' se <- readRDS(system.file(
 #'     "extdata", "GSE311566_subset.rds", package = "ctdR"
 #' ))
-#' expr <- gse$expr
-#' grp  <- gse$coldata$group
-#' d    <- model.matrix(~ grp)
-#' camera_results <- enrichment_CTD(expr, method = "CAMERA",
+#' d <- model.matrix(~ se$group)
+#' camera_results <- enrichment_CTD(se, method = "CAMERA",
 #'     design = d, contrast = 2)
 #'
-#' # GSVA: per-sample enrichment scores
-#' gsva_scores <- enrichment_CTD(expr, method = "GSVA")
+#' # GSVA: SummarizedExperiment in, SummarizedExperiment out,
+#' # so the sample annotation stays attached to the scores.
+#' gsva_scores <- enrichment_CTD(se, method = "GSVA")
+#' SummarizedExperiment::colData(gsva_scores)$group
 #'
 #' @export
 enrichment_CTD <- function(x,
@@ -149,6 +160,7 @@ enrichment_CTD <- function(x,
     pAdjustMethod = "BH",
     interaction_types = NULL,
     gene_id_type = c("symbol", "entrez"),
+    assay = NULL,
     ...) {
     gene_id_type <- match.arg(gene_id_type)
     if (missing(x)) {
@@ -175,6 +187,7 @@ enrichment_CTD <- function(x,
             chemicals_meta = chemicals,
             cache_dir = cache_dir,
             interaction_types = interaction_types,
+            assay = assay,
             ...
         ),
         GSVA = .run_gsva(
@@ -182,6 +195,7 @@ enrichment_CTD <- function(x,
             id_type = id_type,
             cache_dir = cache_dir,
             interaction_types = interaction_types,
+            assay = assay,
             ...
         )
     )
@@ -193,7 +207,7 @@ enrichment_CTD <- function(x,
 #' CAMERA-specific design/contrast requirements. Centralizing here keeps
 #' enrichment_CTD() below the BiocCheck 50-line recommendation.
 #'
-#' @param x The user input (data.frame or matrix).
+#' @param x The user input (data.frame, matrix, or SummarizedExperiment).
 #' @param method Already normalized via match.arg().
 #' @param design Design matrix for CAMERA (or NULL).
 #' @param contrast Contrast spec for CAMERA (or NULL).
@@ -234,9 +248,10 @@ enrichment_CTD <- function(x,
             )
         }
     } else {
-        if (!is.matrix(x) || !is.numeric(x)) {
+        if (!.is_se(x) && !(is.matrix(x) && is.numeric(x))) {
             stop("For method = '", method,
-                "', 'x' must be a numeric matrix (genes x samples).",
+                "', 'x' must be a numeric matrix (genes x samples) ",
+                "or a SummarizedExperiment.",
                 call. = FALSE
             )
         }

@@ -55,12 +55,120 @@ NULL
         stop("'x' must be a numeric matrix (genes x samples).",
             call. = FALSE)
     }
-    if (is.null(rownames(x))) {
+    .validate_expr_rownames(rownames(x))
+    invisible(TRUE)
+}
+
+#' Test whether an object is a SummarizedExperiment
+#'
+#' Uses \code{methods::is()} so the check works without attaching
+#' \pkg{SummarizedExperiment}, and keeps the dependency confined to the
+#' matrix-based branches.
+#'
+#' @param x Any object.
+#' @return \code{TRUE} if \code{x} inherits from
+#'   \code{\link[SummarizedExperiment]{SummarizedExperiment}}.
+#' @keywords internal
+.is_se <- function(x) {
+    methods::is(x, "SummarizedExperiment")
+}
+
+#' Resolve an assay selector to a positional index
+#'
+#' @param assays_list The \code{assays()} list of a
+#'   \code{SummarizedExperiment}.
+#' @param assay A single assay name, a positive integer index, or
+#'   \code{NULL} for the first assay.
+#' @return An integer index into \code{assays_list}.
+#' @keywords internal
+.assay_index <- function(assays_list, assay) {
+    n <- length(assays_list)
+    if (n == 0L) {
+        stop("'x' is a SummarizedExperiment with no assays.", call. = FALSE)
+    }
+    if (is.null(assay)) {
+        return(1L)
+    }
+    if (length(assay) != 1L || is.na(assay)) {
+        stop("'assay' must be a single assay name or positive index.",
+            call. = FALSE)
+    }
+    if (is.numeric(assay)) {
+        if (assay < 1 || assay > n) {
+            stop("'assay' index ", assay, " is out of range: 'x' has ",
+                n, " assay(s).", call. = FALSE)
+        }
+        return(as.integer(assay))
+    }
+    idx <- match(as.character(assay), names(assays_list))
+    if (is.na(idx)) {
+        available <- if (is.null(names(assays_list))) {
+            "none (assays are unnamed)"
+        } else {
+            paste(names(assays_list), collapse = ", ")
+        }
+        stop("assay '", assay, "' not found in 'x'. Available: ", available,
+            call. = FALSE)
+    }
+    idx
+}
+
+#' Validate gene identifiers taken from expression rownames
+#'
+#' @param rn The \code{rownames()} of a matrix or SummarizedExperiment.
+#' @keywords internal
+.validate_expr_rownames <- function(rn) {
+    if (is.null(rn)) {
         stop("'x' must have rownames (gene identifiers).", call. = FALSE)
     }
-    if (anyDuplicated(rownames(x))) {
+    if (anyDuplicated(rn)) {
         stop("'x' has duplicated rownames; gene identifiers must be unique.",
             call. = FALSE)
     }
     invisible(TRUE)
+}
+
+#' Select one assay of a SummarizedExperiment, keeping the container
+#'
+#' Reduces \code{x} to the single requested assay, which then becomes the
+#' first (and only) one. Methods that consume a
+#' \code{SummarizedExperiment} directly, such as
+#' \code{\link[GSVA]{gsvaParam}}, pick the first assay by default, so this
+#' avoids having to pass an assay name downstream and works whether or not
+#' the assays are named.
+#'
+#' @param x A \code{SummarizedExperiment}.
+#' @param assay Assay name, index, or \code{NULL} for the first.
+#' @return \code{x} with a single assay, validated.
+#' @importFrom SummarizedExperiment assays
+#' @keywords internal
+.select_se_assay <- function(x, assay = NULL) {
+    a <- SummarizedExperiment::assays(x)
+    idx <- .assay_index(a, assay)
+    SummarizedExperiment::assays(x) <- a[idx]
+    .validate_expr_rownames(rownames(x))
+    x
+}
+
+#' Coerce an expression input to a plain numeric matrix
+#'
+#' Single coercion point for the matrix-based methods. Accepts either a
+#' numeric matrix (returned unchanged) or a
+#' \code{\link[SummarizedExperiment]{SummarizedExperiment}}, from which the
+#' requested assay is extracted.
+#'
+#' @param x A numeric matrix (genes x samples) or a
+#'   \code{SummarizedExperiment}.
+#' @param assay Assay name, index, or \code{NULL} for the first. Ignored
+#'   when \code{x} is already a matrix.
+#' @return A validated numeric matrix with genes in rows.
+#' @keywords internal
+.as_expr_matrix <- function(x, assay = NULL) {
+    if (.is_se(x)) {
+        a <- SummarizedExperiment::assays(x)
+        idx <- .assay_index(a, assay)
+        x <- as.matrix(a[[idx]])
+    }
+    .validate_expr_matrix(x)
+    x
 }

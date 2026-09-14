@@ -40,11 +40,16 @@ test_that("e2e GSE311566 Dex-vs-DMSO recovers Dexamethasone via GSEA + CAMERA", 
 
     suppressMessages(import_CTD(ctd_sample))
 
-    gse <- readRDS(subset_path)
-    expr <- gse$expr
-    grp  <- gse$coldata$group
+    se <- readRDS(subset_path)
+    ## The bundled object is a SummarizedExperiment: assay and sample
+    ## annotation travel together, so a subset or a reorder cannot
+    ## desynchronise the group labels from the columns they describe.
+    expect_s4_class(se, "SummarizedExperiment")
+    expr <- SummarizedExperiment::assay(se)
+    grp  <- se$group
     expect_identical(levels(grp), c("DMSO", "Dex"))
-    expect_equal(ncol(expr), 7)
+    expect_equal(ncol(se), 7L)
+    expect_identical(colnames(se), colnames(expr))
 
     de <- t(apply(expr, 1, function(y) {
         tt <- stats::t.test(y ~ grp)
@@ -73,8 +78,9 @@ test_that("e2e GSE311566 Dex-vs-DMSO recovers Dexamethasone via GSEA + CAMERA", 
     # The rank-in-top-3 assertion above is the meaningful biological guard.
 
     ## --- CAMERA: Dex must be among the top 6 (all 10 ranked) --------------
+    ## Fed the SummarizedExperiment directly, not its assay.
     design <- stats::model.matrix(~ grp)
-    cam_res <- enrichment_CTD(expr, method = "CAMERA",
+    cam_res <- enrichment_CTD(se, method = "CAMERA",
         design = design, contrast = 2)
     expect_s3_class(cam_res, "data.frame")
     expect_true("Direction" %in% colnames(cam_res))
@@ -82,12 +88,16 @@ test_that("e2e GSE311566 Dex-vs-DMSO recovers Dexamethasone via GSEA + CAMERA", 
     expect_true("D003907" %in% head(cam_by_p$ChemicalID, 6),
         info = "Dexamethasone (D003907) should rank in the top 6 by CAMERA p-value")
 
-    ## --- GSVA: returns a 10-chemical x 7-sample score matrix --------------
+    ## --- GSVA: SummarizedExperiment in, SummarizedExperiment out ----------
     skip_if_not_installed("GSVA")
     suppressMessages({
-        gsva_res <- enrichment_CTD(expr, method = "GSVA")
+        gsva_res <- enrichment_CTD(se, method = "GSVA")
     })
-    expect_true(is.matrix(gsva_res))
+    expect_s4_class(gsva_res, "SummarizedExperiment")
     expect_equal(ncol(gsva_res), 7L)
     expect_true("D003907" %in% rownames(gsva_res))
+    ## Sample annotation survives the round trip, which is the point of
+    ## accepting the container rather than the bare matrix.
+    expect_identical(gsva_res$group, grp)
+    expect_identical(colnames(gsva_res), colnames(se))
 })

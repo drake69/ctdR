@@ -10,15 +10,17 @@
 #'   \item \strong{CAMERA} (data frame with \code{Direction} and \code{NGenes}):
 #'     bar or dot plot of \eqn{-\log_{10}(\mathrm{padj})}, colored by
 #'     direction of enrichment.
-#'   \item \strong{GSVA} (numeric matrix \code{chemicals x samples}): heatmap
-#'     of per-sample enrichment scores for the top-N chemicals selected by
-#'     score variance across samples.
+#'   \item \strong{GSVA} (numeric matrix \code{chemicals x samples}, or a
+#'     \code{\link[SummarizedExperiment]{SummarizedExperiment}} wrapping
+#'     one): heatmap of per-sample enrichment scores for the top-N chemicals
+#'     selected by score variance across samples.
 #' }
 #'
-#' @param results A data frame or numeric matrix returned by
+#' @param results A data frame, a numeric matrix, or a
+#'   \code{\link[SummarizedExperiment]{SummarizedExperiment}} returned by
 #'   \code{\link{enrichment_CTD}}.
 #' @param type Character. Plot type for tabular results:
-#'   \code{"bar"} (default) or \code{"dot"}. Ignored for GSVA matrix input.
+#'   \code{"bar"} (default) or \code{"dot"}. Ignored for GSVA score input.
 #' @param n Integer. Number of top chemicals to display (default 20).
 #'   Selection criterion: ascending \code{padj} for tabular results, descending
 #'   score variance across samples for GSVA matrices.
@@ -51,13 +53,18 @@
 #' @importFrom stats reorder var
 #' @export
 plot_CTD <- function(results, type = "bar", n = 20, title = NULL) {
+    ## GSVA returns the container it was given, so the scores may arrive
+    ## wrapped in a SummarizedExperiment; the heatmap only needs the assay.
+    if (.is_se(results)) {
+        results <- as.matrix(SummarizedExperiment::assay(results))
+    }
     if (is.matrix(results) && is.numeric(results)) {
         return(.plot_gsva_heatmap(results, n = n, title = title))
     }
 
     if (!is.data.frame(results) || nrow(results) == 0) {
-        stop("'results' must be a non-empty data frame or numeric matrix ",
-            "from enrichment_CTD().",
+        stop("'results' must be a non-empty data frame, numeric matrix, ",
+            "or SummarizedExperiment from enrichment_CTD().",
             call. = FALSE)
     }
 

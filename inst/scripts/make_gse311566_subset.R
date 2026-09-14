@@ -16,11 +16,13 @@
 ## To regenerate the bundled .rds, run from package root:
 ##   Rscript inst/scripts/make_gse311566_subset.R
 ##
-## Required packages: org.Hs.eg.db, AnnotationDbi (already in Imports of ctdR)
+## Required packages: org.Hs.eg.db, AnnotationDbi, SummarizedExperiment
+##          (already in Imports of ctdR)
 
 suppressPackageStartupMessages({
     library(org.Hs.eg.db)
     library(AnnotationDbi)
+    library(SummarizedExperiment)
 })
 
 GEO_URL <- paste0(
@@ -88,14 +90,29 @@ final_genes <- union(must_keep, top_var)
 expr <- expr[final_genes, , drop = FALSE]
 message("Final subset: ", nrow(expr), " genes x ", ncol(expr), " samples")
 
-## 8. Save -----------------------------------------------------------------
-coldata <- data.frame(
+## 8. Save -------------------------------------------------------------------
+## Stored as a SummarizedExperiment: the assay and the sample annotation stay
+## in one object, so subsetting or reordering samples cannot silently
+## desynchronise them from the group labels used to build the design matrix.
+coldata <- DataFrame(
     sample = colnames(expr),
     group = group,
-    row.names = colnames(expr),
-    stringsAsFactors = FALSE
+    row.names = colnames(expr)
 )
-out <- list(expr = expr, coldata = coldata)
+out <- SummarizedExperiment(
+    assays = list(logcounts = expr),
+    colData = coldata,
+    metadata = list(
+        source = "GEO GSE311566",
+        url = GEO_URL,
+        subset = paste0(
+            "Female donors, Dexamethasone vs vehicle (Ctrl/DMSO); ",
+            nrow(expr), " genes x ", ncol(expr), " samples"
+        ),
+        assay_units = "log2(normalised count + 1)",
+        generated_by = "inst/scripts/make_gse311566_subset.R"
+    )
+)
 out_path <- file.path("inst", "extdata", "GSE311566_subset.rds")
 dir.create(dirname(out_path), showWarnings = FALSE, recursive = TRUE)
 saveRDS(out, file = out_path, compress = "xz")

@@ -24,8 +24,15 @@
 #'
 #' @keywords internal
 .run_gsva <- function(expr, id_type = NULL, cache_dir,
-    interaction_types = NULL, ...) {
-    .validate_expr_matrix(expr)
+    interaction_types = NULL, assay = NULL, ...) {
+    ## A SummarizedExperiment is passed through to GSVA rather than reduced
+    ## to its assay: GSVA is SE-in/SE-out, so the scores come back in a
+    ## container that still carries colData.
+    expr <- if (.is_se(expr)) {
+        .select_se_assay(expr, assay)
+    } else {
+        .as_expr_matrix(expr, assay)
+    }
 
     if (is.null(id_type)) {
         id_type <- .detect_id_type(rownames(expr))

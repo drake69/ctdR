@@ -13,6 +13,7 @@ enrichment_CTD(
   pAdjustMethod = "BH",
   interaction_types = NULL,
   gene_id_type = c("symbol", "entrez"),
+  assay = NULL,
   ...
 )
 }
@@ -27,9 +28,11 @@ enrichment_CTD(
     when present it is used directly for ranking, preserving directionality
     and avoiding ties. When absent, the second column is transformed via
     \code{-log10()} with a warning. The second column is ignored by ORA.
-  \item For \code{"CAMERA"} and \code{"GSVA"}: a numeric expression
-    matrix with genes in rows and samples in columns. \code{rownames(x)}
-    must be either Entrez IDs or HGNC SYMBOLs.
+  \item For \code{"CAMERA"} and \code{"GSVA"}: either a numeric
+    expression matrix with genes in rows and samples in columns, or a
+    \code{\link[SummarizedExperiment]{SummarizedExperiment}} whose
+    assay holds that matrix (see \code{assay} to choose which one).
+    \code{rownames(x)} must be either Entrez IDs or HGNC SYMBOLs.
 }}
 
 \item{method}{Character. Enrichment method: \code{"ORA"} (default),
@@ -71,6 +74,11 @@ Entrez ID as fallback for unmapped genes; \code{"entrez"} skips the
 symbol lookup and returns Entrez IDs directly. Only applies to \code{"ORA"}
 and \code{"GSEA"}; ignored by \code{"CAMERA"} and \code{"GSVA"}.}
 
+\item{assay}{Which assay to use when \code{x} is a
+\code{\link[SummarizedExperiment]{SummarizedExperiment}}: an assay name,
+a positive index, or \code{NULL} (default) for the first assay. Ignored
+when \code{x} is a matrix or a data frame.}
+
 \item{...}{Additional arguments forwarded to the underlying engine:
 \code{\link[clusterProfiler]{enricher}} for ORA (e.g. \code{universe},
 \code{minGSSize}, \code{maxGSSize}),
@@ -87,8 +95,13 @@ and \code{"GSEA"}; ignored by \code{"CAMERA"} and \code{"GSVA"}.}
     \code{ChemicalName}, \code{Method}, \code{PValue},
     \code{PValueAdjusted}; method-specific extras follow (see the
     package vignette for the full per-method schema).
-  \item For \code{"GSVA"}: a numeric matrix of enrichment scores with
-    chemicals (CTD chemical IDs) in rows and samples in columns.
+  \item For \code{"GSVA"}: enrichment scores with chemicals (CTD chemical
+    IDs) in rows and samples in columns. The container follows the input:
+    a matrix in returns a numeric matrix, while a
+    \code{\link[SummarizedExperiment]{SummarizedExperiment}} in returns a
+    \code{SummarizedExperiment} whose assay holds the scores and whose
+    \code{colData} is carried over from the input, so sample annotation
+    stays attached to the results.
 }
 }
 \description{
@@ -150,19 +163,19 @@ ora_results <- enrichment_CTD(genes, method = "ORA")
 gsea_results <- enrichment_CTD(genes, method = "GSEA")
 
 # CAMERA / GSVA: expression matrix + design + contrast.
-# Uses the bundled GSE311566 subset
+# Uses the bundled GSE311566 subset, a SummarizedExperiment
 # (Dex vs DMSO, female PBMCs; see inst/extdata/README.md).
-gse <- readRDS(system.file(
+se <- readRDS(system.file(
     "extdata", "GSE311566_subset.rds", package = "ctdR"
 ))
-expr <- gse$expr
-grp  <- gse$coldata$group
-d    <- model.matrix(~ grp)
-camera_results <- enrichment_CTD(expr, method = "CAMERA",
+d <- model.matrix(~ se$group)
+camera_results <- enrichment_CTD(se, method = "CAMERA",
     design = d, contrast = 2)
 
-# GSVA: per-sample enrichment scores
-gsva_scores <- enrichment_CTD(expr, method = "GSVA")
+# GSVA: SummarizedExperiment in, SummarizedExperiment out,
+# so the sample annotation stays attached to the scores.
+gsva_scores <- enrichment_CTD(se, method = "GSVA")
+SummarizedExperiment::colData(gsva_scores)$group
 
 }
 \seealso{

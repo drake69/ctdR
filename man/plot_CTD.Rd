@@ -7,11 +7,12 @@
 plot_CTD(results, type = "bar", n = 20, title = NULL)
 }
 \arguments{
-\item{results}{A data frame or numeric matrix returned by
+\item{results}{A data frame, a numeric matrix, or a
+\code{\link[SummarizedExperiment]{SummarizedExperiment}} returned by
 \code{\link{enrichment_CTD}}.}
 
 \item{type}{Character. Plot type for tabular results:
-\code{"bar"} (default) or \code{"dot"}. Ignored for GSVA matrix input.}
+\code{"bar"} (default) or \code{"dot"}. Ignored for GSVA score input.}
 
 \item{n}{Integer. Number of top chemicals to display (default 20).
 Selection criterion: ascending \code{padj} for tabular results, descending
@@ -33,9 +34,10 @@ structure:
   \item \strong{CAMERA} (data frame with \code{Direction} and \code{NGenes}):
     bar or dot plot of \eqn{-\log_{10}(\mathrm{padj})}, colored by
     direction of enrichment.
-  \item \strong{GSVA} (numeric matrix \code{chemicals x samples}): heatmap
-    of per-sample enrichment scores for the top-N chemicals selected by
-    score variance across samples.
+  \item \strong{GSVA} (numeric matrix \code{chemicals x samples}, or a
+    \code{\link[SummarizedExperiment]{SummarizedExperiment}} wrapping
+    one): heatmap of per-sample enrichment scores for the top-N chemicals
+    selected by score variance across samples.
 }
 }
 \examples{

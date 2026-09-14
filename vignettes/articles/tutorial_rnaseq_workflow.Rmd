@@ -72,6 +72,7 @@ library(ctdR)
 library(limma)
 library(org.Hs.eg.db)
 library(AnnotationDbi)
+library(SummarizedExperiment)
 ```
 
 # Step 1 — Download data from GEO
@@ -93,7 +94,7 @@ if (!file.exists(tmp_gz)) {
 }
 ```
 
-# Step 2 — Prepare the expression matrix
+# Step 2 - Build a SummarizedExperiment
 
 ```{r prepare-counts}
 counts <- utils::read.table(
@@ -131,6 +132,45 @@ counts <- counts[keep_g, ]
 rownames(counts) <- entrez_map[keep_g]
 expr <- log2(as.matrix(counts) + 1)
 message(nrow(expr), " genes retained after Entrez mapping")
+```
+
+At this point we have two objects that describe the same experiment: a
+matrix of values, and a `group` vector saying what each column is. Keeping
+them apart is where quiet errors come from. Reorder or subset the columns
+of one and forget the other, and every downstream model is fitted against
+the wrong labels, with nothing raising an error.
+
+[`SummarizedExperiment`](https://bioconductor.org/packages/SummarizedExperiment)
+is the standard Bioconductor container for exactly this situation. It holds
+the assay, the per-sample annotation (`colData`) and the per-gene annotation
+(`rowData`) in a single object, and every subsetting operation moves them
+together.
+
+```{r build-se}
+se <- SummarizedExperiment(
+    assays  = list(logcounts = expr),
+    colData = DataFrame(
+        sample = colnames(expr),
+        group  = group,
+        row.names = colnames(expr)
+    ),
+    metadata = list(
+        source = "GEO GSE311566",
+        assay_units = "log2(normalised count + 1)"
+    )
+)
+se
+```
+
+The pieces are now reachable through accessors: `assay(se)` for the matrix,
+`colData(se)` for the sample table, and `se$group` as a shorthand for a
+single annotation column. Subsetting is safe by construction:
+
+```{r se-subset}
+# both the assay and the annotation follow the same subset
+dex_only <- se[, se$group == "Dex"]
+dim(dex_only)
+table(dex_only$group)
 ```
 
 # Step 3 — Import CTD data
@@ -174,10 +214,11 @@ matrix has two columns: the intercept (DMSO baseline) and `groupDex`
 (Dex vs DMSO contrast, coefficient 2).
 
 ```{r limma-de}
-design <- model.matrix(~ group)
+design <- model.matrix(~ se$group)
+colnames(design) <- c("(Intercept)", "groupDex")
 colnames(design)
 
-fit <- limma::lmFit(expr, design)
+fit <- limma::lmFit(assay(se), design)
 fit <- limma::eBayes(fit)
 
 de <- limma::topTable(fit, coef = 2, n = Inf, sort.by = "P")
@@ -374,15 +415,17 @@ particularly well suited to expression matrix experiments with a clear
 design and contrast.
 
 CAMERA does not consume a pre-computed DEG result: it takes the **full
-expression matrix** plus a **`design`** and a **`contrast`**, and
-recomputes the differential signal internally. The chemical→gene "index"
-is built by `ctdR` from CTD targets. We reuse the `design` matrix built
-for limma; here `design` carries the whole layout while `contrast = 2`
-selects *which* coefficient to test — the `groupDex` effect (Dex vs DMSO).
+expression data** plus a **`design`** and a **`contrast`**, and recomputes
+the differential signal internally. It accepts the `SummarizedExperiment`
+directly, so we hand it `se` rather than pulling the assay back out. The
+chemical to gene "index" is built by `ctdR` from CTD targets. We reuse the
+`design` matrix built for limma; here `design` carries the whole layout
+while `contrast = 2` selects *which* coefficient to test, the `groupDex`
+effect (Dex vs DMSO).
 
 ```{r camera}
 camera_results <- enrichment_CTD(
-    expr,
+    se,
     method   = "CAMERA",
     design   = design,
     contrast = 2
@@ -417,11 +460,16 @@ if (length(dex_idx) > 0) {
 
 ## GSVA — Gene Set Variation Analysis
 
-GSVA produces a **per-sample enrichment score** for each chemical: a
-matrix with chemicals in rows and samples in columns. There is no single
-group-level p-value; instead, these scores can be used for clustering,
-heatmap visualisation, survival association, or as input to downstream
-tests.
+GSVA produces a **per-sample enrichment score** for each chemical, with
+chemicals in rows and samples in columns. There is no single group-level
+p-value; instead, these scores can be used for clustering, heatmap
+visualisation, survival association, or as input to downstream tests.
+
+Because those scores are per sample, the sample annotation is what makes
+them interpretable. GSVA returns the container it was given: hand it the
+`SummarizedExperiment` and the scores come back as one too, with `colData`
+carried across, so the treatment groups stay attached to the numbers they
+describe.
 
 > **Computation time**: GSVA scores all chemicals across all samples. On
 > the full expression matrix this may take a few minutes. Use
@@ -429,15 +477,18 @@ tests.
 
 ```{r gsva}
 gsva_scores <- enrichment_CTD(
-    expr, method = "GSVA",
+    se, method = "GSVA",
     minSize = 3, maxSize = 500
 )
 dim(gsva_scores)  # chemicals x samples
+
+# the design annotation survived the analysis
+colData(gsva_scores)
 ```
 
 ```{r plot-gsva, fig.width=7, fig.height=6}
 plot_CTD(gsva_scores,
-         title = "GSVA — per-sample chemical enrichment scores")
+         title = "GSVA: per-sample chemical enrichment scores")
 ```
 
 The heatmap rows are chemicals ranked by across-sample variance
@@ -451,9 +502,14 @@ dex_idx <- grep("dexamethasone", rownames(gsva_scores),
                 ignore.case = TRUE)
 if (length(dex_idx) > 0) {
     cat("Dexamethasone row(s):", rownames(gsva_scores)[dex_idx], "\n")
-    gsva_scores[dex_idx, , drop = FALSE]
+    # scores side by side with the group each sample belongs to
+    data.frame(
+        group = gsva_scores$group,
+        score = as.vector(assay(gsva_scores)[dex_idx[1], ]),
+        row.names = colnames(gsva_scores)
+    )
 } else {
-    message("Dexamethasone not found in GSVA score matrix.")
+    message("Dexamethasone not found in GSVA scores.")
 }
 ```
 
@@ -557,9 +613,10 @@ dex_gsva <- local({
     ]
     if (length(dex_id) == 0L || !dex_id %in% rownames(gsva_scores))
         return(NULL)
-    scores       <- gsva_scores[dex_id, , drop = FALSE]
-    dex_samples  <- grepl("^DEX_",  colnames(gsva_scores))
-    ctrl_samples <- grepl("^Ctrl_", colnames(gsva_scores))
+    scores <- assay(gsva_scores)[dex_id, , drop = FALSE]
+    # group membership comes from colData, not from parsing sample names
+    dex_samples  <- gsva_scores$group == "Dex"
+    ctrl_samples <- gsva_scores$group == "DMSO"
     mean_dex     <- mean(scores[, dex_samples])
     mean_ctrl    <- mean(scores[, ctrl_samples])
     data.frame(

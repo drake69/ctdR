@@ -1,3 +1,41 @@
+# Changes in version 0.99.8
+
+## New features
+
+* `enrichment_CTD()` now accepts a
+  `SummarizedExperiment` for the matrix-based methods (`"CAMERA"` and
+  `"GSVA"`), in addition to a plain expression matrix. The assay and the
+  sample annotation stay in one object, so subsetting or reordering
+  samples cannot silently desynchronise them from the group labels used
+  to build the design matrix.
+
+* `"GSVA"` returns the container it was given: a matrix in returns a
+  numeric matrix, a `SummarizedExperiment` in returns a
+  `SummarizedExperiment` whose assay holds the scores and whose
+  `colData` is carried over from the input. Per-sample scores therefore
+  arrive with the sample annotation needed to interpret them.
+
+* New `assay` argument on `enrichment_CTD()` selects which assay to use
+  when the input carries more than one, by name or by index. Defaults to
+  the first.
+
+* `plot_CTD()` accepts GSVA scores wrapped in a `SummarizedExperiment`.
+
+## Changes
+
+* The bundled `inst/extdata/GSE311566_subset.rds` example is now stored
+  as a `SummarizedExperiment` instead of a `list(expr, coldata)`. Code
+  reading it must use `assay(se)` and `se$group` in place of `$expr` and
+  `$coldata$group`. `metadata()` records the GEO source, the subsetting
+  applied, and the assay units.
+
+* The vignette and the RNA-seq workflow tutorial build a
+  `SummarizedExperiment` and carry it through the analysis.
+
+* `SummarizedExperiment` was added to `Imports`. It was already a hard
+  transitive dependency through `GSVA`, so the installation footprint is
+  unchanged.
+
 # Changes in version 0.99.7
 
 ## New features

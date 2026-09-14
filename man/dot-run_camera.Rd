@@ -13,6 +13,7 @@
   chemicals_meta,
   cache_dir,
   interaction_types = NULL,
+  assay = NULL,
   ...
 )
 }
