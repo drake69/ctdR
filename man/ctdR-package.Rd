@@ -21,6 +21,12 @@ Four enrichment methods are supported through a unified interface:
   \item{\strong{GSVA}}{Per-sample Gene Set Variation Analysis via
     \code{\link[GSVA]{gsva}}.}
 }
+
+ORA and GSEA take a gene-level data frame. CAMERA and GSVA take
+expression data, either as a numeric matrix (genes x samples) or as a
+\code{\link[SummarizedExperiment]{SummarizedExperiment}}; GSVA returns
+its per-sample scores in whichever of the two it was given, so sample
+annotation stays attached to the results.
 }
 \section{Quick Start}{
 

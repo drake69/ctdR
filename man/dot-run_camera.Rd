@@ -18,7 +18,10 @@
 )
 }
 \arguments{
-\item{expr}{Numeric expression matrix (genes x samples).
+\item{expr}{Numeric expression matrix (genes x samples) or a
+\code{\link[SummarizedExperiment]{SummarizedExperiment}}, which is
+reduced to the requested assay: CAMERA returns one row per chemical,
+so there is no per-sample output for the container to annotate.
 \code{rownames(expr)} must be Entrez IDs or HGNC symbols matching the
 cached CTD gene sets.}
 
@@ -39,6 +42,10 @@ compute the \code{padj} column.}
 
 \item{cache_dir}{Directory holding the cached CTD \code{.rda} files.}
 
+\item{assay}{Assay name or index to use when \code{expr} is a
+\code{SummarizedExperiment}; \code{NULL} (default) takes the first.
+Ignored for a matrix.}
+
 \item{...}{Forwarded to \code{\link[limma]{camera}}
 (e.g. \code{inter.gene.cor}, \code{use.ranks}, \code{allow.neg.cor},
 \code{trend.var}).}
@@ -50,7 +57,7 @@ A data frame with columns \code{ChemicalID}, \code{ChemicalName},
 }
 \description{
 Internal function that runs the CAMERA competitive gene-set test
-(\code{\link[limma]{camera}}) of an expression matrix against the cached
+(\code{\link[limma]{camera}}) of expression data against the cached
 CTD chemical gene sets. Unlike ORA/GSEA --- which take a single
 (ranked) gene list --- CAMERA tests, for each chemical, whether its
 target genes show a stronger differential signal than the rest of the

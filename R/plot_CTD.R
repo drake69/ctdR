@@ -45,6 +45,14 @@
 #' plot_CTD(ora_results, type = "bar")
 #' plot_CTD(ora_results, type = "dot")
 #'
+#' # GSVA scores: the heatmap accepts either the score matrix or the
+#' # SummarizedExperiment that enrichment_CTD() returns for an SE input.
+#' se <- readRDS(system.file(
+#'     "extdata", "GSE311566_subset.rds", package = "ctdR"
+#' ))
+#' gsva_scores <- enrichment_CTD(se, method = "GSVA")
+#' plot_CTD(gsva_scores)
+#'
 #' @importFrom ggplot2 ggplot aes geom_bar geom_point geom_tile coord_flip
 #' @importFrom ggplot2 scale_color_gradient scale_color_gradient2
 #' @importFrom ggplot2 scale_fill_gradient scale_fill_gradient2

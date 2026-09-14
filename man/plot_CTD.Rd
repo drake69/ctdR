@@ -56,4 +56,12 @@ ora_results <- enrichment_CTD(genes, method = "ORA")
 plot_CTD(ora_results, type = "bar")
 plot_CTD(ora_results, type = "dot")
 
+# GSVA scores: the heatmap accepts either the score matrix or the
+# SummarizedExperiment that enrichment_CTD() returns for an SE input.
+se <- readRDS(system.file(
+    "extdata", "GSE311566_subset.rds", package = "ctdR"
+))
+gsva_scores <- enrichment_CTD(se, method = "GSVA")
+plot_CTD(gsva_scores)
+
 }

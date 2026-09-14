@@ -19,13 +19,16 @@
 #'     bottom of the ranking. Uses \code{\link[fgsea]{fgsea}}.}
 #'   \item{\strong{CAMERA}}{Competitive gene-set test accounting for
 #'     inter-gene correlation. Uses \code{\link[limma]{camera}}.
-#'     Input: a numeric expression matrix (genes x samples) plus a design
-#'     matrix and a contrast.}
+#'     Input: a numeric expression matrix (genes x samples) or a
+#'     \code{\link[SummarizedExperiment]{SummarizedExperiment}}, plus a
+#'     design matrix and a contrast.}
 #'   \item{\strong{GSVA}}{Gene Set Variation Analysis (sample-level scoring).
-#'     Returns a matrix of per-sample enrichment scores for each chemical,
-#'     suitable for downstream clustering or association testing.
+#'     Returns per-sample enrichment scores for each chemical, suitable for
+#'     downstream clustering or association testing.
 #'     Uses \code{\link[GSVA]{gsva}}.
-#'     Input: a numeric expression matrix (genes x samples).}
+#'     Input: a numeric expression matrix (genes x samples) or a
+#'     \code{\link[SummarizedExperiment]{SummarizedExperiment}}, which is
+#'     also the container the scores are returned in.}
 #' }
 #'
 #' @details
@@ -136,7 +139,7 @@
 #' ora_results <- enrichment_CTD(genes, method = "ORA")
 #' gsea_results <- enrichment_CTD(genes, method = "GSEA")
 #'
-#' # CAMERA / GSVA: expression matrix + design + contrast.
+#' # CAMERA / GSVA: expression data plus, for CAMERA, design + contrast.
 #' # Uses the bundled GSE311566 subset, a SummarizedExperiment
 #' # (Dex vs DMSO, female PBMCs; see inst/extdata/README.md).
 #' se <- readRDS(system.file(
