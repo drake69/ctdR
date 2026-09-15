@@ -30,14 +30,14 @@ Four enrichment methods through a unified `enrichment_CTD()` interface, selected
 
 - **ORA** — Over-Representation Analysis (hypergeometric test). Input: gene list. Backend: [`clusterProfiler::enricher`](https://bioconductor.org/packages/clusterProfiler/).
 - **GSEA** — Gene Set Enrichment Analysis (rank-based, permutational). Input: ranked gene list. Backend: [`fgsea::fgsea`](https://bioconductor.org/packages/fgsea/).
-- **CAMERA** — competitive gene-set test with inter-gene correlation correction. Input: expression matrix + design + contrast. Backend: [`limma::camera`](https://bioconductor.org/packages/limma/).
-- **GSVA** — Gene Set Variation Analysis (per-sample scoring). Input: expression matrix. Output: chemical × sample score matrix. Backend: [`GSVA::gsva`](https://bioconductor.org/packages/GSVA/).
+- **CAMERA**: competitive gene-set test with inter-gene correlation correction. Input: expression matrix or `SummarizedExperiment`, plus design + contrast. Backend: [`limma::camera`](https://bioconductor.org/packages/limma/).
+- **GSVA**: Gene Set Variation Analysis (per-sample scoring). Input: expression matrix or `SummarizedExperiment`. Output: chemical × sample scores, returned in whichever of the two you supplied. Backend: [`GSVA::gsva`](https://bioconductor.org/packages/GSVA/).
 
 Additional features:
 
 - **Automatic caching** — CTD data is parsed once and cached locally for fast repeated analyses
 - **Human-only filtering** — automatically restricts interactions to *Homo sapiens* (OrganismID 9606)
-- **Auto-detected gene identifiers** — Entrez vs HGNC SYMBOL detected from `rownames()` of the input matrix (CAMERA / GSVA); override via `id_type`
+- **Auto-detected gene identifiers**: Entrez vs HGNC SYMBOL detected from `rownames()` of the input matrix or `SummarizedExperiment` (CAMERA / GSVA); override via `id_type`
 - **Visualization** — `plot_CTD()` auto-dispatches to bar/dot plot (ORA/GSEA/CAMERA) or heatmap (GSVA)
 
 ## Data Licensing Disclaimer
@@ -121,7 +121,8 @@ The data is now cached locally. You only need to do this once (or again when you
 ### Step 3 — Run enrichment analysis
 
 The first argument of `enrichment_CTD()` is polymorphic and named `x`:
-a `data.frame` for ORA / GSEA, a numeric matrix for CAMERA / GSVA.
+a `data.frame` for ORA / GSEA, and for CAMERA / GSVA either a numeric
+matrix or a [`SummarizedExperiment`](https://bioconductor.org/packages/SummarizedExperiment).
 
 #### ORA / GSEA — gene-list paradigm
 
@@ -147,13 +148,15 @@ ora_bonf <- enrichment_CTD(genes, method = "ORA", pAdjustMethod = "bonferroni")
 #### CAMERA — multi-sample paradigm with correlation correction
 
 ```r
-# Suppose `expr` is a normalised expression matrix (genes x samples)
-# with Entrez IDs (or HGNC SYMBOLs) as rownames.
-grp    <- factor(c("ctrl","ctrl","ctrl","treat","treat","treat"))
-design <- model.matrix(~ grp)
+# Suppose `se` is a SummarizedExperiment whose assay holds normalised
+# expression (genes x samples) with Entrez IDs (or HGNC SYMBOLs) as
+# rownames, and whose colData carries the experimental group.
+# A plain numeric matrix works too; the SummarizedExperiment keeps the
+# sample annotation attached to the data.
+design <- model.matrix(~ se$group)
 
 camera_results <- enrichment_CTD(
-  expr,
+  se,
   method   = "CAMERA",
   design   = design,
   contrast = 2  # last column of `design` = treat vs ctrl
@@ -164,9 +167,12 @@ head(camera_results)
 #### GSVA — per-sample scoring
 
 ```r
-# Returns a chemical x sample matrix of GSVA enrichment scores
-gsva_scores <- enrichment_CTD(expr, method = "GSVA")
+# SummarizedExperiment in, SummarizedExperiment out: the scores arrive
+# with the sample annotation still attached. Pass a matrix instead and
+# you get a plain matrix back.
+gsva_scores <- enrichment_CTD(se, method = "GSVA")
 dim(gsva_scores)
+SummarizedExperiment::colData(gsva_scores)
 ```
 
 ### Step 4 — Visualize results
@@ -232,11 +238,20 @@ The first argument `x` of `enrichment_CTD()` depends on the method:
 | `entrez_ids` | Character or numeric Entrez gene IDs |
 | *(second column)* | A numeric value per gene (e.g. p-value, log fold-change). Used for ranking in GSEA; ignored in ORA. |
 
-### CAMERA / GSVA — numeric matrix
+### CAMERA / GSVA: numeric matrix or `SummarizedExperiment`
 
 A `genes × samples` numeric matrix with `rownames(x)` set to either
-Entrez IDs or HGNC SYMBOLs. Identifier type is auto-detected from
-`rownames(x)`; override with the `id_type` argument if needed.
+Entrez IDs or HGNC SYMBOLs, or a
+[`SummarizedExperiment`](https://bioconductor.org/packages/SummarizedExperiment)
+wrapping one. Identifier type is auto-detected from `rownames(x)`;
+override with the `id_type` argument if needed.
+
+Prefer the `SummarizedExperiment` when you have sample annotation. It
+keeps the assay and the annotation in one object, so subsetting or
+reordering samples moves both together instead of leaving you to keep
+a separate group vector in step with the columns. Use `assay` to pick
+which assay to read when the object carries more than one; the default
+is the first.
 
 ## Output
 
@@ -281,22 +296,26 @@ Entrez IDs or HGNC SYMBOLs. Identifier type is auto-detected from
 | `pvalue` | Raw p-value from `limma::camera()` |
 | `padj` | Adjusted p-value |
 
-### GSVA results (`matrix`)
+### GSVA results (`matrix` or `SummarizedExperiment`)
 
-A numeric matrix with CTD chemical IDs in rows and samples in columns,
-containing per-sample enrichment scores (typically in `[-1, 1]`).
+CTD chemical IDs in rows and samples in columns, containing per-sample
+enrichment scores (typically in `[-1, 1]`). The container follows the
+input: a matrix in returns a numeric matrix, a `SummarizedExperiment`
+in returns a `SummarizedExperiment` whose assay holds the scores and
+whose `colData` is carried over, so the annotation needed to interpret
+the scores stays next to them.
 Unlike the other methods, GSVA does not return p-values — the scores
 are descriptive features for downstream analyses (clustering,
 association with outcomes, heatmap visualization).
 
 ## Dependencies
 
+Mirrors the `Imports` field of `DESCRIPTION`.
+
 ### CRAN
 
 - [ggplot2](https://cran.r-project.org/package=ggplot2) — publication-quality plots
 - [readr](https://cran.r-project.org/package=readr) — fast CSV reading
-- [rappdirs](https://cran.r-project.org/package=rappdirs) — cross-platform cache directory
-- [plyr](https://cran.r-project.org/package=plyr) — data manipulation
 
 ### Bioconductor
 
@@ -304,6 +323,10 @@ association with outcomes, heatmap visualization).
 - [clusterProfiler](https://bioconductor.org/packages/clusterProfiler/) — ORA enrichment
 - [limma](https://bioconductor.org/packages/limma/) — CAMERA backend (`limma::camera()`)
 - [GSVA](https://bioconductor.org/packages/GSVA/) — per-sample gene-set scoring
+- [SummarizedExperiment](https://bioconductor.org/packages/SummarizedExperiment/): standard container accepted by CAMERA / GSVA
+- [BiocIO](https://bioconductor.org/packages/BiocIO/): `import()` convention behind `CTDFile`
+- [BiocFileCache](https://bioconductor.org/packages/BiocFileCache/): local cache of the processed CTD tables
+- [S4Vectors](https://bioconductor.org/packages/S4Vectors/): `DataFrame` returned by `import()`
 - [AnnotationDbi](https://bioconductor.org/packages/AnnotationDbi/) — gene ID mapping
 - [org.Hs.eg.db](https://bioconductor.org/packages/org.Hs.eg.db/) — human gene annotation
 
