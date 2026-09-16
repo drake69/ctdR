@@ -62,6 +62,23 @@ test_that("ora reports ratios, counts and fold enrichment consistently", {
     expect_false(is.unsorted(result$pvalue))
 })
 
+test_that("no upper limit applies unless one is asked for", {
+    # A set of 600 genes is testable and must be tested by default. The
+    # measured ceiling on CTD is around 26,600 genes, well above the
+    # largest chemical in the database.
+    bg <- paste0("GENE", 1:1000)
+    term2gene <- rbind(
+        data.frame(term = "BIG", gene = bg[1:600]),
+        data.frame(term = "SMALL", gene = bg[1:5]),
+        data.frame(term = "FILLER", gene = bg)
+    )
+    gene_list <- bg[1:20]
+
+    expect_true("BIG" %in% ora(term2gene, gene_list)$ChemicalID)
+    expect_false("BIG" %in% ora(term2gene, gene_list,
+        maxGSSize = 500)$ChemicalID)
+})
+
 test_that("a one-gene set has the same p-value whatever gene it holds", {
     # This is why minGSSize defaults to 2: for M = 1 the hypergeometric
     # p-value collapses to n/N, so the test reports membership rather
@@ -82,9 +99,12 @@ test_that("a one-gene set has the same p-value whatever gene it holds", {
     expect_equal(singles$pvalue[1], 10 / 100)
 })
 
-test_that("minGSSize defaults to 2 and is not inherited from elsewhere", {
+test_that("the size thresholds are chosen for CTD, not inherited", {
+    # Both defaults were once taken from a general-purpose tool. The lower
+    # one is now 2 because CTD sets are small; the upper one is gone
+    # because no CTD set is large enough to be untestable.
     expect_identical(formals(ora)$minGSSize, 2)
-    expect_identical(formals(ora)$maxGSSize, 500)
+    expect_identical(formals(ora)$maxGSSize, Inf)
 
     bg <- paste0("GENE", 1:100)
     term2gene <- rbind(

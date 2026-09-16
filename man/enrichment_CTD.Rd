@@ -81,8 +81,10 @@ when \code{x} is a matrix or a data frame.}
 
 \item{...}{Additional arguments forwarded to the underlying engine:
 \code{\link{ora}} for ORA (\code{universe}, \code{minGSSize},
-\code{maxGSSize}; note that \code{minGSSize} defaults to 2, a value
-chosen for CTD rather than inherited from a general-purpose tool),
+\code{maxGSSize}; both thresholds are chosen for CTD rather than
+inherited, \code{minGSSize} defaulting to 2 and \code{maxGSSize}
+to \code{Inf}, see \code{\link{ora}} for the measurements behind
+them),
 \code{\link[fgsea]{fgseaMultilevel}} for GSEA (e.g. \code{minSize},
 \code{maxSize}, \code{nproc}),
 \code{\link[limma]{camera}} for CAMERA,

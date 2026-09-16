@@ -15,6 +15,34 @@
   dependency closure drops from 175 to 116 packages and the system
   requirements from 14 to 7.
 
+* **`maxGSSize` no longer defaults to 500. There is no upper limit.**
+  The lower threshold was corrected in this same release because it had
+  been inherited from a tool tuned for KEGG and GO; the upper one had
+  been inherited from exactly the same place and kept without question.
+
+  The criterion is the one used for the lower threshold, read from the
+  other end. A set of *M* genes cannot, even when every one of the *m*
+  input genes falls inside it, produce a p-value below
+  `choose(M, m) / choose(N, m)`, roughly `(M/N)^m`. That floor rises
+  with *M*, so a large enough set is untestable. Whether CTD holds any
+  such set is a measurement, not an opinion: with N = 28,571 and an
+  input list of 169, the largest still-testable set is about 26,600
+  genes, 93% of the universe, while the largest chemical in CTD has
+  16,536. No chemical is untestable from above.
+
+  A cap at 500 excluded 265 chemicals, among them benzo(a)pyrene,
+  valproic acid, sodium arsenite, bisphenol A, aflatoxin B1 and
+  particulate matter: the canonical compounds of toxicology, whose sets
+  are large because the literature on them is. This is where CTD parts
+  company with GO, in which a large term is one that has stopped meaning
+  anything. Removing the cap costs 3% more tests, 8,235 against 7,970.
+
+  In the bundled RNA-seq example the cap excluded dexamethasone, the
+  treatment the experiment applied, which without it ranks third of
+  8,193 chemicals at an adjusted p-value of 0.0002.
+
+  `maxGSSize` remains settable for anyone who wants a cap of their own.
+
 * The default `minGSSize` for ORA is now **2**, chosen for CTD instead
   of inherited from a general-purpose tool. The previous value, 10,
   came from `enricher()`'s own default, which suits KEGG and GO (median

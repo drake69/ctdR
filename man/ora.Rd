@@ -10,7 +10,7 @@ ora(
   pAdjustMethod = "BH",
   universe = NULL,
   minGSSize = 2,
-  maxGSSize = 500
+  maxGSSize = Inf
 )
 }
 \arguments{
@@ -39,8 +39,31 @@ degenerate, since its p-value equals the ratio of input genes to
 background whichever gene it contains, so it measures membership
 rather than enrichment.}
 
-\item{maxGSSize}{Integer. Maximum gene set size after intersection
-with the background (default 500).}
+\item{maxGSSize}{Maximum gene set size after intersection with the
+  background. The default is \code{Inf}, that is no upper limit, and
+  that too is a choice made for CTD rather than inherited.
+
+  The reasoning mirrors the one for \code{minGSSize}, and reaches the
+  opposite conclusion. A set of \eqn{M} genes cannot, even when every
+  one of the \eqn{m} input genes falls inside it, produce a p-value
+  below \eqn{C(M,m)/C(N,m) \approx (M/N)^m}. That floor rises with
+  \eqn{M}, so a large enough set becomes untestable. Measured on CTD,
+  with 28,571 genes in the background and an input list of 169, the
+  largest still-testable set is about 26,600 genes, 93\% of the
+  universe. The largest chemical in CTD has 16,536. No chemical is
+  untestable from above, so an upper cut removes sets that could have
+  been declared significant.
+
+  What it removes is not marginal. A cut at 500 excludes 265
+  chemicals, among them benzo(a)pyrene, valproic acid, sodium
+  arsenite, bisphenol A, aflatoxin B1 and particulate matter. Their
+  sets are large because the literature on them is large: in CTD size
+  tracks how well studied a chemical is, where in GO a large term is
+  one that has stopped meaning anything. Keeping them costs 3\% more
+  tests, 8,235 against 7,970.
+
+  Set it to a finite value if you have a reason of your own; ctdR
+  does not impose one.}
 }
 \value{
 A data frame with columns \code{ChemicalID}, \code{GeneRatio},
