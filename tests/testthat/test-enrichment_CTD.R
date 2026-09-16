@@ -4,7 +4,7 @@ test_that("enrichment_CTD errors when CTD data not imported", {
     dir.create(tmp_cache, showWarnings = FALSE)
     options(ctdR.cache = tmp_cache)
     on.exit({
-        options(ctdR.cache = NULL)
+        .restore_ctd_cache()
         unlink(tmp_cache, recursive = TRUE)
     })
 
@@ -56,7 +56,7 @@ test_that("enrichment_CTD error mentions download URL", {
     dir.create(tmp_cache, showWarnings = FALSE)
     options(ctdR.cache = tmp_cache)
     on.exit({
-        options(ctdR.cache = NULL)
+        .restore_ctd_cache()
         unlink(tmp_cache, recursive = TRUE)
     })
 

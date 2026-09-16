@@ -134,7 +134,7 @@ test_that("import_CTD caches data correctly", {
     tmp_cache <- file.path(tempdir(), "ctdR_test_cache")
     options(ctdR.cache = tmp_cache)
     on.exit({
-        options(ctdR.cache = NULL)
+        .restore_ctd_cache()
         unlink(tmp_file)
         unlink(tmp_cache, recursive = TRUE)
     })

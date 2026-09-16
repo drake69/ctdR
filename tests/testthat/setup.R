@@ -3,8 +3,16 @@
 # next analysis runs against the ten-chemical sample these tests use and
 # returns a plausible-looking table.
 #
-# Most test files call import_CTD() through a local helper, and all but
-# one of them did so against tools::R_user_dir(). Setting the option here
-# covers the whole suite at one point, so a new test file cannot forget.
-# testthat sources setup files before any test runs.
-options(ctdR.cache = file.path(tempdir(), "ctdR_test_cache"))
+# testthat sources this before any test file, so a new test file cannot
+# forget to redirect.
+.ctdR_test_cache <- file.path(tempdir(), "ctdR_test_cache")
+options(ctdR.cache = .ctdR_test_cache)
+
+# Tests that need a cache of their own must come back to this one when
+# they are done, NOT to NULL. Clearing the option makes .ctd_cache_dir()
+# fall back to tools::R_user_dir(), which is the user's real cache, and
+# every later test in the run would then write there.
+.restore_ctd_cache <- function() {
+    options(ctdR.cache = .ctdR_test_cache)
+    invisible(NULL)
+}

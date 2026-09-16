@@ -39,6 +39,9 @@
   analysis from their main cache. The test suite now redirects the cache
   from a single `setup.R` as well: five of its six importing files were
   writing to the real one, so running the tests carried the same cost.
+  Tests that need a cache of their own restore the suite's, where they
+  previously cleared the option, which sent every later test in the run
+  back to the user's cache.
 
 * New `ctd_provenance()` returns the record of which CTD release an
   analysis ran on: the `Report created` date CTD stamps into its own file

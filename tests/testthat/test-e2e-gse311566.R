@@ -33,7 +33,7 @@ test_that("e2e GSE311566 Dex-vs-DMSO recovers Dexamethasone via GSEA + CAMERA", 
     dir.create(tmp_cache, recursive = TRUE, showWarnings = FALSE)
     options(ctdR.cache = tmp_cache)
     on.exit({
-        options(ctdR.cache = NULL)
+        .restore_ctd_cache()
         unlink(tmp_cache, recursive = TRUE)
     })
 

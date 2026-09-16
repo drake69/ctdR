@@ -34,7 +34,7 @@ test_that("enrichment_CTD ORA path works with cached data", {
     ctdR:::.ctd_cache_save(bfc, "ChemicalName_GeneSymbols", ChemicalName_GeneSymbols)
     ctdR:::.ctd_cache_save(bfc, "ChemicalName_GeneEntrezIds", ChemicalName_GeneEntrezIds)
     on.exit({
-        options(ctdR.cache = NULL)
+        .restore_ctd_cache()
         unlink(tmp_cache, recursive = TRUE)
     })
 
@@ -89,7 +89,7 @@ test_that("enrichment_CTD GSEA path works with cached data", {
     ctdR:::.ctd_cache_save(bfc, "chemicals", chemicals)
     ctdR:::.ctd_cache_save(bfc, "ChemicalName_GeneEntrezIds", ChemicalName_GeneEntrezIds)
     on.exit({
-        options(ctdR.cache = NULL)
+        .restore_ctd_cache()
         unlink(tmp_cache, recursive = TRUE)
     })
 
@@ -135,7 +135,7 @@ test_that("enrichment_CTD GSEA applies pAdjustMethod correctly", {
     ctdR:::.ctd_cache_save(bfc, "chemicals", chemicals)
     ctdR:::.ctd_cache_save(bfc, "ChemicalName_GeneEntrezIds", ChemicalName_GeneEntrezIds)
     on.exit({
-        options(ctdR.cache = NULL)
+        .restore_ctd_cache()
         unlink(tmp_cache, recursive = TRUE)
     })
 
@@ -184,7 +184,7 @@ test_that("enrichment_CTD GSEA handles NA EntrezID values", {
     ctdR:::.ctd_cache_save(bfc, "chemicals", chemicals)
     ctdR:::.ctd_cache_save(bfc, "ChemicalName_GeneEntrezIds", ChemicalName_GeneEntrezIds)
     on.exit({
-        options(ctdR.cache = NULL)
+        .restore_ctd_cache()
         unlink(tmp_cache, recursive = TRUE)
     })
 

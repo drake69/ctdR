@@ -26,7 +26,7 @@
     tmp_cache <- file.path(tempdir(), paste0("ctdR_prov_", basename(tempfile())))
     options(ctdR.cache = tmp_cache)
     on.exit({
-        options(ctdR.cache = NULL)
+        .restore_ctd_cache()
         unlink(tmp_cache, recursive = TRUE)
     }, add = TRUE)
     force(code)

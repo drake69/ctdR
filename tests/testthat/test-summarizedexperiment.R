@@ -20,6 +20,11 @@
 }
 
 .synthetic_expr_se <- function(seed = 42, n_samples = 6) {
+    # Import first. Reading the gene sets without it used to work only
+    # because the cache had not been redirected and these tests were
+    # borrowing whatever the developer had imported: green on one
+    # machine, an error on a clean one.
+    .setup_sample_cache_se()
     ids <- as.character(unique(unlist(as_genesets_CTD("entrez"))))
     set.seed(seed)
     matrix(
