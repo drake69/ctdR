@@ -13,7 +13,7 @@ using data from the Comparative Toxicogenomics Database
 Four enrichment methods are supported through a unified interface:
 \describe{
   \item{\strong{ORA}}{Over-Representation Analysis via
-    \code{\link[clusterProfiler]{enricher}}.}
+    \code{\link[stats]{phyper}}.}
   \item{\strong{GSEA}}{Gene Set Enrichment Analysis via
     \code{\link[fgsea]{fgsea}}.}
   \item{\strong{CAMERA}}{Competitive gene-set test accounting for

@@ -1,3 +1,77 @@
+# Changes in version 0.99.9
+
+## Significant user-visible changes
+
+* ORA no longer goes through `clusterProfiler::enricher()`. The
+  hypergeometric test is computed directly with `stats::phyper()`, and
+  `clusterProfiler` has been removed from `Imports`. The p-values are
+  unchanged: `scripts/ora_equivalence_check.R` in the revisions
+  repository compares the two implementations across 24 configurations
+  and finds them identical. The reason is cost, not correctness.
+  `clusterProfiler` accounted for 59 of the package's 175 hard
+  dependencies for this single call, and its visualization layer, which
+  ctdR never used, put Pandoc, cairo, fontconfig, freetype2, libuv and
+  glpk among the system requirements of every installation. The
+  dependency closure drops from 175 to 116 packages and the system
+  requirements from 14 to 7.
+
+* The default `minGSSize` for ORA is now **2**, chosen for CTD instead
+  of inherited from a general-purpose tool. The previous value, 10,
+  came from `enricher()`'s own default, which suits KEGG and GO (median
+  set sizes 72 and 11) but not CTD, where the median chemical has 4
+  target genes: it silently excluded 7,831 of 11,067 chemicals from
+  testing altogether. Coverage goes from 26.8% to 72.0% of chemicals.
+  One-gene sets remain excluded on purpose: their hypergeometric
+  p-value equals the ratio of input genes to background whichever gene
+  they contain, so they measure membership rather than enrichment.
+
+* **Breaking change.** ORA results now have 10 columns instead of 13.
+  `ChemicalID`, `ChemicalName`, `Method`, `PValue`, `PValueAdjusted`,
+  `GeneRatio`, `BackgroundRatio`, `EnrichedGenes`, `Count` and
+  `FoldEnrichment` are unchanged. Three columns are gone, none of which
+  carried information the remaining ones do not:
+
+  - `QValue` held Storey's q-value from the `qvalue` package. On
+    result sets of the size a CTD analysis produces it was identical to
+    `PValueAdjusted`, because the q-value estimator falls back to
+    Benjamini-Hochberg when it cannot estimate the proportion of true
+    nulls, so the two columns held the same numbers.
+    Reproducing it would mean taking the dependency back for a
+    duplicate. Use `PValueAdjusted` for false-discovery control.
+  - `RichFactor` and `zScore` came from the previous backend and were
+    passed through undocumented: neither appeared in the output schema
+    described in the vignette.
+
+  This also fixes a defect. The previous output carried **two** columns
+  named `FoldEnrichment`, one from the backend and one from ctdR's own
+  rename. Every ORA call raised a duplicated-column warning from
+  `merge()`, and `results$FoldEnrichment` returned whichever of the two
+  came first. There is now one.
+
+## Internal
+
+* The internal `ora()` engine takes `universe`, `minGSSize` and
+  `maxGSSize` as explicit arguments rather than forwarding an opaque
+  `...` to another package, so an unrecognised argument now raises an
+  error instead of being silently discarded.
+
+* `.parse_ratio()` has been removed. Fold enrichment is computed from
+  the counts directly instead of being parsed back out of the
+  `"n/d"` strings.
+
+* New `tools/check_internal_params.R`, wired into CI, fails the build
+  when a documented function has an argument without its `@param`.
+  `R CMD check` skips that cross-check for topics marked
+  `\keyword{internal}`, so such an argument used to ship undocumented
+  with the check still reporting Status OK. Six internal topics that
+  were already in that state have been documented.
+
+* The ORA test suite checks `ora()` against `stats::phyper()` and
+  closed-form values rather than against another implementation. After
+  the migration the hypergeometric distribution is the reference; an
+  equivalence test against `clusterProfiler` would have pinned ctdR's
+  correctness to a package it no longer depends on.
+
 # Changes in version 0.99.8
 
 ## New features

@@ -1,6 +1,5 @@
 test_that("enrichment_CTD ORA path works with cached data", {
     skip_on_cran()
-    skip_if_not_installed("clusterProfiler")
     skip_if_not_installed("AnnotationDbi")
     skip_if_not_installed("org.Hs.eg.db")
 

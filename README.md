@@ -28,7 +28,7 @@
 
 Four enrichment methods through a unified `enrichment_CTD()` interface, selected via the `method` argument:
 
-- **ORA** — Over-Representation Analysis (hypergeometric test). Input: gene list. Backend: [`clusterProfiler::enricher`](https://bioconductor.org/packages/clusterProfiler/).
+- **ORA**: Over-Representation Analysis (hypergeometric test). Input: gene list. Backend: [`stats::phyper`](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Hypergeometric.html), computed directly.
 - **GSEA** — Gene Set Enrichment Analysis (rank-based, permutational). Input: ranked gene list. Backend: [`fgsea::fgsea`](https://bioconductor.org/packages/fgsea/).
 - **CAMERA**: competitive gene-set test with inter-gene correlation correction. Input: expression matrix or `SummarizedExperiment`, plus design + contrast. Backend: [`limma::camera`](https://bioconductor.org/packages/limma/).
 - **GSVA**: Gene Set Variation Analysis (per-sample scoring). Input: expression matrix or `SummarizedExperiment`. Output: chemical × sample scores, returned in whichever of the two you supplied. Backend: [`GSVA::gsva`](https://bioconductor.org/packages/GSVA/).
@@ -75,7 +75,7 @@ automatically by `install_github()`, but you can install them upfront with:
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 
-BiocManager::install(c("fgsea", "org.Hs.eg.db", "clusterProfiler",
+BiocManager::install(c("fgsea", "org.Hs.eg.db",
                        "AnnotationDbi", "limma", "GSVA"))
 ```
 
@@ -320,7 +320,6 @@ Mirrors the `Imports` field of `DESCRIPTION`.
 ### Bioconductor
 
 - [fgsea](https://bioconductor.org/packages/fgsea/) — fast GSEA implementation
-- [clusterProfiler](https://bioconductor.org/packages/clusterProfiler/) — ORA enrichment
 - [limma](https://bioconductor.org/packages/limma/) — CAMERA backend (`limma::camera()`)
 - [GSVA](https://bioconductor.org/packages/GSVA/) — per-sample gene-set scoring
 - [SummarizedExperiment](https://bioconductor.org/packages/SummarizedExperiment/): standard container accepted by CAMERA / GSVA

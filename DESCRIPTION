@@ -2,7 +2,7 @@ Package: ctdR
 Type: Package
 Title: Enrichment Analysis of Chemical-Gene Interactions from the
     Comparative Toxicogenomics Database
-Version: 0.99.8
+Version: 0.99.9
 Authors@R: person(
     given = "Luigi",
     family = "Corsaro",
@@ -12,11 +12,12 @@ Authors@R: person(
 Description: Identifies chemicals significantly associated with a set of genes
     using data from the Comparative Toxicogenomics Database (CTD,
     <https://ctdbase.org>). Supports four enrichment methods through a unified
-    interface: Over-Representation Analysis (ORA) via 'clusterProfiler', Gene
-    Set Enrichment Analysis (GSEA) via 'fgsea', the competitive gene-set test
-    CAMERA via 'limma', and per-sample Gene Set Variation Analysis (GSVA) via
-    'GSVA'. Users download the CTD chemical-gene interactions file once, import
-    it with import_CTD(), and then run enrichment_CTD() on either a gene list
+    interface: Over-Representation Analysis (ORA) via a hypergeometric test on
+    stats::phyper(), Gene Set Enrichment Analysis (GSEA) via 'fgsea', the
+    competitive gene-set test CAMERA via 'limma', and per-sample Gene Set
+    Variation Analysis (GSVA) via 'GSVA'. Users download the CTD chemical-gene
+    interactions file once, import it with import_CTD(), and then run
+    enrichment_CTD() on either a gene list
     (ORA, GSEA) or an expression matrix (CAMERA, GSVA). This package does not
     bundle or redistribute CTD data. Users must download the required data
     files directly from <https://ctdbase.org> and comply with the CTD data
@@ -32,7 +33,6 @@ Imports:
     ggplot2,
     readr,
     org.Hs.eg.db,
-    clusterProfiler,
     AnnotationDbi,
     limma,
     GSVA,

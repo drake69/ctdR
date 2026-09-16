@@ -9,8 +9,8 @@
 #' \describe{
 #'   \item{\strong{ORA}}{Over-Representation Analysis (default). Tests whether
 #'     the overlap between your gene list and each chemical's target genes is
-#'     larger than expected by chance.
-#'     Uses \code{\link[clusterProfiler]{enricher}}.
+#'     larger than expected by chance. Uses a hypergeometric test
+#'     computed directly on \code{\link[stats]{phyper}}.
 #'     Input: data frame with column \code{EntrezID} (character or
 #'     numeric Entrez gene IDs) and an optional numeric value column.}
 #'   \item{\strong{GSEA}}{Gene Set Enrichment Analysis. Uses a ranked gene list
@@ -96,8 +96,9 @@
 #'   a positive index, or \code{NULL} (default) for the first assay. Ignored
 #'   when \code{x} is a matrix or a data frame.
 #' @param ... Additional arguments forwarded to the underlying engine:
-#'   \code{\link[clusterProfiler]{enricher}} for ORA (e.g. \code{universe},
-#'   \code{minGSSize}, \code{maxGSSize}),
+#'   \code{\link{ora}} for ORA (\code{universe}, \code{minGSSize},
+#'   \code{maxGSSize}; note that \code{minGSSize} defaults to 2, a value
+#'   chosen for CTD rather than inherited from a general-purpose tool),
 #'   \code{\link[fgsea]{fgseaMultilevel}} for GSEA (e.g. \code{minSize},
 #'   \code{maxSize}, \code{nproc}),
 #'   \code{\link[limma]{camera}} for CAMERA,
@@ -279,6 +280,13 @@ enrichment_CTD <- function(x,
 #'   \code{ChemicalName} columns.
 #' @param cache_dir Directory holding cached CTD \code{.rda} files.
 #' @param pAdjustMethod Multiple-testing correction name.
+#' @param interaction_types Character vector of CTD \code{InteractionActions}
+#'   values to retain when building gene sets, or \code{NULL} for all.
+#' @param gene_id_type Either \code{"symbol"} or \code{"entrez"}: the
+#'   identifier used to build the TERM2GENE table and reported in the
+#'   \code{EnrichedGenes} column.
+#' @param ... Forwarded to \code{\link{ora}} (\code{universe},
+#'   \code{minGSSize}, \code{maxGSSize}).
 #'
 #' @return A data frame of ORA enrichment results.
 #' @keywords internal
@@ -322,12 +330,11 @@ enrichment_CTD <- function(x,
         method = "ORA",
         rename = c(
             pvalue         = "PValue",
-            qvalue         = "QValue",
             BgRatio        = "BackgroundRatio",
             geneID         = "EnrichedGenes",
             foldEnrichment = "FoldEnrichment"
         ),
-        drop = c("p.adjust", "Description")
+        drop = c("p.adjust")
     )
 }
 

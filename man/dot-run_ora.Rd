@@ -23,6 +23,16 @@
 \item{cache_dir}{Directory holding cached CTD \code{.rda} files.}
 
 \item{pAdjustMethod}{Multiple-testing correction name.}
+
+\item{interaction_types}{Character vector of CTD \code{InteractionActions}
+values to retain when building gene sets, or \code{NULL} for all.}
+
+\item{gene_id_type}{Either \code{"symbol"} or \code{"entrez"}: the
+identifier used to build the TERM2GENE table and reported in the
+\code{EnrichedGenes} column.}
+
+\item{...}{Forwarded to \code{\link{ora}} (\code{universe},
+\code{minGSSize}, \code{maxGSSize}).}
 }
 \value{
 A data frame of ORA enrichment results.

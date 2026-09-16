@@ -80,8 +80,9 @@ a positive index, or \code{NULL} (default) for the first assay. Ignored
 when \code{x} is a matrix or a data frame.}
 
 \item{...}{Additional arguments forwarded to the underlying engine:
-\code{\link[clusterProfiler]{enricher}} for ORA (e.g. \code{universe},
-\code{minGSSize}, \code{maxGSSize}),
+\code{\link{ora}} for ORA (\code{universe}, \code{minGSSize},
+\code{maxGSSize}; note that \code{minGSSize} defaults to 2, a value
+chosen for CTD rather than inherited from a general-purpose tool),
 \code{\link[fgsea]{fgseaMultilevel}} for GSEA (e.g. \code{minSize},
 \code{maxSize}, \code{nproc}),
 \code{\link[limma]{camera}} for CAMERA,
@@ -113,8 +114,8 @@ Four methods are available:
 \describe{
   \item{\strong{ORA}}{Over-Representation Analysis (default). Tests whether
     the overlap between your gene list and each chemical's target genes is
-    larger than expected by chance.
-    Uses \code{\link[clusterProfiler]{enricher}}.
+    larger than expected by chance. Uses a hypergeometric test
+    computed directly on \code{\link[stats]{phyper}}.
     Input: data frame with column \code{EntrezID} (character or
     numeric Entrez gene IDs) and an optional numeric value column.}
   \item{\strong{GSEA}}{Gene Set Enrichment Analysis. Uses a ranked gene list

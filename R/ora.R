@@ -1,79 +1,117 @@
 #' @title Over-Representation Analysis (ORA)
 #'
 #' @description
-#' Internal engine that performs Over-Representation Analysis via
-#' \code{\link[clusterProfiler]{enricher}}. Returns the raw enricher
-#' result table with one ctdR-added column (\code{foldEnrichment}).
+#' Internal engine that performs Over-Representation Analysis with a
+#' hypergeometric test computed directly on \code{\link[stats]{phyper}}.
+#' Returns a result table with one row per tested chemical.
 #'
 #' Column renaming, multiple-testing correction, chemical-name join,
 #' canonical ordering and sort are applied downstream by
 #' \code{\link{.format_enrichment_result}} so the engine stays close
-#' to its underlying tool's native vocabulary.
+#' to the vocabulary of the test itself.
+#'
+#' @details
+#' Earlier versions delegated this step to
+#' \code{clusterProfiler::enricher()}. That pulled in 59 packages, and a
+#' visualization layer this package never used, to reach a single call.
+#' The test itself is one line of \code{stats}, so it is computed here
+#' and \code{clusterProfiler} is no longer a dependency. The p-values are
+#' unchanged: \code{scripts/ora_equivalence_check.R} in the revisions
+#' repository verifies the two implementations agree.
+#'
+#' The background is every gene appearing in \code{ChemicalName_GeneSymbols},
+#' optionally narrowed by \code{universe}. Gene sets are intersected with
+#' that background \emph{before} the size filter, so \code{minGSSize} and
+#' \code{maxGSSize} always refer to the set as actually tested rather than
+#' to its nominal size.
 #'
 #' @param ChemicalName_GeneSymbols A data frame with two columns
 #'   (\code{term}, \code{gene}) mapping CTD chemical IDs to HGNC gene
-#'   symbols. Serves as the TERM2GENE input for
-#'   \code{clusterProfiler::enricher}.
+#'   symbols. The first two columns are used, whatever their names.
 #' @param gene_symbols Character vector of HGNC gene symbols to test
-#'   for enrichment.
+#'   for enrichment. Duplicates and \code{NA} are removed.
 #' @param pAdjustMethod Character. Method for multiple testing
 #'   correction (default \code{"BH"}). Passed to
-#'   \code{\link[clusterProfiler]{enricher}}.
-#' @param ... Additional arguments forwarded to
-#'   \code{\link[clusterProfiler]{enricher}}, e.g.:
-#'   \describe{
-#'     \item{\code{universe}}{Character vector of background gene symbols
-#'       (default: all genes in the TERM2GENE table). Set to
-#'       \code{rownames(expr)} or the full tested gene list to restrict
-#'       the background to measured genes only.}
-#'     \item{\code{minGSSize}}{Minimum gene set size after intersection
-#'       with the universe (default 1).}
-#'     \item{\code{maxGSSize}}{Maximum gene set size (default 500).}
-#'   }
+#'   \code{\link[stats]{p.adjust}}.
+#' @param universe Character vector of background gene symbols, or
+#'   \code{NULL} (default) to use every gene in
+#'   \code{ChemicalName_GeneSymbols}. Set it to \code{rownames(expr)} or
+#'   to the full tested gene list to restrict the background to measured
+#'   genes only.
+#' @param minGSSize Integer. Minimum gene set size after intersection
+#'   with the background (default 2). The default is chosen for CTD,
+#'   where the median chemical has 4 target genes: a one-gene set is
+#'   degenerate, since its p-value equals the ratio of input genes to
+#'   background whichever gene it contains, so it measures membership
+#'   rather than enrichment.
+#' @param maxGSSize Integer. Maximum gene set size after intersection
+#'   with the background (default 500).
 #'
-#' @return A data frame with \code{clusterProfiler::enricher}'s native
-#'   columns (\code{ID}, \code{GeneRatio}, \code{BgRatio},
-#'   \code{pvalue}, \code{p.adjust}, \code{qvalue}, \code{geneID},
-#'   \code{Count}, \code{Description}) plus a ctdR-added
-#'   \code{foldEnrichment} column. Returns an empty data frame with
-#'   the same structure if no enrichment is found.
+#' @return A data frame with columns \code{ChemicalID}, \code{GeneRatio},
+#'   \code{BgRatio}, \code{pvalue}, \code{p.adjust}, \code{geneID},
+#'   \code{Count} and \code{foldEnrichment}, sorted by \code{pvalue}
+#'   ascending. Returns an empty data frame with the same structure when
+#'   no gene set can be tested.
 #'
 #' @keywords internal
 ora <- function(ChemicalName_GeneSymbols, gene_symbols,
-    pAdjustMethod = "BH", ...) {
+    pAdjustMethod = "BH", universe = NULL,
+    minGSSize = 2, maxGSSize = 500) {
     empty <- data.frame(
-        ChemicalID = character(), Description = character(),
-        GeneRatio = character(), BgRatio = character(),
-        pvalue = numeric(), p.adjust = numeric(), qvalue = numeric(),
-        geneID = character(), Count = integer(),
-        foldEnrichment = numeric()
+        ChemicalID = character(), GeneRatio = character(),
+        BgRatio = character(), pvalue = numeric(),
+        p.adjust = numeric(), geneID = character(),
+        Count = integer(), foldEnrichment = numeric(),
+        stringsAsFactors = FALSE
     )
 
-    ora_results <- suppressMessages(clusterProfiler::enricher(
-        gene = gene_symbols,
-        TERM2GENE = ChemicalName_GeneSymbols,
-        pAdjustMethod = pAdjustMethod,
-        ...
-    ))
+    t2g <- as.data.frame(ChemicalName_GeneSymbols)
+    if (ncol(t2g) < 2L)
+        stop("'ChemicalName_GeneSymbols' needs a term and a gene column.",
+            call. = FALSE)
+    term <- as.character(t2g[[1L]])
+    gene <- as.character(t2g[[2L]])
 
-    if (is.null(ora_results)) return(empty)
+    background <- unique(gene[!is.na(gene)])
+    if (!is.null(universe)) {
+        if (!is.character(universe))
+            stop("'universe' must be a character vector.", call. = FALSE)
+        background <- intersect(background, universe)
+    }
+    N <- length(background)
 
-    res <- ora_results@result
-    # clusterProfiler labels its primary key "ID", but in ctdR those
-    # values are CTD chemical IDs. Lift to the semantically correct
-    # name here so callers never see a generic "ID".
-    colnames(res)[colnames(res) == "ID"] <- "ChemicalID"
-    res$foldEnrichment <-
-        .parse_ratio(res$GeneRatio) / .parse_ratio(res$BgRatio)
+    hits <- unique(as.character(gene_symbols))
+    hits <- intersect(hits[!is.na(hits)], background)
+    n <- length(hits)
+    if (N == 0L || n == 0L) return(empty)
+
+    gene_sets <- split(gene, term)
+    gene_sets <- lapply(gene_sets, function(g) intersect(unique(g), background))
+    sizes <- lengths(gene_sets)
+    gene_sets <- gene_sets[sizes >= minGSSize & sizes <= maxGSSize]
+    if (!length(gene_sets)) return(empty)
+
+    M <- unname(lengths(gene_sets))
+    # Keep the input order inside geneID so the column is reproducible.
+    overlap <- lapply(gene_sets, function(g) hits[hits %in% g])
+    k <- unname(lengths(overlap))
+
+    # P(X >= k) for X hypergeometric: k or more of the n input genes
+    # falling in a set of M, drawn from a background of N.
+    pvalue <- stats::phyper(k - 1L, M, N - M, n, lower.tail = FALSE)
+
+    res <- data.frame(
+        ChemicalID = names(gene_sets),
+        GeneRatio = paste0(k, "/", n),
+        BgRatio = paste0(M, "/", N),
+        pvalue = pvalue,
+        p.adjust = stats::p.adjust(pvalue, method = pAdjustMethod),
+        geneID = unname(vapply(overlap, paste, character(1), collapse = "/")),
+        Count = as.integer(k),
+        foldEnrichment = (k / n) / (M / N),
+        stringsAsFactors = FALSE
+    )
+    res <- res[order(res$pvalue), , drop = FALSE]
+    rownames(res) <- NULL
     res
-}
-
-#' Parse "n/d" ratio strings into numeric values
-#' @param x Character vector of strings of the form "n/d".
-#' @return Numeric vector of n/d ratios.
-#' @keywords internal
-.parse_ratio <- function(x) {
-    parts <- strsplit(as.character(x), "/", fixed = TRUE)
-    vapply(parts, function(p) as.numeric(p[1]) / as.numeric(p[2]),
-        numeric(1))
 }

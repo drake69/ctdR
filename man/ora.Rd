@@ -4,49 +4,73 @@
 \alias{ora}
 \title{Over-Representation Analysis (ORA)}
 \usage{
-ora(ChemicalName_GeneSymbols, gene_symbols, pAdjustMethod = "BH", ...)
+ora(
+  ChemicalName_GeneSymbols,
+  gene_symbols,
+  pAdjustMethod = "BH",
+  universe = NULL,
+  minGSSize = 2,
+  maxGSSize = 500
+)
 }
 \arguments{
 \item{ChemicalName_GeneSymbols}{A data frame with two columns
 (\code{term}, \code{gene}) mapping CTD chemical IDs to HGNC gene
-symbols. Serves as the TERM2GENE input for
-\code{clusterProfiler::enricher}.}
+symbols. The first two columns are used, whatever their names.}
 
 \item{gene_symbols}{Character vector of HGNC gene symbols to test
-for enrichment.}
+for enrichment. Duplicates and \code{NA} are removed.}
 
 \item{pAdjustMethod}{Character. Method for multiple testing
 correction (default \code{"BH"}). Passed to
-\code{\link[clusterProfiler]{enricher}}.}
+\code{\link[stats]{p.adjust}}.}
 
-\item{...}{Additional arguments forwarded to
-\code{\link[clusterProfiler]{enricher}}, e.g.:
-\describe{
-  \item{\code{universe}}{Character vector of background gene symbols
-    (default: all genes in the TERM2GENE table). Set to
-    \code{rownames(expr)} or the full tested gene list to restrict
-    the background to measured genes only.}
-  \item{\code{minGSSize}}{Minimum gene set size after intersection
-    with the universe (default 1).}
-  \item{\code{maxGSSize}}{Maximum gene set size (default 500).}
-}}
+\item{universe}{Character vector of background gene symbols, or
+\code{NULL} (default) to use every gene in
+\code{ChemicalName_GeneSymbols}. Set it to \code{rownames(expr)} or
+to the full tested gene list to restrict the background to measured
+genes only.}
+
+\item{minGSSize}{Integer. Minimum gene set size after intersection
+with the background (default 2). The default is chosen for CTD,
+where the median chemical has 4 target genes: a one-gene set is
+degenerate, since its p-value equals the ratio of input genes to
+background whichever gene it contains, so it measures membership
+rather than enrichment.}
+
+\item{maxGSSize}{Integer. Maximum gene set size after intersection
+with the background (default 500).}
 }
 \value{
-A data frame with \code{clusterProfiler::enricher}'s native
-  columns (\code{ID}, \code{GeneRatio}, \code{BgRatio},
-  \code{pvalue}, \code{p.adjust}, \code{qvalue}, \code{geneID},
-  \code{Count}, \code{Description}) plus a ctdR-added
-  \code{foldEnrichment} column. Returns an empty data frame with
-  the same structure if no enrichment is found.
+A data frame with columns \code{ChemicalID}, \code{GeneRatio},
+  \code{BgRatio}, \code{pvalue}, \code{p.adjust}, \code{geneID},
+  \code{Count} and \code{foldEnrichment}, sorted by \code{pvalue}
+  ascending. Returns an empty data frame with the same structure when
+  no gene set can be tested.
 }
 \description{
-Internal engine that performs Over-Representation Analysis via
-\code{\link[clusterProfiler]{enricher}}. Returns the raw enricher
-result table with one ctdR-added column (\code{foldEnrichment}).
+Internal engine that performs Over-Representation Analysis with a
+hypergeometric test computed directly on \code{\link[stats]{phyper}}.
+Returns a result table with one row per tested chemical.
 
 Column renaming, multiple-testing correction, chemical-name join,
 canonical ordering and sort are applied downstream by
 \code{\link{.format_enrichment_result}} so the engine stays close
-to its underlying tool's native vocabulary.
+to the vocabulary of the test itself.
+}
+\details{
+Earlier versions delegated this step to
+\code{clusterProfiler::enricher()}. That pulled in 59 packages, and a
+visualization layer this package never used, to reach a single call.
+The test itself is one line of \code{stats}, so it is computed here
+and \code{clusterProfiler} is no longer a dependency. The p-values are
+unchanged: \code{scripts/ora_equivalence_check.R} in the revisions
+repository verifies the two implementations agree.
+
+The background is every gene appearing in \code{ChemicalName_GeneSymbols},
+optionally narrowed by \code{universe}. Gene sets are intersected with
+that background \emph{before} the size filter, so \code{minGSSize} and
+\code{maxGSSize} always refer to the set as actually tested rather than
+to its nominal size.
 }
 \keyword{internal}
