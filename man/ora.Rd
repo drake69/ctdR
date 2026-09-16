@@ -46,7 +46,9 @@ A data frame with columns \code{ChemicalID}, \code{GeneRatio},
   \code{BgRatio}, \code{pvalue}, \code{p.adjust}, \code{geneID},
   \code{Count} and \code{foldEnrichment}, sorted by \code{pvalue}
   ascending. Returns an empty data frame with the same structure when
-  no gene set can be tested.
+  no gene set can be tested. Emits a message reporting how many
+  chemicals the size filter left untested, since those are absent from
+  the result rather than present with a large p-value.
 }
 \description{
 Internal engine that performs Over-Representation Analysis with a

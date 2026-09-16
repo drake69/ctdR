@@ -25,6 +25,12 @@
   p-value equals the ratio of input genes to background whichever gene
   they contain, so they measure membership rather than enrichment.
 
+* ORA now reports what its size filter removed. A chemical excluded for
+  having too few or too many target genes is absent from the results,
+  not present with an unremarkable p-value, and the two cases used to be
+  indistinguishable. `ora()` emits a message giving how many chemicals
+  went untested and on which side of the thresholds they fell.
+
 * **Breaking change.** ORA results now have 10 columns instead of 13.
   `ChemicalID`, `ChemicalName`, `Method`, `PValue`, `PValueAdjusted`,
   `GeneRatio`, `BackgroundRatio`, `EnrichedGenes`, `Count` and

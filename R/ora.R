@@ -51,7 +51,9 @@
 #'   \code{BgRatio}, \code{pvalue}, \code{p.adjust}, \code{geneID},
 #'   \code{Count} and \code{foldEnrichment}, sorted by \code{pvalue}
 #'   ascending. Returns an empty data frame with the same structure when
-#'   no gene set can be tested.
+#'   no gene set can be tested. Emits a message reporting how many
+#'   chemicals the size filter left untested, since those are absent from
+#'   the result rather than present with a large p-value.
 #'
 #' @keywords internal
 ora <- function(ChemicalName_GeneSymbols, gene_symbols,
@@ -88,7 +90,18 @@ ora <- function(ChemicalName_GeneSymbols, gene_symbols,
     gene_sets <- split(gene, term)
     gene_sets <- lapply(gene_sets, function(g) intersect(unique(g), background))
     sizes <- lengths(gene_sets)
-    gene_sets <- gene_sets[sizes >= minGSSize & sizes <= maxGSSize]
+    keep <- sizes >= minGSSize & sizes <= maxGSSize
+    # Report what the filter removed. A chemical dropped here is not a
+    # non-significant result, it was never tested, and silently missing
+    # rows are indistinguishable from rows that came back empty.
+    if (any(!keep))
+        message(sprintf(
+            paste0("gene set size filter [%d, %d]: %d of %d chemicals ",
+                "not tested (%d below, %d above); %d tested."),
+            as.integer(minGSSize), as.integer(maxGSSize),
+            sum(!keep), length(keep),
+            sum(sizes < minGSSize), sum(sizes > maxGSSize), sum(keep)))
+    gene_sets <- gene_sets[keep]
     if (!length(gene_sets)) return(empty)
 
     M <- unname(lengths(gene_sets))

@@ -511,12 +511,50 @@ ORA, GSEA, and GSVA accept size-filter arguments via `...`, which are
 forwarded to the underlying engine. CAMERA's minimum of 2 genes is
 hard-coded and cannot be changed.
 
+### Why `minGSSize` defaults to 2
+
+In `ctdR` every chemical *is* a gene set, and CTD gene sets are small:
+the median chemical has **4** target genes, against 72 for KEGG and 11
+for GO. Size thresholds tuned for those collections do not transfer.
+Measured on the full CTD chemical-gene file, of 11,067 chemicals:
+
+| `minGSSize` | Chemicals tested | % |
+|---:|---:|---:|
+| 1 | 10,802 | 97.6 |
+| **2** *(default)* | **7,970** | **72.0** |
+| 3 | 6,498 | 58.7 |
+| 5 | 4,844 | 43.8 |
+| 10 | 2,971 | 26.8 |
+
+A `minGSSize` of 10, the conventional value, would test barely a
+quarter of them. The rest are not tested and found unremarkable: they
+are absent from the output altogether.
+
+One-gene sets are excluded on purpose rather than by accident. For a
+set of one gene the hypergeometric p-value is exactly the number of
+input genes divided by the background size, the same value whichever
+gene the set contains. It measures whether that gene is in your list,
+not whether the chemical is enriched. Removing those sets also makes
+the remaining ones easier to call significant, since they no longer add
+to the multiple-testing burden.
+
+Chemicals removed by the filter are reported rather than dropped
+quietly. `ora()` emits a message giving how many chemicals went
+untested and whether they fell below or above the thresholds, so a
+chemical missing from the results can be told apart from one that was
+tested and came back non-significant.
+
+Raise `minGSSize` when you want only well-characterised chemicals, and
+lower it to 1 only if you are deliberately looking for single-gene
+associations and will read those p-values accordingly.
+
 ```{r size-universe}
-# ORA: restrict background to expressed genes and apply size filters
+# ORA: restrict background to expressed genes and apply size filters.
+# minGSSize is left at its default of 2; maxGSSize is lowered to drop
+# the few very large, unspecific chemical gene sets.
 ora_expressed <- enrichment_CTD(
     genes, method = "ORA",
     universe   = c(genes$EntrezID, "7422", "836"),  # expressed genes
-    minGSSize  = 3,
     maxGSSize  = 300
 )
 

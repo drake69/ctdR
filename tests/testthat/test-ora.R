@@ -98,6 +98,26 @@ test_that("minGSSize defaults to 2 and is not inherited from elsewhere", {
     expect_true("PAIR" %in% result$ChemicalID)
 })
 
+test_that("ora reports the chemicals the size filter left untested", {
+    # A chemical dropped by the filter is absent from the result, not
+    # present with a large p-value. Without the message the two cases
+    # are indistinguishable to the caller.
+    bg <- paste0("GENE", 1:100)
+    term2gene <- rbind(
+        data.frame(term = "SINGLETON_A", gene = bg[1]),
+        data.frame(term = "SINGLETON_B", gene = bg[2]),
+        data.frame(term = "PAIR", gene = bg[3:4]),
+        data.frame(term = "FILLER", gene = bg)
+    )
+
+    expect_message(
+        ora(term2gene, bg[1:10]),
+        "2 of 4 chemicals not tested \\(2 below, 0 above\\); 2 tested"
+    )
+    # Nothing filtered means nothing to report.
+    expect_no_message(ora(term2gene, bg[1:10], minGSSize = 1))
+})
+
 test_that("the size filter applies after intersection with the background", {
     # SPARSE nominally has 6 genes but only 2 survive the universe, so a
     # minGSSize of 3 must drop it: the filter describes the set as
