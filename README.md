@@ -35,6 +35,7 @@ Four enrichment methods through a unified `enrichment_CTD()` interface, selected
 
 Additional features:
 
+- **Provenance tracking**: `ctd_provenance()` reports which CTD release an analysis ran on, read from the `Report created` line of the file's own header. CTD re-releases continuously and does not version its filenames, so this is what lets a result name the data behind it. Attached to every result, and readable from the cache before any analysis
 - **Automatic caching** — CTD data is parsed once and cached locally for fast repeated analyses
 - **Human-only filtering** — automatically restricts interactions to *Homo sapiens* (OrganismID 9606)
 - **Auto-detected gene identifiers**: Entrez vs HGNC SYMBOL detected from `rownames()` of the input matrix or `SummarizedExperiment` (CAMERA / GSVA); override via `id_type`

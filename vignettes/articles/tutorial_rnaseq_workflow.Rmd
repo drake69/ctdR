@@ -360,10 +360,12 @@ sig <- de[de$adj.P.Val < 0.05, c("EntrezID", "P.Value")]
 colnames(sig)[2] <- "pvalue"
 message(nrow(sig), " genes at adj.P.Val < 0.05")
 
+# minGSSize is left at its default of 2, which is chosen for CTD: the
+# median chemical has 4 target genes, so the conventional 10 would leave
+# roughly three quarters of chemicals untested. See the package vignette.
 ora_results <- enrichment_CTD(
     sig, method = "ORA",
     universe   = de$EntrezID,  # restrict background to measured genes
-    minGSSize  = 3,
     maxGSSize  = 500
 )
 ```

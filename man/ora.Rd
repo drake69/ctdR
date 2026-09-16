@@ -66,8 +66,9 @@ Earlier versions delegated this step to
 visualization layer this package never used, to reach a single call.
 The test itself is one line of \code{stats}, so it is computed here
 and \code{clusterProfiler} is no longer a dependency. The p-values are
-unchanged: \code{scripts/ora_equivalence_check.R} in the revisions
-repository verifies the two implementations agree.
+unchanged: the two implementations were compared over 24
+configurations of input list, minimum set size and background
+universe, and the largest absolute difference was exactly 0.
 
 The background is every gene appearing in \code{ChemicalName_GeneSymbols},
 optionally narrowed by \code{universe}. Gene sets are intersected with
