@@ -161,15 +161,23 @@ test_that("GSVA returns the container it was given", {
 
     expect_true(is.matrix(from_matrix))
     expect_s4_class(from_se, "SummarizedExperiment")
-    ## Same scores either way. GSVA tags its matrix output with a "geneSets"
-    ## attribute that it does not carry into the assay of an SE, so the
-    ## comparison is on the scores themselves.
+    ## Same scores either way. Two attributes ride on the matrix output and
+    ## not on the assay of an SE: "geneSets", which GSVA adds, and the CTD
+    ## provenance, which goes into metadata() when there is a slot for it.
+    ## Neither is a score, so the comparison strips both.
     scores <- from_matrix
     attr(scores, "geneSets") <- NULL
+    attr(scores, "ctd_provenance") <- NULL
     expect_equal(
         as.matrix(SummarizedExperiment::assay(from_se)),
         scores
     )
+    ## and the provenance is on both, in the place each container provides
+    expect_s3_class(ctd_provenance(from_matrix), "ctd_provenance")
+    expect_s3_class(ctd_provenance(from_se), "ctd_provenance")
+    expect_identical(ctd_provenance(from_matrix)$report_created,
+        ctd_provenance(from_se)$report_created)
+
     ## and the sample annotation is still attached
     expect_identical(from_se$group, se$group)
     expect_identical(colnames(from_se), colnames(se))

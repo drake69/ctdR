@@ -1,32 +1,21 @@
-# CTD Chemical-Gene Interactions (sample)
-# Synthetic data for package examples only
-# This is NOT real CTD data
-# Format mimics CTD_chem_gene_ixns.csv
-# See https://ctdbase.org for real data
+# The Comparative Toxicogenomics Database (CTD) - http://ctdbase.org/
+#
+# SAMPLE FILE - SYNTHETIC DATA, NOT REAL CTD DATA.
+# Bundled with the ctdR package so that examples and tests can run
+# without downloading the full CTD chemical-gene interactions file.
+# It mirrors the structure of a real CTD download, header included,
+# so that the parsing exercised here is the parsing users get.
+#
+# Contents: 10 chemicals, 30 genes, Homo sapiens (9606) only.
+#
+# Real data must be downloaded from http://ctdbase.org/downloads/
+# and is subject to the terms at http://ctdbase.org/about/legal.jsp
+#
+# Report created: Mon Jan 01 00:00:00 EST 2024
+#
 # Fields:
-# ChemicalName
-# ChemicalID
-# CasRN
-# GeneSymbol
-# GeneID
-# GeneForms
-# Organism
-# OrganismID
-# Interaction
-# InteractionActions
-# PubMedIDs
-# Data generated for ctdR vignette
-# Not for research use
-# License: Apache 2.0
-# Version: synthetic-2.0
-# Date: 2024-01-01
-# Species: Homo sapiens (9606)
-# Chemicals: 10
-# Genes: 30
-# Rows: 100+
-# Contact: ctdR package maintainer
-ChemicalName,ChemicalID,CasRN,GeneSymbol,GeneID,GeneForms,Organism,OrganismID,Interaction,InteractionActions,PubMedIDs
-ChemicalName,ChemicalID,CasRN,GeneSymbol,GeneID,GeneForms,Organism,OrganismID,Interaction,InteractionActions,PubMedIDs
+# ChemicalName,ChemicalID,CasRN,GeneSymbol,GeneID,GeneForms,Organism,OrganismID,Interaction,InteractionActions,PubMedIDs
+#
 Acetaminophen,D000082,103-90-2,TNF,7124,gene,Homo sapiens,9606,Acetaminophen affects expression of TNF,increases^expression,12345678
 Acetaminophen,D000082,103-90-2,IL6,3569,gene,Homo sapiens,9606,Acetaminophen affects expression of IL6,increases^expression,12345679
 Acetaminophen,D000082,103-90-2,TP53,7157,gene,Homo sapiens,9606,Acetaminophen affects expression of TP53,decreases^expression,12345680

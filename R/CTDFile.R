@@ -76,8 +76,17 @@ CTDFile <- function(resource) {
 setMethod("import", c(con = "CTDFile"), function(con, format, text, ...) {
     src <- .resolve_ctd_source(resource(con))
     ctd <- .read_and_validate_ctd(src)
-    S4Vectors::DataFrame(
+    hdr <- attr(ctd, "ctd_header")
+    out <- S4Vectors::DataFrame(
         as.data.frame(ctd, stringsAsFactors = FALSE),
         check.names = FALSE
     )
+    # A DataFrame has a metadata() slot, so the CTD release travels with
+    # the object read here just as it does with enrichment results.
+    .attach_provenance(out, .ctd_provenance_new(
+        report_created = hdr$report_created,
+        source = resource(con),
+        n_chemicals = length(unique(ctd$ChemicalID)),
+        n_interactions = nrow(ctd)
+    ))
 })

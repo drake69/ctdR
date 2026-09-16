@@ -132,6 +132,52 @@ This step takes several minutes with the full CTD file.
 You only need to run it once -- or again when you
 download a newer CTD release.
 
+### Which CTD release did I use?
+
+CTD is re-released continuously and its downloads are
+not versioned in the filename: two copies of
+`CTD_chem_gene_ixns.csv` months apart are
+indistinguishable from the outside. The release date
+lives inside the file, on the `# Report created:` line
+of its header, and it is the only thing that identifies
+which snapshot a result came from.
+
+`import_CTD()` reads that line, reports it, and keeps
+it. Every result then carries it, so an analysis can
+state the version of the data behind it without anyone
+having to remember:
+
+```{r provenance}
+# With no argument: what is in the cache right now.
+ctd_provenance()
+```
+
+Every result carries the same record, so you can also
+ask an object you are about to report on:
+`ctd_provenance(ora_results)`.
+
+The record holds the CTD release date, where the file
+came from, when you imported it, how much of it was
+kept, and the ctdR version. Release date and import
+date answer different questions and are both recorded:
+the first says which data, the second says when you
+took it.
+
+Use `ctd_provenance()` rather than reaching into the
+object, because the record is stored wherever the
+container provides room for it. Results that carry a
+`metadata()` slot keep it there, which is the case for
+the `SummarizedExperiment` returned by GSVA and for a
+`CTDFile` read with `import()`; the data frames from
+ORA, GSEA and CAMERA keep it in an attribute. The
+accessor hides the difference.
+
+The record follows subsetting, ordering, `head()` and
+the usual **dplyr** verbs. It does not follow `merge()`
+or `subset()`, which drop attributes; `ctd_provenance()`
+warns rather than quietly reporting nothing, so take
+the record before those if you need it after.
+
 ## Step 3 -- Run enrichment analysis
 
 ### Prepare your gene list

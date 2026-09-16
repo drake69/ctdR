@@ -25,6 +25,45 @@
   p-value equals the ratio of input genes to background whichever gene
   they contain, so they measure membership rather than enrichment.
 
+* New `ctd_provenance()` returns the record of which CTD release an
+  analysis ran on: the `Report created` date CTD stamps into its own file
+  header, where the file came from, when it was imported, how many
+  chemicals and chemical-gene pairs were retained, and the ctdR version.
+  CTD re-releases continuously and does not version its download
+  filenames, so that header date is the only thing identifying which
+  snapshot a result came from. `import_CTD()` now reads it, caches it and
+  prints it, and `enrichment_CTD()` attaches it to every result.
+
+  Where it is stored follows the container: `metadata()` on objects that
+  have the slot, which covers the `SummarizedExperiment` GSVA returns and
+  the `DataFrame` from importing a `CTDFile`; an attribute on the data
+  frames from ORA, GSEA and CAMERA. Use the accessor rather than either
+  directly. The record survives subsetting, ordering, `head()` and the
+  common dplyr verbs; it does not survive `merge()` or `subset()`, which
+  drop attributes, and the accessor says so rather than returning an
+  empty answer.
+
+* `import_CTD()` no longer assumes the CTD header is 27 lines long. A CTD
+  download has no header row: the field names sit inside the commented
+  preamble. The names are now located by finding the commented line that
+  lists at least three known CTD field names, taking the last such line,
+  and the file is read with `comment = "#"` as suggested in review. The
+  hard-coded `skip`, the row dropped afterwards to compensate, and the
+  patch that stripped `"# "` from the first column name are all gone.
+
+  This matters beyond tidiness. A fixed line count fails silently: insert
+  one comment line upstream and every column shifts, with the analysis
+  proceeding on misaligned data. Matching field names fails loudly, and
+  it adds no assumption the package was not already making, since those
+  names are referenced throughout.
+
+* The bundled sample file now mirrors the structure of a real CTD
+  download, header included. It previously carried an uncommented,
+  duplicated header row, shaped so the old hard-coded skip would work,
+  which meant tests and examples never exercised the format users
+  actually have. Its preamble is deliberately a different length from a
+  real download's, so that nothing can come to depend on the count again.
+
 * ORA now reports what its size filter removed. A chemical excluded for
   having too few or too many target genes is absent from the results,
   not present with an unremarkable p-value, and the two cases used to be

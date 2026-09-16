@@ -176,9 +176,13 @@ enrichment_CTD <- function(x,
     .validate_enrichment_args(x, method, design, contrast,
         pAdjustMethod, cache_dir)
 
-    chemicals <- .ctd_cache_load(.ctd_bfc(cache_dir), "chemicals")
+    bfc <- .ctd_bfc(cache_dir)
+    chemicals <- .ctd_cache_load(bfc, "chemicals")
+    # Read once here rather than in each runner: every method carries the
+    # same record, and the runners differ only in the container it goes on.
+    provenance <- .ctd_provenance_cached(bfc)
 
-    switch(method,
+    res <- switch(method,
         ORA = .run_ora(x, chemicals, cache_dir, pAdjustMethod,
                        interaction_types = interaction_types,
                        gene_id_type = gene_id_type, ...),
@@ -203,6 +207,7 @@ enrichment_CTD <- function(x,
             ...
         )
     )
+    .attach_provenance(res, provenance)
 }
 
 #' Validate user inputs for enrichment_CTD()
