@@ -350,6 +350,12 @@ enrichment_CTD <- function(x,
 #'   \code{ChemicalName} columns.
 #' @param cache_dir Directory holding cached CTD \code{.rda} files.
 #' @param pAdjustMethod Multiple-testing correction name.
+#' @param interaction_types Character vector of CTD \code{InteractionActions}
+#'   values to retain when building gene sets, or \code{NULL} for all.
+#' @param gene_id_type Either \code{"symbol"} or \code{"entrez"}: the
+#'   identifier reported in the \code{EnrichedGenes} column.
+#' @param ... Forwarded to \code{\link{gsea}} (e.g. \code{minSize},
+#'   \code{maxSize}).
 #'
 #' @return A data frame of GSEA enrichment results, formatted by
 #'   \code{\link{.format_enrichment_result}}.

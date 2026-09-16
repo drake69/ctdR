@@ -6,6 +6,21 @@
 \usage{
 .plot_camera(results, type, n, title)
 }
+\arguments{
+\item{results}{Data frame of CAMERA results, as returned by
+\code{\link{enrichment_CTD}} with \code{method = "CAMERA"}.}
+
+\item{type}{Character. Plot shape: \code{"bar"}, \code{"dot"} or
+\code{"lollipop"}.}
+
+\item{n}{Integer. Number of top chemicals to show, taken after
+sorting by \code{PValueAdjusted} ascending.}
+
+\item{title}{Character. Plot title.}
+}
+\value{
+A \code{ggplot} object.
+}
 \description{
 Plot CAMERA enrichment results
 }

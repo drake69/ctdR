@@ -155,6 +155,14 @@ plot_CTD <- function(results, type = "bar", n = 20, title = NULL) {
 }
 
 #' Plot CAMERA enrichment results
+#' @param results Data frame of CAMERA results, as returned by
+#'   \code{\link{enrichment_CTD}} with \code{method = "CAMERA"}.
+#' @param type Character. Plot shape: \code{"bar"}, \code{"dot"} or
+#'   \code{"lollipop"}.
+#' @param n Integer. Number of top chemicals to show, taken after
+#'   sorting by \code{PValueAdjusted} ascending.
+#' @param title Character. Plot title.
+#' @return A \code{ggplot} object.
 #' @keywords internal
 .plot_camera <- function(results, type, n, title) {
     results <- results[order(results$PValueAdjusted), ]
@@ -229,6 +237,12 @@ plot_CTD <- function(results, type = "bar", n = 20, title = NULL) {
 }
 
 #' Plot GSVA scores as a sample x chemical heatmap
+#' @param scores Numeric matrix of GSVA scores with chemicals in rows
+#'   and samples in columns.
+#' @param n Integer. Number of chemicals to show, taken by decreasing
+#'   score variance across samples.
+#' @param title Character. Plot title.
+#' @return A \code{ggplot} object.
 #' @keywords internal
 .plot_gsva_heatmap <- function(scores, n, title) {
     if (nrow(scores) == 0L || ncol(scores) == 0L) {

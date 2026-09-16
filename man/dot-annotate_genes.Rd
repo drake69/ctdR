@@ -6,6 +6,16 @@
 \usage{
 .annotate_genes(results, gene_table, chemical_sets)
 }
+\arguments{
+\item{results}{Data frame of enrichment results carrying a
+\code{ChemicalID} column.}
+
+\item{gene_table}{Data frame with an \code{EntrezID} column and a
+\code{GeneLabel} column holding the label to report.}
+
+\item{chemical_sets}{Named list mapping ChemicalID to the Entrez IDs
+of that chemical's target genes.}
+}
 \value{
 A character vector of comma-separated gene symbols per chemical.
 }

@@ -12,3 +12,4 @@
 ^\.coding_agent$
 ^\.zenodo\.json$
 ^tests/testthat/_problems$
+^tools$

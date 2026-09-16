@@ -26,6 +26,8 @@
 #' @param chemicals_meta Data frame with columns \code{ChemicalID} and
 #'   \code{ChemicalName}, used to annotate results.
 #' @param cache_dir Directory holding the cached CTD \code{.rda} files.
+#' @param interaction_types Character vector of CTD \code{InteractionActions}
+#'   values to retain when building gene sets, or \code{NULL} for all.
 #' @param assay Assay name or index to use when \code{expr} is a
 #'   \code{SummarizedExperiment}; \code{NULL} (default) takes the first.
 #'   Ignored for a matrix.

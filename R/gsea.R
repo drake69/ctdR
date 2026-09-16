@@ -80,6 +80,12 @@ gsea <- function(ChemicalName_GeneEntrezIds, gene_table, ...) {
 }
 
 #' Annotate GSEA results with enriched gene symbols
+#' @param results Data frame of enrichment results carrying a
+#'   \code{ChemicalID} column.
+#' @param gene_table Data frame with an \code{EntrezID} column and a
+#'   \code{GeneLabel} column holding the label to report.
+#' @param chemical_sets Named list mapping ChemicalID to the Entrez IDs
+#'   of that chemical's target genes.
 #' @return A character vector of comma-separated gene symbols per chemical.
 #' @keywords internal
 .annotate_genes <- function(results, gene_table, chemical_sets) {

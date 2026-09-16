@@ -41,8 +41,17 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::pak
+          extra-packages: any::pak, any::pkgload
           needs: check
+
+      # Second version-independent guard, same idea as the one above.
+      # R CMD check skips the argument/documentation cross-check for
+      # topics marked \keyword{internal}, so an argument added to an
+      # internal function without its @param ships undocumented while
+      # the check still reports Status OK. That is how `assay` reached
+      # 0.99.8 undocumented on .run_camera() and .run_gsva().
+      - name: Check @param completeness
+        run: Rscript tools/check_internal_params.R .
 
       # Install BiocCheck from the Bioconductor/BiocCheck@devel GitHub
       # mirror to match what the Bioconductor package builder runs
