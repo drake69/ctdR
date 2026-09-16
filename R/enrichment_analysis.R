@@ -295,13 +295,16 @@ enrichment_CTD <- function(x,
 #' @param gene_id_type Either \code{"symbol"} or \code{"entrez"}: the
 #'   identifier used to build the TERM2GENE table and reported in the
 #'   \code{EnrichedGenes} column.
-#' @param ... Forwarded to \code{\link{ora}} (\code{universe},
-#'   \code{minGSSize}, \code{maxGSSize}).
+#' @param universe Background gene identifiers, or \code{NULL} for all
+#'   genes in the gene sets. Converted to match \code{gene_id_type}, so
+#'   Entrez IDs may be supplied whichever mode is in use.
+#' @param ... Forwarded to \code{\link{ora}} (\code{minGSSize},
+#'   \code{maxGSSize}).
 #'
 #' @return A data frame of ORA enrichment results.
 #' @keywords internal
 .run_ora <- function(x, chemicals_meta, cache_dir, pAdjustMethod,
-    interaction_types = NULL, gene_id_type = "symbol", ...) {
+    interaction_types = NULL, gene_id_type = "symbol", universe = NULL, ...) {
     if (gene_id_type == "entrez") {
         if (!is.null(interaction_types)) {
             entrez_list <- .filter_gene_sets(cache_dir, interaction_types)$entrez
@@ -328,11 +331,17 @@ enrichment_CTD <- function(x,
         ))
         # Fallback to Entrez ID for unmapped genes
         input_genes <- ifelse(is.na(sym_map), names(sym_map), sym_map)
+        # The universe has to go through the same conversion as the input.
+        # Left as Entrez IDs it would not intersect a symbol-keyed
+        # background at all, and an empty background silently produces an
+        # empty result rather than an error.
+        universe <- .to_symbols(universe)
     }
 
     res <- ora(
         term2gene, input_genes,
         pAdjustMethod = pAdjustMethod,
+        universe = universe,
         ...
     )
 
@@ -346,6 +355,34 @@ enrichment_CTD <- function(x,
         ),
         drop = c("p.adjust")
     )
+}
+
+#' Convert gene identifiers to HGNC symbols where possible
+#'
+#' Entrez IDs that do not map keep their original value, matching how the
+#' input gene list is handled, so a partially mappable universe narrows
+#' the background rather than emptying it. Values that are already
+#' symbols pass through: they simply do not map, and are kept.
+#'
+#' @param ids Vector of gene identifiers, or \code{NULL}.
+#' @return A character vector of symbols, or \code{NULL} for \code{NULL}
+#'   input.
+#' @keywords internal
+.to_symbols <- function(ids) {
+    if (is.null(ids)) return(NULL)
+    ids <- as.character(ids)
+    # Only all-digit values can be Entrez IDs. Asking AnnotationDbi to map
+    # a vector of symbols is not merely useless, it errors when none of
+    # the keys is valid, so a universe already given as symbols would
+    # bring the call down.
+    is_entrez <- grepl("^[0-9]+$", ids)
+    if (!any(is_entrez)) return(ids)
+    mapped <- suppressMessages(suppressWarnings(AnnotationDbi::mapIds(
+        org.Hs.eg.db::org.Hs.eg.db, keys = ids[is_entrez],
+        column = "SYMBOL", keytype = "ENTREZID", multiVals = "first"
+    )))
+    ids[is_entrez] <- ifelse(is.na(mapped), ids[is_entrez], mapped)
+    unname(ids)
 }
 
 #' Run GSEA branch of enrichment analysis

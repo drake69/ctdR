@@ -149,7 +149,22 @@ test_that("universe narrows the background and is validated", {
     narrowed <- ora(term2gene, paste0("G", 1:5), universe = paste0("G", 1:12))
     expect_identical(narrowed$BgRatio[narrowed$ChemicalID == "CHEM1"], "10/12")
 
-    expect_error(ora(term2gene, "G1", universe = 1:10), "character vector")
+    # An integer column of Entrez IDs, which is what a DE table read back
+    # with read.delim() gives, must work as a universe: the same column
+    # is already coerced when it arrives as the input gene list.
+    int_universe <- ora(
+        data.frame(term = "CHEM1", gene = as.character(1:10)),
+        c("1", "2"), universe = 1:12)
+    expect_identical(int_universe$BgRatio, "10/10")
+
+    factor_universe <- ora(term2gene, paste0("G", 1:5),
+        universe = factor(paste0("G", 1:12)))
+    expect_identical(
+        factor_universe$BgRatio[factor_universe$ChemicalID == "CHEM1"],
+        "10/12")
+
+    expect_error(ora(term2gene, "G1", universe = list("G1")),
+        "vector of gene identifiers")
 })
 
 test_that("ora returns the empty schema when nothing can be tested", {

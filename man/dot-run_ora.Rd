@@ -11,6 +11,7 @@
   pAdjustMethod,
   interaction_types = NULL,
   gene_id_type = "symbol",
+  universe = NULL,
   ...
 )
 }
@@ -31,8 +32,12 @@ values to retain when building gene sets, or \code{NULL} for all.}
 identifier used to build the TERM2GENE table and reported in the
 \code{EnrichedGenes} column.}
 
-\item{...}{Forwarded to \code{\link{ora}} (\code{universe},
-\code{minGSSize}, \code{maxGSSize}).}
+\item{universe}{Background gene identifiers, or \code{NULL} for all
+genes in the gene sets. Converted to match \code{gene_id_type}, so
+Entrez IDs may be supplied whichever mode is in use.}
+
+\item{...}{Forwarded to \code{\link{ora}} (\code{minGSSize},
+\code{maxGSSize}).}
 }
 \value{
 A data frame of ORA enrichment results.

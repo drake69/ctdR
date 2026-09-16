@@ -36,7 +36,9 @@
 
   The examples set `options(ctdR.cache = tempfile())` visibly rather
   than hiding it, because the same option is how a user isolates one
-  analysis from their main cache.
+  analysis from their main cache. The test suite now redirects the cache
+  from a single `setup.R` as well: five of its six importing files were
+  writing to the real one, so running the tests carried the same cost.
 
 * New `ctd_provenance()` returns the record of which CTD release an
   analysis ran on: the `Report created` date CTD stamps into its own file
@@ -76,6 +78,27 @@
   which meant tests and examples never exercised the format users
   actually have. Its preamble is deliberately a different length from a
   real download's, so that nothing can come to depend on the count again.
+
+* **Bug fix.** The ORA `universe` argument was unusable in the default
+  identifier mode, and failed silently. With `gene_id_type = "symbol"`,
+  the gene sets are keyed by HGNC symbol and the input gene list is
+  converted for that reason, but the universe was passed through as
+  given. A universe of Entrez IDs therefore intersected the background
+  at nothing, the size filter then removed every gene set, and the call
+  returned zero rows instead of an error. The vignette's own example of
+  restricting the background to expressed genes shipped in that state.
+  The universe is now converted alongside the input; identifiers that
+  are not Entrez IDs, and Entrez IDs that do not map, are kept as they
+  are, so a universe of symbols or a mixture of the two works too.
+
+* The ORA `universe` argument now accepts any vector of gene
+  identifiers, not only a character one. A DE table read back with
+  `read.delim()` gives integer Entrez IDs, so the most ordinary use of
+  the argument, `universe = de$EntrezID` to restrict the background to
+  measured genes, used to fail while the same column passed as the input
+  gene list worked. Both are now coerced. The previous backend accepted
+  a non-character universe and then silently ignored it, computing
+  against a background the caller had not asked for.
 
 * ORA now reports what its size filter removed. A chemical excluded for
   having too few or too many target genes is absent from the results,

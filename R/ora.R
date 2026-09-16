@@ -34,11 +34,12 @@
 #' @param pAdjustMethod Character. Method for multiple testing
 #'   correction (default \code{"BH"}). Passed to
 #'   \code{\link[stats]{p.adjust}}.
-#' @param universe Character vector of background gene symbols, or
-#'   \code{NULL} (default) to use every gene in
-#'   \code{ChemicalName_GeneSymbols}. Set it to \code{rownames(expr)} or
-#'   to the full tested gene list to restrict the background to measured
-#'   genes only.
+#' @param universe Vector of background gene identifiers, or \code{NULL}
+#'   (default) to use every gene in \code{ChemicalName_GeneSymbols}. Set
+#'   it to \code{rownames(expr)} or to the full tested gene list to
+#'   restrict the background to measured genes only. Coerced with
+#'   \code{as.character()}, so an integer column of Entrez IDs works as
+#'   it does for \code{gene_symbols}.
 #' @param minGSSize Integer. Minimum gene set size after intersection
 #'   with the background (default 2). The default is chosen for CTD,
 #'   where the median chemical has 4 target genes: a one-gene set is
@@ -77,8 +78,15 @@ ora <- function(ChemicalName_GeneSymbols, gene_symbols,
 
     background <- unique(gene[!is.na(gene)])
     if (!is.null(universe)) {
-        if (!is.character(universe))
-            stop("'universe' must be a character vector.", call. = FALSE)
+        # Coerce rather than reject. Gene identifiers arrive as integers
+        # often enough (a table round-tripped through read.delim, say)
+        # that rejecting them would break the most ordinary use of this
+        # argument, restricting the background to measured genes, while
+        # the same column passed as the input list is already coerced.
+        if (!is.atomic(universe))
+            stop("'universe' must be a vector of gene identifiers, not a ",
+                class(universe)[1], ".", call. = FALSE)
+        universe <- as.character(universe)
         background <- intersect(background, universe)
     }
     N <- length(background)

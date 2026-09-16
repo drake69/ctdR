@@ -25,11 +25,12 @@ for enrichment. Duplicates and \code{NA} are removed.}
 correction (default \code{"BH"}). Passed to
 \code{\link[stats]{p.adjust}}.}
 
-\item{universe}{Character vector of background gene symbols, or
-\code{NULL} (default) to use every gene in
-\code{ChemicalName_GeneSymbols}. Set it to \code{rownames(expr)} or
-to the full tested gene list to restrict the background to measured
-genes only.}
+\item{universe}{Vector of background gene identifiers, or \code{NULL}
+(default) to use every gene in \code{ChemicalName_GeneSymbols}. Set
+it to \code{rownames(expr)} or to the full tested gene list to
+restrict the background to measured genes only. Coerced with
+\code{as.character()}, so an integer column of Entrez IDs works as
+it does for \code{gene_symbols}.}
 
 \item{minGSSize}{Integer. Minimum gene set size after intersection
 with the background (default 2). The default is chosen for CTD,
