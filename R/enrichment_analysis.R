@@ -126,6 +126,11 @@
 #'
 #' @examples
 #' # Import the bundled sample data first:
+#' # Examples write to a temporary cache, so running them cannot
+#' # disturb CTD data you have already imported. Set the same option
+#' # yourself to keep an analysis isolated from your main cache.
+#' options(ctdR.cache = tempfile())
+#'
 #' sample_file <- system.file(
 #'     "extdata", "CTD_chem_gene_ixns_sample.csv",
 #'     package = "ctdR"

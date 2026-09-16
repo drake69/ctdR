@@ -20,6 +20,10 @@ knitr::opts_chunk$set(
     collapse = TRUE,
     comment = "#>"
 )
+# Build this vignette against a throwaway cache. Without it, knitting
+# would overwrite whatever CTD data the reader has already imported
+# with the ten-chemical sample used for the examples below.
+options(ctdR.cache = tempfile())
 ```
 
 # Overview

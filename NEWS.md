@@ -25,6 +25,19 @@
   p-value equals the ratio of input genes to background whichever gene
   they contain, so they measure membership rather than enrichment.
 
+* **Bug fix.** Running an example, knitting the vignette or running
+  `R CMD check` overwrote whatever CTD data the user had imported,
+  replacing it with the ten-chemical sample those examples run on. The
+  examples called `import_CTD()` against the real user cache under
+  `tools::R_user_dir()`; only the test suite knew to redirect it. They
+  now write to a temporary cache, as does the vignette. Writing outside
+  the session temporary directory is also against both CRAN and
+  Bioconductor policy, so this was a defect on two counts.
+
+  The examples set `options(ctdR.cache = tempfile())` visibly rather
+  than hiding it, because the same option is how a user isolates one
+  analysis from their main cache.
+
 * New `ctd_provenance()` returns the record of which CTD release an
   analysis ran on: the `Report created` date CTD stamps into its own file
   header, where the file came from, when it was imported, how many
