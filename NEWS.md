@@ -122,6 +122,21 @@
   are not Entrez IDs, and Entrez IDs that do not map, are kept as they
   are, so a universe of symbols or a mixture of the two works too.
 
+* **ORA now says which background it used when none was given.** The
+  default is every gene in the CTD gene sets, which is a fallback rather
+  than a recommendation: the package cannot know what a given platform
+  measured. A background wider than what the experiment could detect
+  makes p-values too small, because genes that could never have been
+  selected still count in it. The error is anti-conservative, so it was
+  worth a message rather than a footnote.
+
+  On the RNA-seq analysis bundled with the package, the default
+  background returns 32 chemicals at FDR < 0.05 and the correct one,
+  the genes that entered the differential test, returns 19. Thirteen of
+  the thirty-two come from the background alone. The bundled example
+  script now passes `universe` and explains why, and the vignette
+  carries the comparison.
+
 * The vignette explains how to read the size of a chemical's gene set,
   which in CTD also reflects how much the chemical has been studied. The
   natural suspicion, that large sets are padded with genes responding to

@@ -130,12 +130,34 @@ test_that("ora reports the chemicals the size filter left untested", {
         data.frame(term = "FILLER", gene = bg)
     )
 
+    # An explicit universe keeps the background message out of the way,
+    # so what is asserted here is the size filter and nothing else.
     expect_message(
-        ora(term2gene, bg[1:10]),
+        ora(term2gene, bg[1:10], universe = bg),
         "2 of 4 chemicals not tested \\(2 below, 0 above\\); 2 tested"
     )
-    # Nothing filtered means nothing to report.
-    expect_no_message(ora(term2gene, bg[1:10], minGSSize = 1))
+    # Nothing filtered means nothing to report about filtering.
+    expect_no_message(ora(term2gene, bg[1:10], universe = bg, minGSSize = 1))
+})
+
+test_that("ora says which background it used when none was given", {
+    # The default background is a fallback the caller did not choose, and
+    # a background wider than what the experiment could detect makes
+    # p-values too small. Saying so is the only thing the engine can do:
+    # it cannot know what was measurable.
+    bg <- paste0("GENE", 1:100)
+    term2gene <- rbind(
+        data.frame(term = "PAIR", gene = bg[1:2]),
+        data.frame(term = "FILLER", gene = bg)
+    )
+
+    expect_message(ora(term2gene, bg[1:10]),
+        "background: all 100 genes in the CTD sets")
+    expect_message(ora(term2gene, bg[1:10]), "p-values too small")
+    # Given one, it says nothing: the caller has made the choice.
+    msgs <- testthat::capture_messages(
+        ora(term2gene, bg[1:10], universe = bg[1:50]))
+    expect_false(any(grepl("no 'universe' was given", msgs)))
 })
 
 test_that("the size filter applies after intersection with the background", {

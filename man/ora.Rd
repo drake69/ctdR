@@ -26,11 +26,26 @@ correction (default \code{"BH"}). Passed to
 \code{\link[stats]{p.adjust}}.}
 
 \item{universe}{Vector of background gene identifiers, or \code{NULL}
-(default) to use every gene in \code{ChemicalName_GeneSymbols}. Set
-it to \code{rownames(expr)} or to the full tested gene list to
-restrict the background to measured genes only. Coerced with
-\code{as.character()}, so an integer column of Entrez IDs works as
-it does for \code{gene_symbols}.}
+  (default) to use every gene in \code{ChemicalName_GeneSymbols}. Set
+  it to \code{rownames(expr)} or to the full tested gene list to
+  restrict the background to measured genes only. Coerced with
+  \code{as.character()}, so an integer column of Entrez IDs works as
+  it does for \code{gene_symbols}.
+
+  The default is a fallback, not a recommendation, and the function
+  says so when it uses it. A hypergeometric test asks how many of
+  \eqn{n} genes drawn from \eqn{N} would land in a set. Genes that
+  your experiment could never have detected still sit in \eqn{N},
+  filling the urn with balls that cannot be drawn, so the draw looks
+  more selective than it was and the p-value comes out too small. The
+  error is anti-conservative: it manufactures significance.
+
+  The right universe is every gene that entered your test, not every
+  gene you sequenced and not only the significant ones: a gene
+  filtered out for low expression could not have been selected, so it
+  does not belong in the urn either. On the RNA-seq example bundled
+  with this package the difference is 32 significant chemicals
+  against 19.}
 
 \item{minGSSize}{Integer. Minimum gene set size after intersection
 with the background (default 2). The default is chosen for CTD,

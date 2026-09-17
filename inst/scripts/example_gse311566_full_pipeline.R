@@ -308,7 +308,15 @@ if (nrow(sig_de) == 0) {
     sig_de <- de[de$pvalue < CONFIG$alpha_nominal_de,
         c("EntrezID", "pvalue"), drop = FALSE]
 }
+# The universe is every gene that entered the differential test, not
+# every gene sequenced and not only the significant ones. A gene the
+# experiment could never have detected still counts in the background
+# otherwise, which fills the urn with balls that cannot be drawn: the
+# overlap looks more selective than it was and p-values come out too
+# small. On this dataset the wrong background gives 32 significant
+# chemicals against 19, so thirteen of them are manufactured.
 ora_full <- enrichment_CTD(sig_de, method = "ORA",
+    universe = de$EntrezID,
     pAdjustMethod = CONFIG$p_adjust_method)
 ora_sig <- apply_alpha(ora_full, CONFIG$alpha_fdr_chemical)
 write_method(ora_full, "ora_full")

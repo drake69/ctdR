@@ -561,6 +561,47 @@ ORA, GSEA, and GSVA accept size-filter arguments via `...`, which are
 forwarded to the underlying engine. CAMERA's minimum of 2 genes is
 hard-coded and cannot be changed.
 
+### The background universe is the choice that matters most
+
+Of everything on this page, this is the argument worth getting right.
+
+A hypergeometric test asks: drawing *n* genes at random from a
+background of *N*, how many would land in this chemical's set? If *N*
+contains genes your experiment could never have detected, those genes
+fill the urn with balls that cannot be drawn. The overlap you observed
+then looks more selective than it was, and the p-value comes out too
+small. The error is **anti-conservative**: it manufactures significance
+rather than hiding it.
+
+`ctdR` defaults to every gene in the CTD gene sets, and says so when it
+does. That is a fallback, not a recommendation: the package cannot know
+what your platform measured. On the RNA-seq analysis in this package's
+tutorial the difference is not subtle:
+
+| Background | *N* | Chemicals significant at FDR < 0.05 |
+|---|---:|---:|
+| All CTD genes (the default) | 27,444 | **32** |
+| Genes that entered the DE test | 24,845 | **19** |
+
+Thirteen of those thirty-two are produced by the background alone.
+Rankings move too: benzo(a)pyrene sits fourth on the default background
+and tenth on the correct one.
+
+**What to pass.** Every gene that entered your differential test:
+
+```r
+enrichment_CTD(sig_genes, method = "ORA", universe = de$EntrezID)
+```
+
+Not every gene you sequenced, and not only the significant ones. A gene
+filtered out for low expression could not have come out significant, so
+it does not belong in the urn either; a gene that was tested and did
+not reach significance very much does.
+
+GSEA, CAMERA and GSVA do not need this argument. GSEA ranks the whole
+list you give it, and CAMERA and GSVA take the background from
+`rownames(x)`, which is already the set of measured genes.
+
 ### Why the size thresholds are what they are
 
 In `ctdR` every chemical *is* a gene set, and CTD gene sets are small:
