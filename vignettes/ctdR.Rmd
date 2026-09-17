@@ -660,14 +660,33 @@ constantly by chance; a set of 16,000 at the same fold is 45 genes
 above, which does not. The identical ratio carries incomparable
 evidence, and the test is right to say so.
 
-That is not a defect of the test, and it is not an argument for putting
-the cap back: a small set genuinely carries less evidence, and the
-hypergeometric accounts for that correctly. But in CTD set size also
-measures **how much a chemical has been studied**, so the ranking
-partly reflects the literature rather than the biology. It is the
-annotation bias familiar from GO enrichment, and it does not disappear
-by capping the sets: capping merely removes the best-studied chemicals
-from the answer.
+In CTD, set size also measures **how much a chemical has been
+studied**: the database curates published literature, so a chemical
+measured in many genome-wide experiments accumulates many recorded
+genes. It is tempting to read that as a bias, and to suspect that large
+sets are padded with genes that respond to everything. Measured, they
+are not. The genes in sets above 500 appear in a median of 47 chemicals
+each; the genes in sets of 4 or fewer appear in a median of 232. Small
+sets are the ones made of the usual suspects, because a chemical
+studied once was studied with a targeted assay aimed at a gene somebody
+already suspected. Large sets are, per gene, more specific rather than
+less.
+
+So finding well-studied chemicals near the top is not an artefact to be
+corrected. The evidence behind them is real, and no method can find a
+chemical nobody has measured: that is a limit of the available data,
+not of the test.
+
+What it does change is what a result means, and this holds for every
+enrichment analysis run against a curated database, not only this one.
+The question the test answers is not *is this chemical associated with
+these genes*, but **is this chemical associated with these genes, as
+far as the published literature records**. Between two chemicals of
+equal biological relevance, the better-studied one has more opportunity
+to overlap your gene list and ranks higher. A chemical absent from the
+output is therefore uninvolved only as far as anyone currently knows:
+the analysis measures the state of the evidence, and reports the
+biology through it.
 
 The practical consequence is how to read the output. Results are sorted
 by adjusted p-value, which is the quantity the false discovery rate is

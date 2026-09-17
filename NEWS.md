@@ -122,6 +122,19 @@
   are not Entrez IDs, and Entrez IDs that do not map, are kept as they
   are, so a universe of symbols or a mixture of the two works too.
 
+* The vignette explains how to read the size of a chemical's gene set,
+  which in CTD also reflects how much the chemical has been studied. The
+  natural suspicion, that large sets are padded with genes responding to
+  everything, does not hold when measured: genes in sets above 500
+  appear in a median of 47 chemicals, against 232 for genes in sets of
+  4 or fewer. Small sets are the ones built from the usual suspects. The
+  consequence is about what a result means, and holds for any enrichment
+  analysis run against a curated database: the question answered is not
+  whether a chemical is associated with a gene list, but whether it is
+  associated as far as the published literature records. A chemical
+  absent from the output is uninvolved only as far as anyone currently
+  knows.
+
 * The bundled example script prints its per-method summary one method at
   a time, with fixed-width columns, ten chemicals rather than five, and
   the overlap, set size and fold enrichment beside the p-values. It
