@@ -352,7 +352,7 @@ log_step("Step F -- GSVA: ", nrow(gsva_scores), " chemicals x ",
 
 ## ---- Step F.5 -- top-N summary (printed + saved) -----------
 
-TOP_N <- 5L
+TOP_N <- 10L
 top_summary <- function(df, method) {
     if (!nrow(df)) return(NULL)
     df <- df[order(df$PValue), , drop = FALSE]
@@ -374,8 +374,39 @@ top_all <- do.call(rbind, list(
 utils::write.table(top_all,
     file.path(CONFIG$out_dir, "top_chemicals_summary.tsv"),
     sep = "\t", quote = FALSE, row.names = FALSE)
+# Print one block per method, with fixed-width columns, instead of one
+# wide data frame. print() on a frame this wide wraps it into three
+# detached chunks: every ChemicalID, then every ChemicalName, then every
+# p-value, so reading off which chemical ranks third means counting rows
+# across three blocks. Chemical names run to seventy characters, so this
+# is not an edge case, it is every run.
+NAME_W <- 44L
+print_top <- function(df, method, alpha) {
+    rows <- df[df$Method == method, , drop = FALSE]
+    message("\n  ", method, " -- top ", nrow(rows), " by raw p-value")
+    if (!nrow(rows)) {
+        message("    (no results)")
+        return(invisible(NULL))
+    }
+    message(sprintf("    %-4s  %-*s  %11s  %11s  %s",
+        "rank", NAME_W, "chemical", "p", "p.adj", "sig"))
+    for (i in seq_len(nrow(rows))) {
+        nm <- rows$ChemicalName[i]
+        if (is.na(nm)) nm <- rows$ChemicalID[i]
+        if (nchar(nm) > NAME_W) nm <- paste0(substr(nm, 1, NAME_W - 3), "...")
+        message(sprintf("    %-4d  %-*s  %11.2e  %11.2e  %s",
+            rows$Rank[i], NAME_W, nm, rows$PValue[i],
+            rows$PValueAdjusted[i],
+            if (!is.na(rows$PValueAdjusted[i]) &&
+                rows$PValueAdjusted[i] < alpha) "*" else ""))
+    }
+    invisible(NULL)
+}
+
 message("\n--- Top ", TOP_N, " chemicals per method (by raw p-value) ---")
-print(top_all, row.names = FALSE)
+message("    * marks FDR < ", CONFIG$alpha_fdr_chemical)
+for (m in c("ORA", "GSEA", "CAMERA"))
+    print_top(top_all, m, CONFIG$alpha_fdr_chemical)
 message("")
 
 ## ---- Step F.6 -- expected-hit ranking ----------------------
@@ -436,7 +467,25 @@ utils::write.table(hit,
     sep = "\t", quote = FALSE, row.names = FALSE)
 message("--- Expected-hit check: ", EXPECTED_HIT$name,
     " (", EXPECTED_HIT$id, ") ---")
-print(hit, row.names = FALSE)
+# One line per method, and say in words what a rank of NA means: that the
+# chemical never entered the test, which is not the same as having been
+# tested and found unremarkable.
+for (i in seq_len(nrow(hit))) {
+    r <- hit$rank[i]
+    if (is.na(r)) {
+        message(sprintf(
+            paste0("  %-7s NOT TESTED -- excluded before the test, ",
+                "not reported as non-significant (%s chemicals tested)"),
+            hit$Method[i], format(hit$total[i], big.mark = ",")))
+    } else {
+        message(sprintf("  %-7s rank %s of %s   p = %.2e   p.adj = %.2e%s",
+            hit$Method[i], format(r, big.mark = ","),
+            format(hit$total[i], big.mark = ","),
+            hit$PValue[i], hit$PValueAdjusted[i],
+            if (hit$PValueAdjusted[i] < CONFIG$alpha_fdr_chemical)
+                "   SIGNIFICANT" else ""))
+    }
+}
 message("")
 
 ## ---- Step G -- plots ---------------------------------------
