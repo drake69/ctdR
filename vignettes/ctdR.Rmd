@@ -628,6 +628,66 @@ Set `maxGSSize` to a finite value if you have a reason of your own, for
 instance to keep the focus on chemicals with sharply defined targets.
 `ctdR` does not impose one.
 
+#### What that costs, and how to read around it
+
+Removing the cap has a consequence worth stating rather than
+discovering: with no upper limit, the significant results skew towards
+large sets. On the analysis in this vignette's tutorial, the median
+chemical among the significant hits carries about 4,100 target genes,
+against a median of 7 across every chemical tested.
+
+This is worth understanding rather than memorising, because the fold
+enrichment appears to say the opposite. Fold is
+`(k/n) / (M/N)`: the set size *M* sits in the denominator, so for a
+fixed overlap *k* a larger set gives a **lower** fold. Yet larger sets
+reach smaller p-values. Both are true, because the two measure
+different things.
+
+The p-value does not measure the ratio. It measures how unlikely the
+excess is, and the excess is counted in genes, not in proportion. With
+154 input genes drawn from a background of 27,444, holding the fold
+fixed at 1.5:
+
+| Genes in set | Expected by chance | Observed at fold 1.5 | p |
+|---:|---:|---:|---:|
+| 100 | 0.6 | 1 | 0.43 |
+| 2,000 | 11.2 | 17 | 0.057 |
+| 16,000 | 89.8 | 135 | 1.4e-15 |
+
+The same 50% enrichment spans fifteen orders of magnitude. A set of 100
+genes at fold 1.5 is 0.4 genes above expectation, which happens
+constantly by chance; a set of 16,000 at the same fold is 45 genes
+above, which does not. The identical ratio carries incomparable
+evidence, and the test is right to say so.
+
+That is not a defect of the test, and it is not an argument for putting
+the cap back: a small set genuinely carries less evidence, and the
+hypergeometric accounts for that correctly. But in CTD set size also
+measures **how much a chemical has been studied**, so the ranking
+partly reflects the literature rather than the biology. It is the
+annotation bias familiar from GO enrichment, and it does not disappear
+by capping the sets: capping merely removes the best-studied chemicals
+from the answer.
+
+The practical consequence is how to read the output. Results are sorted
+by adjusted p-value, which is the quantity the false discovery rate is
+controlled on. Fold enrichment is **not** a sound sort key on its own:
+it has no error control, and a two-gene set with both genes hit would
+sit at the top of it. Read the two columns together:
+
+| Chemical | Genes in set | Overlap | Fold | Adjusted p |
+|---|---:|---:|---:|---:|
+| Benzo(a)pyrene | 16,337 | 124 | 1.35 | 4.3e-05 |
+| GSK-J4 | 2,331 | 35 | 2.68 | 8.0e-05 |
+
+Both are significant, and the first ranks higher. The second is the
+sharper association. Neither column answers the question alone.
+
+`FoldEnrichment`, `Count` and `BackgroundRatio` are in the output for
+this reason. Sorting by `FoldEnrichment` **within** the chemicals that
+pass your FDR threshold is a reasonable second pass, and gives a
+different and equally legitimate reading of the same result.
+
 ```{r size-universe}
 # ORA: restrict the background to expressed genes. Both size thresholds
 # are left at their defaults; maxGSSize is shown here only to make the

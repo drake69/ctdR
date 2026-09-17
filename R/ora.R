@@ -72,6 +72,17 @@
 #'   Set it to a finite value if you have a reason of your own; ctdR
 #'   does not impose one.
 #'
+#'   One consequence to be aware of: without a cap the significant
+#'   results skew towards large sets. This is not the fold enrichment
+#'   talking, which moves the other way, since \eqn{M} sits in its
+#'   denominator. It is that a p-value measures how unlikely an excess
+#'   is, and the excess is counted in genes. With 154 input genes from a
+#'   background of 27,444, a fold of 1.5 means 0.4 genes above
+#'   expectation for a set of 100 (p = 0.43) and 45 genes above for a
+#'   set of 16,000 (p = 1.4e-15). Sort by \code{p.adjust} to rank by
+#'   evidence, and read \code{foldEnrichment} beside it to see how sharp
+#'   the association is; neither answers the question alone.
+#'
 #' @return A data frame with columns \code{ChemicalID}, \code{GeneRatio},
 #'   \code{BgRatio}, \code{pvalue}, \code{p.adjust}, \code{geneID},
 #'   \code{Count} and \code{foldEnrichment}, sorted by \code{pvalue}

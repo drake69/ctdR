@@ -356,13 +356,26 @@ TOP_N <- 10L
 top_summary <- function(df, method) {
     if (!nrow(df)) return(NULL)
     df <- df[order(df$PValue), , drop = FALSE]
+    i <- seq_len(min(TOP_N, nrow(df)))
+    # Effect size travels with significance. Ranking is by p-value, which
+    # is the quantity error is controlled on, but a p-value in ORA mixes
+    # overlap with set size: a chemical with 16,000 target genes reaches
+    # significance at a fold enrichment of 1.35, while one with 2,300
+    # needs 2.68. Reporting the rank without the effect hides that.
+    hits <- if ("Count" %in% names(df)) df$Count[i] else NA_integer_
+    setn <- if ("BackgroundRatio" %in% names(df))
+        as.integer(sub("/.*", "", df$BackgroundRatio[i])) else NA_integer_
+    fold <- if ("FoldEnrichment" %in% names(df)) df$FoldEnrichment[i] else NA_real_
     data.frame(
         Method = method,
-        Rank = seq_len(min(TOP_N, nrow(df))),
-        ChemicalID = df$ChemicalID[seq_len(min(TOP_N, nrow(df)))],
-        ChemicalName = df$ChemicalName[seq_len(min(TOP_N, nrow(df)))],
-        PValue = df$PValue[seq_len(min(TOP_N, nrow(df)))],
-        PValueAdjusted = df$PValueAdjusted[seq_len(min(TOP_N, nrow(df)))],
+        Rank = i,
+        ChemicalID = df$ChemicalID[i],
+        ChemicalName = df$ChemicalName[i],
+        Hits = hits,
+        SetSize = setn,
+        FoldEnrichment = fold,
+        PValue = df$PValue[i],
+        PValueAdjusted = df$PValueAdjusted[i],
         stringsAsFactors = FALSE
     )
 }
@@ -380,7 +393,7 @@ utils::write.table(top_all,
 # p-value, so reading off which chemical ranks third means counting rows
 # across three blocks. Chemical names run to seventy characters, so this
 # is not an edge case, it is every run.
-NAME_W <- 44L
+NAME_W <- 34L
 print_top <- function(df, method, alpha) {
     rows <- df[df$Method == method, , drop = FALSE]
     message("\n  ", method, " -- top ", nrow(rows), " by raw p-value")
@@ -388,14 +401,18 @@ print_top <- function(df, method, alpha) {
         message("    (no results)")
         return(invisible(NULL))
     }
-    message(sprintf("    %-4s  %-*s  %11s  %11s  %s",
-        "rank", NAME_W, "chemical", "p", "p.adj", "sig"))
+    message(sprintf("    %-4s  %-*s  %12s  %5s  %9s  %9s  %s",
+        "rank", NAME_W, "chemical", "hits/set", "fold", "p", "p.adj", "sig"))
     for (i in seq_len(nrow(rows))) {
         nm <- rows$ChemicalName[i]
         if (is.na(nm)) nm <- rows$ChemicalID[i]
         if (nchar(nm) > NAME_W) nm <- paste0(substr(nm, 1, NAME_W - 3), "...")
-        message(sprintf("    %-4d  %-*s  %11.2e  %11.2e  %s",
-            rows$Rank[i], NAME_W, nm, rows$PValue[i],
+        ratio <- if (is.na(rows$Hits[i]) || is.na(rows$SetSize[i])) "-"
+            else paste0(rows$Hits[i], "/", rows$SetSize[i])
+        fold <- if (is.na(rows$FoldEnrichment[i])) "-"
+            else sprintf("%.2f", rows$FoldEnrichment[i])
+        message(sprintf("    %-4d  %-*s  %12s  %5s  %9.2e  %9.2e  %s",
+            rows$Rank[i], NAME_W, nm, ratio, fold, rows$PValue[i],
             rows$PValueAdjusted[i],
             if (!is.na(rows$PValueAdjusted[i]) &&
                 rows$PValueAdjusted[i] < alpha) "*" else ""))
@@ -405,6 +422,11 @@ print_top <- function(df, method, alpha) {
 
 message("\n--- Top ", TOP_N, " chemicals per method (by raw p-value) ---")
 message("    * marks FDR < ", CONFIG$alpha_fdr_chemical)
+message("    hits/set = input genes in the chemical's set / size of that set")
+message("    Ranking is by p-value, not by fold enrichment: fold alone has")
+message("    no error control, and a two-gene set with both genes hit would")
+message("    top it. Read the two together. A large set can reach")
+message("    significance at a modest fold, a small one cannot.")
 for (m in c("ORA", "GSEA", "CAMERA"))
     print_top(top_all, m, CONFIG$alpha_fdr_chemical)
 message("")

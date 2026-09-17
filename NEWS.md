@@ -122,6 +122,15 @@
   are not Entrez IDs, and Entrez IDs that do not map, are kept as they
   are, so a universe of symbols or a mixture of the two works too.
 
+* The bundled example script prints its per-method summary one method at
+  a time, with fixed-width columns, ten chemicals rather than five, and
+  the overlap, set size and fold enrichment beside the p-values. It
+  previously printed one wide data frame, which R wrapped into three
+  detached blocks, so reading off which chemical ranked third meant
+  counting rows across all three. The expected-hit check likewise says
+  in words when a chemical was never tested, rather than printing a bare
+  `NA` that reads as an absent result.
+
 * The ORA `universe` argument now accepts any vector of gene
   identifiers, not only a character one. A DE table read back with
   `read.delim()` gives integer Entrez IDs, so the most ordinary use of
