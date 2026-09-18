@@ -138,6 +138,20 @@
   leading columns, with method-specific extras differing by method, so
   GSEA was never obliged to carry a column ORA has.
 
+* The example script checks the cache the package actually uses. It was
+  rebuilding the path with `rappdirs::user_cache_dir("ctdR")`, the
+  location ctdR kept its cache in before moving to `BiocFileCache`, so
+  it inspected a directory the package no longer writes to: it passed
+  where old files happened to remain and refused to run on a clean
+  machine with a perfectly good cache. It now asks the package, through
+  `ctd_cache()` and `ctd_provenance()`, and reports the CTD release it
+  found.
+
+* New tests cover both cache states, empty and populated, on the bundled
+  ten-chemical sample. They pin what the package says when nothing has
+  been imported and what it returns when something has, which is the
+  contract the example script branches on.
+
 * **New `alpha` and `alpha_column` arguments for ORA.** Hand
   `enrichment_CTD()` the whole differential-expression table and say
   which p-value column to judge on, instead of filtering first and then
