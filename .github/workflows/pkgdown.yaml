@@ -39,12 +39,22 @@ jobs:
           r-version: "release"
           use-public-rspm: true
 
+      # cache-version is bumped deliberately, not decoratively. The
+      # restored library kept clusterProfiler and igraph from when they
+      # were dependencies of this package. They are not any more, so the
+      # system libraries they need are no longer installed either, and
+      # the stale igraph.so failed to load against a missing libglpk.
+      # pkgdown reached it while resolving a package reference in the
+      # documentation, and the site build died on a dependency the
+      # package had already dropped. Bump this again if the library ever
+      # needs to be rebuilt from scratch.
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: |
             any::pkgdown
             local::.
           needs: website
+          cache-version: 2
 
       - name: Build pkgdown site
         run: pkgdown::build_site(new_process = FALSE, install = FALSE)

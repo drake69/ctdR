@@ -11,11 +11,11 @@
 #' to the vocabulary of the test itself.
 #'
 #' @details
-#' Earlier versions delegated this step to
-#' \code{clusterProfiler::enricher()}. That pulled in 59 packages, and a
-#' visualization layer this package never used, to reach a single call.
-#' The test itself is one line of \code{stats}, so it is computed here
-#' and \code{clusterProfiler} is no longer a dependency. The p-values are
+#' Earlier versions delegated this step to the \pkg{clusterProfiler}
+#' package. That pulled in 59 packages, and a visualization layer this
+#' package never used, to reach a single call. The test itself is one
+#' line of \code{stats}, so it is computed here and that dependency is
+#' gone. The p-values are
 #' unchanged: the two implementations were compared over 24
 #' configurations of input list, minimum set size and background
 #' universe, and the largest absolute difference was exactly 0.

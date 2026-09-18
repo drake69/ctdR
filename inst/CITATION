@@ -4,15 +4,21 @@ bibentry(
   author   = person("Luigi", "Corsaro",
                     comment = c(ORCID = "0000-0003-1218-230X")),
   year     = "2026",
-  note     = "R package version 0.99.2",
+  # Read from the DESCRIPTION rather than written out here. The version
+  # was stuck at 0.99.2 through eight releases because nothing made it
+  # move, and a citation that names the wrong version defeats its own
+  # purpose.
+  note     = paste("R package version", meta$Version),
   url      = "https://github.com/drake69/ctdR",
+  # Concept DOI: it resolves to the most recent deposit rather than to
+  # one version, which is what a reader following a citation wants.
   doi      = "10.5281/zenodo.19344200",
-  textVersion = paste(
-    "Corsaro L (2026).",
-    "ctdR: Enrichment Analysis of Chemical-Gene Interactions",
-    "from the Comparative Toxicogenomics Database.",
-    "R package version 0.99.2.",
-    "doi: 10.5281/zenodo.19344200.",
+  textVersion = paste0(
+    "Corsaro L (2026). ",
+    "ctdR: Enrichment Analysis of Chemical-Gene Interactions ",
+    "from the Comparative Toxicogenomics Database. ",
+    "R package version ", meta$Version, ". ",
+    "doi: 10.5281/zenodo.19344200. ",
     "https://github.com/drake69/ctdR"
   )
 )

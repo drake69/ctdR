@@ -1,5 +1,26 @@
 # Changes in version 0.99.9
 
+## Documentation
+
+* The vignette has a References section. Every method the package calls
+  is published, and the Bioconductor submission guidance asks for the
+  formal citations; there were none. It lists the CTD release paper, the
+  GSEA method and the fgsea implementation separately, CAMERA and limma,
+  GSVA, EnrichmentBrowser for the interoperability section, the
+  independent-filtering paper the size-threshold reasoning rests on, and
+  the GEO accession behind the worked example.
+
+* `inst/CITATION` reads the version from the DESCRIPTION instead of
+  naming it. It had said `R package version 0.99.2` through eight
+  releases, because nothing made it move. The Zenodo concept DOI is
+  unchanged and verified to resolve to the current release.
+
+* Releases are no longer cut automatically on a version bump. The
+  workflow now runs only on demand. Firing on every push to main meant a
+  bump travelling with other work cut a release before the work around
+  it was ready, which is how 0.99.9 was tagged while its citation file
+  still named 0.99.2. Cutting a release is a decision.
+
 ## Significant user-visible changes
 
 * ORA no longer goes through `clusterProfiler::enricher()`. The

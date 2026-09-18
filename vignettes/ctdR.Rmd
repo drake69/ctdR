@@ -892,6 +892,70 @@ CTD releases updated data periodically. To update:
 import_CTD("~/Downloads/CTD_chem_gene_ixns.csv")
 ```
 
+# References
+
+`ctdR` supplies the CTD gene sets and a common interface; the
+statistical tests are the work of others, and the methods it uses are
+published. Cite the ones your analysis relied on, not the whole list.
+
+**The data.** Every result depends on the CTD release you imported, and
+`ctd_provenance()` reports which one that was.
+
+- Davis AP, Wiegers TC, Johnson RJ, Sciaky D, Wiegers J, Mattingly CJ
+  (2023). Comparative Toxicogenomics Database (CTD): update 2023.
+  *Nucleic Acids Research* 51(D1), D1257-D1262.
+  doi:[10.1093/nar/gkac833](https://doi.org/10.1093/nar/gkac833)
+
+**The methods.** One reference per method, plus the implementation where
+it differs from the paper that introduced it.
+
+- **GSEA**, the method: Subramanian A, Tamayo P, Mootha VK, *et al.*
+  (2005). Gene set enrichment analysis: a knowledge-based approach for
+  interpreting genome-wide expression profiles. *PNAS* 102(43),
+  15545-15550.
+  doi:[10.1073/pnas.0506580102](https://doi.org/10.1073/pnas.0506580102)
+- **fgsea**, the implementation `ctdR` calls: Korotkevich G, Sukhov V,
+  Budin N, Shpak B, Artyomov MN, Sergushichev A (2021). Fast gene set
+  enrichment analysis. *bioRxiv*.
+  doi:[10.1101/060012](https://doi.org/10.1101/060012)
+- **CAMERA**: Wu D, Smyth GK (2012). Camera: a competitive gene set test
+  accounting for inter-gene correlation. *Nucleic Acids Research* 40(17),
+  e133. doi:[10.1093/nar/gks461](https://doi.org/10.1093/nar/gks461)
+- **limma**, which provides CAMERA: Ritchie ME, Phipson B, Wu D, Hu Y,
+  Law CW, Shi W, Smyth GK (2015). limma powers differential expression
+  analyses for RNA-sequencing and microarray studies. *Nucleic Acids
+  Research* 43(7), e47.
+  doi:[10.1093/nar/gkv007](https://doi.org/10.1093/nar/gkv007)
+- **GSVA**: Hänzelmann S, Castelo R, Guinney J (2013). GSVA: gene set
+  variation analysis for microarray and RNA-seq data. *BMC
+  Bioinformatics* 14, 7.
+  doi:[10.1186/1471-2105-14-7](https://doi.org/10.1186/1471-2105-14-7)
+
+**Interoperability.** The compatibility section above routes the CTD
+gene sets through another engine, which `ctdR` does not depend on:
+
+- Geistlinger L, Csaba G, Zimmer R (2016). Bioconductor's
+  EnrichmentBrowser: seamless navigation through combined results of
+  set- & network-based enrichment analysis. *BMC Bioinformatics* 17, 45.
+  doi:[10.1186/s12859-016-0884-1](https://doi.org/10.1186/s12859-016-0884-1)
+
+**The reasoning behind the size thresholds.** The argument for excluding
+one-gene sets, and for not excluding large ones, rests on this:
+
+- Bourgon R, Gentleman R, Huber W (2010). Independent filtering
+  increases detection power for high-throughput experiments. *PNAS*
+  107(21), 9546-9551.
+  doi:[10.1073/pnas.0914005107](https://doi.org/10.1073/pnas.0914005107)
+
+**The example data.** The RNA-seq analysis shown here uses a subset of:
+
+- NCBI Gene Expression Omnibus, accession
+  [GSE311566](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE311566):
+  Comparing the effects of PFAS and dexamethasone on human PBMCs (2025).
+
+**`ctdR` itself.** `citation("ctdR")` prints the current form, which
+includes the version you ran and the archival DOI.
+
 # Session info
 
 ```{r session-info}
