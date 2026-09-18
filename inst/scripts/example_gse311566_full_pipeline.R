@@ -78,7 +78,6 @@ suppressPackageStartupMessages({
     library(ctdR)
     library(limma)
     library(ggplot2)
-    library(rappdirs)
     library(AnnotationDbi)
     library(org.Hs.eg.db)
 })
@@ -235,12 +234,16 @@ log_step(sprintf(
 
 ## ---- Step E -- verify CTD cache is populated with real data ---
 
-cache_dir <- rappdirs::user_cache_dir("ctdR")
-chem_rda <- file.path(cache_dir, "chemicals.rda")
-if (!file.exists(file.path(cache_dir, "ChemicalName_GeneEntrezIds.rda")) ||
-    !file.exists(chem_rda)) {
+## Ask the package where its cache is and what is in it, rather than
+## rebuilding the path here. This check used to call
+## rappdirs::user_cache_dir("ctdR"), the location ctdR used before it
+## moved to BiocFileCache, so it was validating a directory the package
+## no longer writes to: it passed on machines that still had the old
+## files lying about and refused to run on clean ones, in both cases
+## saying nothing about the data the analysis would actually read.
+chemicals <- tryCatch(ctdR::ctd_cache("chemicals"), error = function(e) {
     stop(
-        "CTD data not found in ", cache_dir, ".\n",
+        conditionMessage(e), "\n",
         "Download CTD_chem_gene_ixns.csv.gz from\n",
         "  https://ctdbase.org/reports/CTD_chem_gene_ixns.csv.gz\n",
         "gunzip and run:\n",
@@ -248,19 +251,17 @@ if (!file.exists(file.path(cache_dir, "ChemicalName_GeneEntrezIds.rda")) ||
         "This script intentionally refuses the bundled toy sample.",
         call. = FALSE
     )
-}
+})
 
 ## The bundled toy sample has 10 chemicals; the real CTD release has
 ## tens of thousands. Refuse anything that looks like the toy cache,
 ## so we never silently report "0 chemicals at FDR < 0.05" coming
 ## from a 10-chemical universe.
 MIN_REAL_CHEMICALS <- 1000L
-e <- new.env(parent = emptyenv())
-load(chem_rda, envir = e)
-n_cached <- nrow(e$chemicals)
+n_cached <- nrow(chemicals)
 if (n_cached < MIN_REAL_CHEMICALS) {
     stop(
-        "CTD cache at ", cache_dir, " holds only ", n_cached,
+        "The CTD cache holds only ", n_cached,
         " chemicals -- this looks like the bundled toy sample.\n",
         "This script requires the real CTD release. Download\n",
         "  https://ctdbase.org/reports/CTD_chem_gene_ixns.csv.gz\n",
@@ -270,8 +271,10 @@ if (n_cached < MIN_REAL_CHEMICALS) {
         call. = FALSE
     )
 }
-log_step("Step E -- CTD cache OK at ", cache_dir,
-    " (", n_cached, " chemicals)")
+prov <- tryCatch(ctdR::ctd_provenance(), warning = function(w) NULL)
+log_step("Step E -- CTD cache OK (", n_cached, " chemicals",
+    if (!is.null(prov) && !is.na(prov$report_created))
+        paste0(", CTD release ", prov$report_created) else "", ")")
 
 ## ---- Step F -- enrichment with all four methods ------------
 
