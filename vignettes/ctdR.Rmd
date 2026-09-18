@@ -586,16 +586,37 @@ Thirteen of those thirty-two are produced by the background alone.
 Rankings move too: benzo(a)pyrene sits fourth on the default background
 and tenth on the correct one.
 
-**What to pass.** Every gene that entered your differential test:
+**The simpler way: hand over the whole table.** Rather than filtering
+first and then describing the background, pass the result table and say
+which p-value to judge on:
+
+```r
+enrichment_CTD(de, method = "ORA", alpha = 0.05, alpha_column = "padj")
+```
+
+The genes below the threshold become the list to test and every row
+becomes the background. Both come from one object, so they cannot
+disagree. `alpha_column` takes a name or an index, and naming it
+matters: on a table from `limma::topTable()` the second column is the
+log fold change, not a p-value. Which p-value to judge on is your
+decision, not the package's, and the function reports the column it
+used.
+
+**Or supply the background yourself**, if you have already selected
+your genes:
 
 ```r
 enrichment_CTD(sig_genes, method = "ORA", universe = de$EntrezID)
 ```
 
-Not every gene you sequenced, and not only the significant ones. A gene
-filtered out for low expression could not have come out significant, so
-it does not belong in the urn either; a gene that was tested and did
-not reach significance very much does.
+What belongs in `universe` is every gene that entered your differential
+test. Not every gene you sequenced, and not only the significant ones. A
+gene filtered out for low expression could not have come out
+significant, so it does not belong in the urn either; a gene that was
+tested and did not reach significance very much does.
+
+The two are mutually exclusive: with `alpha` the background is already
+decided.
 
 **Only ORA needs this argument, and it is worth seeing why.** The three
 other methods cannot get the background wrong, because their input

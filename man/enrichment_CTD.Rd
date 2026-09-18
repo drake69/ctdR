@@ -14,6 +14,8 @@ enrichment_CTD(
   interaction_types = NULL,
   gene_id_type = c("symbol", "entrez"),
   universe = NULL,
+  alpha = NULL,
+  alpha_column = NULL,
   assay = NULL,
   ...
 )
@@ -23,7 +25,10 @@ enrichment_CTD(
 \itemize{
   \item For \code{"ORA"} and \code{"GSEA"}: a data frame with at least two
     columns, \code{EntrezID} (character or numeric Entrez gene IDs)
-    and a numeric value column (e.g. p-value). For GSEA, an optional
+    and a numeric value column (e.g. p-value). For ORA this is
+    either the genes you have already selected, in which case say
+    what the background was with \code{universe}, or the whole
+    result table with \code{alpha} to select from it. For GSEA, an optional
     column named \code{stat} can be added with a signed ranking statistic
     (e.g. the moderated t-statistic from \code{limma::eBayes()});
     when present it is used directly for ranking, preserving directionality
@@ -97,6 +102,34 @@ and \code{"GSEA"}; ignored by \code{"CAMERA"} and \code{"GSVA"}.}
   sets with \code{rownames(x)}, so theirs is the set of measured
   genes by construction. Passing \code{universe} to any of those
   three raises a warning rather than being quietly dropped.}
+
+\item{alpha}{Significance threshold for \code{"ORA"}, or \code{NULL}
+  (default). Supplying it says that \code{x} is the \emph{whole}
+  result table rather than a list already filtered: the rows whose
+  second column falls below \code{alpha} become the genes to test,
+  and every row becomes the background.
+
+  This is the safer way to run ORA, because the background is then
+  derived from the same object as the gene list and cannot disagree
+  with it. Filtering first and passing \code{universe} separately
+  asks the caller to reconnect two things that were together a moment
+  earlier, and that reconnection is what goes wrong.
+
+  Name the column to threshold with \code{alpha_column}: which
+  p-value to judge on is the researcher's decision, not the package's.
+  The function reports the column it used, how many genes passed and
+  how many form the background.
+
+  Mutually exclusive with \code{universe}, and ignored by the other
+  three methods, which already hold their own background.}
+
+\item{alpha_column}{Which column \code{alpha} applies to: a name, a
+positive index, or \code{NULL} (default) for the second column.
+Naming it matters on a real result table, where the second column is
+usually a fold change: \code{limma::topTable()} puts \code{logFC}
+there. Pass the whole table and say which p-value to judge on,
+\code{alpha_column = "padj"} or \code{"adj.P.Val"}, rather than
+cutting the table down to two columns first.}
 
 \item{assay}{Which assay to use when \code{x} is a
 \code{\link[SummarizedExperiment]{SummarizedExperiment}}: an assay name,

@@ -12,6 +12,8 @@
   interaction_types = NULL,
   gene_id_type = "symbol",
   universe = NULL,
+  alpha = NULL,
+  alpha_column = NULL,
   ...
 )
 }
@@ -35,6 +37,13 @@ identifier used to build the TERM2GENE table and reported in the
 \item{universe}{Background gene identifiers, or \code{NULL} for all
 genes in the gene sets. Converted to match \code{gene_id_type}, so
 Entrez IDs may be supplied whichever mode is in use.}
+
+\item{alpha}{Significance threshold, or \code{NULL}. When given,
+\code{x} is taken to be the whole result table: the rows below the
+threshold are tested and every row is the background.}
+
+\item{alpha_column}{Column \code{alpha} applies to: a name, an index,
+or \code{NULL} for the second column.}
 
 \item{...}{Forwarded to \code{\link{ora}} (\code{minGSSize},
 \code{maxGSSize}).}

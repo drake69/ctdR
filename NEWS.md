@@ -138,6 +138,31 @@
   leading columns, with method-specific extras differing by method, so
   GSEA was never obliged to carry a column ORA has.
 
+* **New `alpha` and `alpha_column` arguments for ORA.** Hand
+  `enrichment_CTD()` the whole differential-expression table and say
+  which p-value column to judge on, instead of filtering first and then
+  describing the background separately:
+
+  ```r
+  enrichment_CTD(de, method = "ORA", alpha = 0.05, alpha_column = "padj")
+  ```
+
+  The genes under the threshold become the list to test and every row
+  becomes the background, so the two are derived from one object and
+  cannot disagree. Filtering first and passing `universe` asks the caller
+  to reconnect two things that were together a moment earlier, and that
+  reconnection is where the background goes wrong.
+
+  `alpha_column` takes a name or an index and defaults to the second
+  column. Naming it matters on a real table, where the second column is
+  usually a fold change: `limma::topTable()` puts `logFC` there. Which
+  p-value to judge on is the researcher's decision, and the function
+  reports the column it used along with how many genes passed.
+
+  `alpha` and `universe` are mutually exclusive: with `alpha` the
+  background is already decided, so passing both is an error rather than
+  a precedence rule applied in silence.
+
 * Passing `universe` to `"GSEA"`, `"CAMERA"` or `"GSVA"` now warns
   instead of being dropped without comment. Only ORA needs the argument,
   because only ORA takes an input that does not record what was

@@ -298,25 +298,26 @@ write_method <- function(df, name) {
         sep = "\t", quote = FALSE, row.names = FALSE)
 }
 
-## ORA: significant genes only (BH-FDR < alpha_fdr_de)
-sig_de <- de[de$padj < CONFIG$alpha_fdr_de,
-    c("EntrezID", "pvalue"), drop = FALSE]
-if (nrow(sig_de) == 0) {
+## ORA. Choose which column the threshold applies to, then hand over the
+## whole table: the genes under the threshold and the background come out
+## of the same object, so they cannot disagree.
+ora_col <- "padj"
+ora_alpha <- CONFIG$alpha_fdr_de
+if (!any(de$padj < ora_alpha, na.rm = TRUE)) {
     log_step("Step F -- no genes pass FDR for ORA; ",
-        "falling back to nominal p < ",
-        CONFIG$alpha_nominal_de, " as input set")
-    sig_de <- de[de$pvalue < CONFIG$alpha_nominal_de,
-        c("EntrezID", "pvalue"), drop = FALSE]
+        "falling back to nominal p < ", CONFIG$alpha_nominal_de)
+    ora_col <- "pvalue"
+    ora_alpha <- CONFIG$alpha_nominal_de
 }
-# The universe is every gene that entered the differential test, not
-# every gene sequenced and not only the significant ones. A gene the
-# experiment could never have detected still counts in the background
-# otherwise, which fills the urn with balls that cannot be drawn: the
-# overlap looks more selective than it was and p-values come out too
-# small. On this dataset the wrong background gives 32 significant
-# chemicals against 19, so thirteen of them are manufactured.
-ora_full <- enrichment_CTD(sig_de, method = "ORA",
-    universe = de$EntrezID,
+# The whole table goes in, with the threshold, rather than a list
+# filtered beforehand. The background is then every gene that entered the
+# differential test, derived from the same object as the gene list and
+# unable to disagree with it. Handing over a pre-filtered list and a
+# separate background is the same analysis with one more chance to get it
+# wrong: on this dataset the wrong background gives 32 significant
+# chemicals against 19, so thirteen of them would be manufactured.
+ora_full <- enrichment_CTD(de, method = "ORA",
+    alpha = ora_alpha, alpha_column = ora_col,
     pAdjustMethod = CONFIG$p_adjust_method)
 ora_sig <- apply_alpha(ora_full, CONFIG$alpha_fdr_chemical)
 write_method(ora_full, "ora_full")

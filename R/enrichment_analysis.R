@@ -47,7 +47,10 @@
 #'   \itemize{
 #'     \item For \code{"ORA"} and \code{"GSEA"}: a data frame with at least two
 #'       columns, \code{EntrezID} (character or numeric Entrez gene IDs)
-#'       and a numeric value column (e.g. p-value). For GSEA, an optional
+#'       and a numeric value column (e.g. p-value). For ORA this is
+#'       either the genes you have already selected, in which case say
+#'       what the background was with \code{universe}, or the whole
+#'       result table with \code{alpha} to select from it. For GSEA, an optional
 #'       column named \code{stat} can be added with a signed ranking statistic
 #'       (e.g. the moderated t-statistic from \code{limma::eBayes()});
 #'       when present it is used directly for ranking, preserving directionality
@@ -113,6 +116,32 @@
 #'   sets with \code{rownames(x)}, so theirs is the set of measured
 #'   genes by construction. Passing \code{universe} to any of those
 #'   three raises a warning rather than being quietly dropped.
+#' @param alpha Significance threshold for \code{"ORA"}, or \code{NULL}
+#'   (default). Supplying it says that \code{x} is the \emph{whole}
+#'   result table rather than a list already filtered: the rows whose
+#'   second column falls below \code{alpha} become the genes to test,
+#'   and every row becomes the background.
+#'
+#'   This is the safer way to run ORA, because the background is then
+#'   derived from the same object as the gene list and cannot disagree
+#'   with it. Filtering first and passing \code{universe} separately
+#'   asks the caller to reconnect two things that were together a moment
+#'   earlier, and that reconnection is what goes wrong.
+#'
+#'   Name the column to threshold with \code{alpha_column}: which
+#'   p-value to judge on is the researcher's decision, not the package's.
+#'   The function reports the column it used, how many genes passed and
+#'   how many form the background.
+#'
+#'   Mutually exclusive with \code{universe}, and ignored by the other
+#'   three methods, which already hold their own background.
+#' @param alpha_column Which column \code{alpha} applies to: a name, a
+#'   positive index, or \code{NULL} (default) for the second column.
+#'   Naming it matters on a real result table, where the second column is
+#'   usually a fold change: \code{limma::topTable()} puts \code{logFC}
+#'   there. Pass the whole table and say which p-value to judge on,
+#'   \code{alpha_column = "padj"} or \code{"adj.P.Val"}, rather than
+#'   cutting the table down to two columns first.
 #' @param assay Which assay to use when \code{x} is a
 #'   \code{\link[SummarizedExperiment]{SummarizedExperiment}}: an assay name,
 #'   a positive index, or \code{NULL} (default) for the first assay. Ignored
@@ -194,6 +223,8 @@ enrichment_CTD <- function(x,
     interaction_types = NULL,
     gene_id_type = c("symbol", "entrez"),
     universe = NULL,
+    alpha = NULL,
+    alpha_column = NULL,
     assay = NULL,
     ...) {
     gene_id_type <- match.arg(gene_id_type)
@@ -205,6 +236,16 @@ enrichment_CTD <- function(x,
 
     .validate_enrichment_args(x, method, design, contrast,
         pAdjustMethod, cache_dir)
+
+    if (!is.null(alpha)) {
+        if (method != "ORA")
+            warning("'alpha' applies to method = \"ORA\" only and is ",
+                "ignored for \"", method, "\".", call. = FALSE)
+        if (!is.null(universe))
+            stop("Give either 'alpha' or 'universe', not both. With ",
+                "'alpha' the whole table is the background, so there is ",
+                "nothing left for 'universe' to say.", call. = FALSE)
+    }
 
     # Only ORA takes a background it cannot infer. GSEA ranks the whole
     # list it is given, and CAMERA and GSVA intersect the gene sets with
@@ -232,7 +273,8 @@ enrichment_CTD <- function(x,
         ORA = .run_ora(x, chemicals, cache_dir, pAdjustMethod,
                        interaction_types = interaction_types,
                        gene_id_type = gene_id_type,
-                       universe = universe, ...),
+                       universe = universe, alpha = alpha,
+                       alpha_column = alpha_column, ...),
         GSEA = .run_gsea(x, chemicals, cache_dir, pAdjustMethod,
                          interaction_types = interaction_types,
                          gene_id_type = gene_id_type, ...),
@@ -340,13 +382,43 @@ enrichment_CTD <- function(x,
 #' @param universe Background gene identifiers, or \code{NULL} for all
 #'   genes in the gene sets. Converted to match \code{gene_id_type}, so
 #'   Entrez IDs may be supplied whichever mode is in use.
+#' @param alpha Significance threshold, or \code{NULL}. When given,
+#'   \code{x} is taken to be the whole result table: the rows below the
+#'   threshold are tested and every row is the background.
+#' @param alpha_column Column \code{alpha} applies to: a name, an index,
+#'   or \code{NULL} for the second column.
 #' @param ... Forwarded to \code{\link{ora}} (\code{minGSSize},
 #'   \code{maxGSSize}).
 #'
 #' @return A data frame of ORA enrichment results.
 #' @keywords internal
 .run_ora <- function(x, chemicals_meta, cache_dir, pAdjustMethod,
-    interaction_types = NULL, gene_id_type = "symbol", universe = NULL, ...) {
+    interaction_types = NULL, gene_id_type = "symbol", universe = NULL,
+    alpha = NULL, alpha_column = NULL, ...) {
+    if (!is.null(alpha)) {
+        # The table is complete: its rows are the background, and the ones
+        # under the threshold are the list to test. Deriving both from one
+        # object is the point. Handing over a pre-filtered list and a
+        # separate universe leaves the caller to reconnect two things that
+        # were together a moment earlier, and that reconnection is what
+        # goes wrong.
+        col <- .resolve_alpha_column(x, alpha_column)
+        vals <- x[[col]]
+        if (!is.numeric(vals))
+            stop("Column '", col, "' is ", class(vals)[1], ", not numeric, ",
+                "so 'alpha' cannot be applied to it. Name the column to ",
+                "threshold on with 'alpha_column'.", call. = FALSE)
+        universe <- as.character(x$EntrezID)
+        keep <- !is.na(vals) & vals < alpha
+        message(sprintf(
+            paste0("alpha = %s on column '%s': %d of %d genes tested, ",
+                "the other %d are the background."),
+            format(alpha), col, sum(keep), nrow(x), nrow(x) - sum(keep)))
+        if (!any(keep))
+            stop("No gene is below alpha = ", format(alpha), " in column '",
+                col, "'. Nothing to test.", call. = FALSE)
+        x <- x[keep, , drop = FALSE]
+    }
     if (gene_id_type == "entrez") {
         if (!is.null(interaction_types)) {
             entrez_list <- .filter_gene_sets(cache_dir, interaction_types)$entrez
@@ -397,6 +469,43 @@ enrichment_CTD <- function(x,
         ),
         drop = c("p.adjust")
     )
+}
+
+#' Decide which column a significance threshold applies to
+#'
+#' A real differential-expression table has several numeric columns and
+#' the interesting one is rarely the second: \code{limma::topTable()}
+#' puts the log fold change there. Thresholding a position rather than a
+#' name would silently filter on the wrong quantity, so the column is
+#' named by the caller. The second column remains the fallback for the
+#' two-column case, and the choice is reported either way.
+#'
+#' @param x The input data frame.
+#' @param alpha_column A column name, a positive index, or \code{NULL}
+#'   to take the second column.
+#' @return The resolved column name.
+#' @keywords internal
+.resolve_alpha_column <- function(x, alpha_column) {
+    if (is.null(alpha_column)) {
+        if (ncol(x) < 2L)
+            stop("With 'alpha', 'x' needs a column holding the value to ",
+                "threshold on. Name it with 'alpha_column'.", call. = FALSE)
+        return(colnames(x)[2L])
+    }
+    if (is.numeric(alpha_column)) {
+        if (length(alpha_column) != 1L || alpha_column < 1 ||
+                alpha_column > ncol(x))
+            stop("'alpha_column' is out of range: 'x' has ", ncol(x),
+                " columns.", call. = FALSE)
+        return(colnames(x)[as.integer(alpha_column)])
+    }
+    if (!is.character(alpha_column) || length(alpha_column) != 1L)
+        stop("'alpha_column' must be a single column name or index.",
+            call. = FALSE)
+    if (!alpha_column %in% colnames(x))
+        stop("Column '", alpha_column, "' is not in 'x'. Available: ",
+            paste(colnames(x), collapse = ", "), ".", call. = FALSE)
+    alpha_column
 }
 
 #' Convert gene identifiers to HGNC symbols where possible

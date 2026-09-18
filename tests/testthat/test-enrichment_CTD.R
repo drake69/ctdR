@@ -167,3 +167,103 @@ test_that("universe is refused loudly by the methods that cannot use it", {
         suppressMessages(enrichment_CTD(genes, method = "ORA",
             universe = c("7124", "3569", "7157"))))
 })
+
+test_that("alpha derives the gene list and the background from one table", {
+    # The failure this prevents: filtering first and passing a separate
+    # universe asks the caller to reconnect two things that were together
+    # a moment earlier. Given alpha, they cannot come apart.
+    skip_on_cran()
+    skip_if_not_installed("org.Hs.eg.db")
+
+    .setup_sample_cache()
+    de <- data.frame(
+        EntrezID = c("7124", "3569", "7157", "672", "1956", "836", "7422"),
+        padj = c(0.001, 0.003, 0.01, 0.02, 0.30, 0.40, 0.50)
+    )
+
+    from_alpha <- suppressMessages(
+        enrichment_CTD(de, method = "ORA", alpha = 0.05))
+    by_hand <- suppressMessages(enrichment_CTD(
+        de[de$padj < 0.05, ], method = "ORA", universe = de$EntrezID))
+
+    expect_equal(from_alpha, by_hand)
+    expect_gt(nrow(from_alpha), 0)
+})
+
+test_that("alpha reports what it selected and what it kept as background", {
+    skip_on_cran()
+    skip_if_not_installed("org.Hs.eg.db")
+
+    .setup_sample_cache()
+    de <- data.frame(
+        EntrezID = c("7124", "3569", "7157", "672", "1956", "836", "7422"),
+        padj = c(0.001, 0.003, 0.01, 0.02, 0.30, 0.40, 0.50)
+    )
+
+    expect_message(enrichment_CTD(de, method = "ORA", alpha = 0.05),
+        "4 of 7 genes tested, the other 3 are the background")
+})
+
+test_that("alpha and universe are mutually exclusive", {
+    # Not a precedence rule applied in silence: with alpha the background
+    # is already decided, so universe has nothing left to say and passing
+    # both means the caller believes something untrue.
+    skip_on_cran()
+    skip_if_not_installed("org.Hs.eg.db")
+
+    .setup_sample_cache()
+    de <- data.frame(EntrezID = c("7124", "3569"), padj = c(0.001, 0.30))
+
+    expect_error(
+        enrichment_CTD(de, method = "ORA", alpha = 0.05, universe = "7124"),
+        "either 'alpha' or 'universe'")
+})
+
+test_that("alpha_column decides which p-value the threshold judges", {
+    # A real result table has several numeric columns and the second is
+    # usually a fold change: limma::topTable() puts logFC there.
+    # Thresholding a position instead of a name would filter on the wrong
+    # quantity without saying so.
+    skip_on_cran()
+    skip_if_not_installed("org.Hs.eg.db")
+
+    .setup_sample_cache()
+    de <- data.frame(
+        EntrezID = c("7124", "3569", "7157", "672", "1956", "836", "7422"),
+        log2FC = c(2.1, -1.8, 1.5, -2.2, 0.3, 0.1, -0.2),
+        pvalue = c(0.0001, 0.001, 0.004, 0.01, 0.2, 0.3, 0.4),
+        padj = c(0.001, 0.003, 0.01, 0.02, 0.30, 0.40, 0.50)
+    )
+
+    by_name <- suppressMessages(enrichment_CTD(de, method = "ORA",
+        alpha = 0.05, alpha_column = "padj"))
+    by_index <- suppressMessages(enrichment_CTD(de, method = "ORA",
+        alpha = 0.05, alpha_column = 4))
+    expect_equal(by_name, by_index)
+
+    # A stricter threshold on a different column selects differently.
+    expect_message(enrichment_CTD(de, method = "ORA", alpha = 0.005,
+        alpha_column = "pvalue"), "3 of 7 genes tested")
+
+    expect_error(enrichment_CTD(de, method = "ORA", alpha = 0.05,
+        alpha_column = "fdr"), "not in 'x'")
+    expect_error(enrichment_CTD(de, method = "ORA", alpha = 0.05,
+        alpha_column = 9), "out of range")
+})
+
+test_that("alpha refuses a table it cannot threshold", {
+    skip_on_cran()
+    skip_if_not_installed("org.Hs.eg.db")
+
+    .setup_sample_cache()
+    expect_error(
+        suppressMessages(enrichment_CTD(
+            data.frame(EntrezID = c("7124", "3569"), label = c("a", "b")),
+            method = "ORA", alpha = 0.05)),
+        "not numeric")
+    expect_error(
+        suppressMessages(enrichment_CTD(
+            data.frame(EntrezID = "7124", padj = 0.9),
+            method = "ORA", alpha = 0.05)),
+        "No gene is below alpha")
+})
