@@ -109,6 +109,11 @@ and \code{"GSEA"}; ignored by \code{"CAMERA"} and \code{"GSVA"}.}
   second column falls below \code{alpha} become the genes to test,
   and every row becomes the background.
 
+  Every row of the table becomes the background, the selected genes
+  included: a hypergeometric test draws \eqn{n} genes from an urn of
+  \eqn{N}, and the drawn ones were in the urn. The background is not
+  the non-significant remainder.
+
   This is the safer way to run ORA, because the background is then
   derived from the same object as the gene list and cannot disagree
   with it. Filtering first and passing \code{universe} separately

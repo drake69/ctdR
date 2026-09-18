@@ -122,6 +122,11 @@
 #'   second column falls below \code{alpha} become the genes to test,
 #'   and every row becomes the background.
 #'
+#'   Every row of the table becomes the background, the selected genes
+#'   included: a hypergeometric test draws \eqn{n} genes from an urn of
+#'   \eqn{N}, and the drawn ones were in the urn. The background is not
+#'   the non-significant remainder.
+#'
 #'   This is the safer way to run ORA, because the background is then
 #'   derived from the same object as the gene list and cannot disagree
 #'   with it. Filtering first and passing \code{universe} separately
@@ -396,12 +401,14 @@ enrichment_CTD <- function(x,
     interaction_types = NULL, gene_id_type = "symbol", universe = NULL,
     alpha = NULL, alpha_column = NULL, ...) {
     if (!is.null(alpha)) {
-        # The table is complete: its rows are the background, and the ones
-        # under the threshold are the list to test. Deriving both from one
-        # object is the point. Handing over a pre-filtered list and a
-        # separate universe leaves the caller to reconnect two things that
-        # were together a moment earlier, and that reconnection is what
-        # goes wrong.
+        # The table is complete: ALL of its rows are the background, and
+        # the ones under the threshold are the list to test. The tested
+        # genes are part of the background, not its complement: the
+        # hypergeometric draws n genes from an urn of N, and the drawn
+        # ones were in the urn. Deriving both from one object is the
+        # point. Handing over a pre-filtered list and a separate universe
+        # leaves the caller to reconnect two things that were together a
+        # moment earlier, and that reconnection is what goes wrong.
         col <- .resolve_alpha_column(x, alpha_column)
         vals <- x[[col]]
         if (!is.numeric(vals))
@@ -411,9 +418,10 @@ enrichment_CTD <- function(x,
         universe <- as.character(x$EntrezID)
         keep <- !is.na(vals) & vals < alpha
         message(sprintf(
-            paste0("alpha = %s on column '%s': %d of %d genes tested, ",
-                "the other %d are the background."),
-            format(alpha), col, sum(keep), nrow(x), nrow(x) - sum(keep)))
+            paste0("alpha = %s on column '%s': %d genes selected, ",
+                "background = all %d rows of the table (the selected ",
+                "ones included)."),
+            format(alpha), col, sum(keep), nrow(x)))
         if (!any(keep))
             stop("No gene is below alpha = ", format(alpha), " in column '",
                 col, "'. Nothing to test.", call. = FALSE)

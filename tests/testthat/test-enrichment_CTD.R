@@ -190,7 +190,7 @@ test_that("alpha derives the gene list and the background from one table", {
     expect_gt(nrow(from_alpha), 0)
 })
 
-test_that("alpha reports what it selected and what it kept as background", {
+test_that("alpha reports the selection and the full table as background", {
     skip_on_cran()
     skip_if_not_installed("org.Hs.eg.db")
 
@@ -200,8 +200,18 @@ test_that("alpha reports what it selected and what it kept as background", {
         padj = c(0.001, 0.003, 0.01, 0.02, 0.30, 0.40, 0.50)
     )
 
+    # The background is every row, the selected genes included. The
+    # hypergeometric draws n genes from an urn of N and the drawn ones
+    # were in the urn; describing the background as the complement would
+    # leave nothing to test.
     expect_message(enrichment_CTD(de, method = "ORA", alpha = 0.05),
-        "4 of 7 genes tested, the other 3 are the background")
+        "4 genes selected")
+    expect_message(enrichment_CTD(de, method = "ORA", alpha = 0.05),
+        "background = all 7 rows of the table")
+
+    # And the reported N is the whole table, not the 3 non-selected rows.
+    res <- suppressMessages(enrichment_CTD(de, method = "ORA", alpha = 0.05))
+    expect_identical(sub(".*/", "", res$BackgroundRatio[1]), "7")
 })
 
 test_that("alpha and universe are mutually exclusive", {
@@ -243,7 +253,7 @@ test_that("alpha_column decides which p-value the threshold judges", {
 
     # A stricter threshold on a different column selects differently.
     expect_message(enrichment_CTD(de, method = "ORA", alpha = 0.005,
-        alpha_column = "pvalue"), "3 of 7 genes tested")
+        alpha_column = "pvalue"), "3 genes selected")
 
     expect_error(enrichment_CTD(de, method = "ORA", alpha = 0.05,
         alpha_column = "fdr"), "not in 'x'")

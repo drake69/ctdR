@@ -594,9 +594,11 @@ which p-value to judge on:
 enrichment_CTD(de, method = "ORA", alpha = 0.05, alpha_column = "padj")
 ```
 
-The genes below the threshold become the list to test and every row
-becomes the background. Both come from one object, so they cannot
-disagree. `alpha_column` takes a name or an index, and naming it
+The genes below the threshold become the list to test and **every row**
+becomes the background, the selected ones included: the test draws *n*
+genes from an urn of *N*, and the drawn genes were in the urn. The
+background is everything you studied, not the non-significant
+remainder. Both come from one object, so they cannot disagree. `alpha_column` takes a name or an index, and naming it
 matters: on a table from `limma::topTable()` the second column is the
 log fold change, not a p-value. Which p-value to judge on is your
 decision, not the package's, and the function reports the column it
