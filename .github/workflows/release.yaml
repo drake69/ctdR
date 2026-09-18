@@ -1,8 +1,17 @@
-name: Auto-release on version bump
+name: Release on version bump
+
+# Manual only. This used to fire on every push to main, so a version bump
+# that happened to travel with other work cut a release before the work
+# around it was ready: 0.99.9 was tagged while its citation file still
+# named 0.99.2. Cutting a release is a decision, and decisions are taken
+# by someone rather than triggered by a diff.
+#
+# Run it from the Actions tab, or:
+#   gh workflow run release.yaml --ref main
+# It still refuses to act when the tag for the current DESCRIPTION
+# version already exists, so running it twice is harmless.
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
