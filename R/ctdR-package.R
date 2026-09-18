@@ -71,7 +71,7 @@
 utils::globalVariables(c(
     "chemicals", "ChemicalName_GeneSymbols",
     "ChemicalName_GeneEntrezIds",
-    "ChemicalName", "foldEnrichment", "padj", "Count",
+    "ChemicalName", "effect", "padj", "Count",
     "negLog10padj", "Direction", "NGenes",
     "Chemical", "Sample", "Score"
 ))

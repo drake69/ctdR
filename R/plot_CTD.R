@@ -92,13 +92,26 @@ plot_CTD <- function(results, type = "bar", n = 20, title = NULL) {
     }
 
     count_col <- if (is_ora) "Count" else "GeneSetSize"
+    # Each method is plotted on its own measure of effect. ORA has a fold
+    # enrichment, an observed-over-expected ratio. GSEA does not, and the
+    # quantity it does have is the normalized enrichment score, which
+    # fgsea computes and which is what the field compares between gene
+    # sets. Plotting one on the other's axis would put two different
+    # things under the same label.
+    effect_col <- if (is_ora) "FoldEnrichment" else "NormalizedEnrichmentScore"
+    effect_lab <- if (is_ora) "Fold Enrichment" else
+        "Normalized Enrichment Score (NES)"
+    if (!effect_col %in% colnames(results))
+        stop("Column '", effect_col, "' is missing from 'results'. ",
+            "plot_CTD() needs it to draw the effect size for this method.",
+            call. = FALSE)
 
     results <- results[order(results$PValueAdjusted), ]
     results <- utils::head(results, n)
 
     plot_df <- data.frame(
         ChemicalName = results$ChemicalName,
-        foldEnrichment = results$FoldEnrichment,
+        effect = results[[effect_col]],
         padj = results$PValueAdjusted,
         Count = results[[count_col]],
         stringsAsFactors = FALSE
@@ -114,8 +127,8 @@ plot_CTD <- function(results, type = "bar", n = 20, title = NULL) {
         p <- ggplot2::ggplot(
             plot_df,
             ggplot2::aes(
-                x = reorder(ChemicalName, foldEnrichment),
-                y = foldEnrichment,
+                x = reorder(ChemicalName, effect),
+                y = effect,
                 fill = padj
             )
         ) +
@@ -124,7 +137,7 @@ plot_CTD <- function(results, type = "bar", n = 20, title = NULL) {
             ggplot2::scale_fill_gradient(low = "#D73027", high = "#4575B4",
                 name = "Adjusted\np-value") +
             ggplot2::labs(
-                x = NULL, y = "Fold Enrichment", title = title
+                x = NULL, y = effect_lab, title = title
             ) +
             ggplot2::theme_minimal() +
             ggplot2::theme(
@@ -135,8 +148,8 @@ plot_CTD <- function(results, type = "bar", n = 20, title = NULL) {
         p <- ggplot2::ggplot(
             plot_df,
             ggplot2::aes(
-                x = foldEnrichment,
-                y = reorder(ChemicalName, foldEnrichment),
+                x = effect,
+                y = reorder(ChemicalName, effect),
                 color = padj,
                 size = Count
             )
@@ -148,7 +161,7 @@ plot_CTD <- function(results, type = "bar", n = 20, title = NULL) {
                 name = if (is_ora) "Gene Count" else "Gene Set Size"
             ) +
             ggplot2::labs(
-                x = "Fold Enrichment", y = NULL, title = title
+                x = effect_lab, y = NULL, title = title
             ) +
             ggplot2::theme_minimal() +
             ggplot2::theme(

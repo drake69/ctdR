@@ -122,6 +122,14 @@
   are not Entrez IDs, and Entrez IDs that do not map, are kept as they
   are, so a universe of symbols or a mixture of the two works too.
 
+* `plot_CTD()` draws each method on its own measure of effect: fold
+  enrichment for ORA, the normalized enrichment score for GSEA, with the
+  axis labelled accordingly. It previously drew `FoldEnrichment` for
+  both, which is why removing the fabricated GSEA fold broke plotting
+  until this release. A result frame missing the column it needs now
+  says which one, instead of failing inside `data.frame()` with a
+  row-count mismatch.
+
 * **Breaking change.** `FoldEnrichment` is gone from GSEA results. It was
   computed as `abs(ES) / mean(ES)`, where the divisor is the mean
   enrichment score across whichever chemicals happened to be tested in

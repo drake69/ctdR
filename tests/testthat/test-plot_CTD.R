@@ -1,3 +1,13 @@
+.setup_sample_cache_plot <- function() {
+    f <- system.file("extdata", "CTD_chem_gene_ixns_sample.csv",
+        package = "ctdR")
+    if (!nzchar(f) || !file.exists(f))
+        f <- "../../inst/extdata/CTD_chem_gene_ixns_sample.csv"
+    if (!file.exists(f)) skip("Sample CTD file not available")
+    suppressMessages(suppressWarnings(import_CTD(f)))
+    invisible(NULL)
+}
+
 test_that("plot_CTD bar plot works with ORA results", {
     skip_if_not_installed("ggplot2")
 
@@ -179,4 +189,37 @@ test_that("plot_CTD accepts custom title", {
 
     expect_s3_class(p, "ggplot")
     expect_equal(p$labels$title, "My Custom Title")
+})
+
+test_that("each method is plotted on its own measure of effect", {
+    # plot_CTD() drew FoldEnrichment for both ORA and GSEA. When the
+    # fabricated GSEA fold was removed, the function broke at the point
+    # where the pipeline draws its figures: a contract change whose
+    # consumers had not been checked. Each method now plots the quantity
+    # it actually has, and the axis says which.
+    skip_on_cran()
+    skip_if_not_installed("org.Hs.eg.db")
+    skip_if_not_installed("ggplot2")
+
+    .setup_sample_cache_plot()
+    genes <- data.frame(
+        EntrezID = c("7124", "3569", "7157", "672", "1956"),
+        pvalue = c(0.001, 0.003, 0.01, 0.02, 0.05)
+    )
+
+    ora <- suppressMessages(enrichment_CTD(genes, method = "ORA"))
+    gsea <- suppressMessages(suppressWarnings(
+        enrichment_CTD(genes, method = "GSEA")))
+
+    expect_identical(plot_CTD(ora, type = "bar")$labels$y, "Fold Enrichment")
+    expect_identical(plot_CTD(ora, type = "dot")$labels$x, "Fold Enrichment")
+    expect_identical(plot_CTD(gsea, type = "bar")$labels$y,
+        "Normalized Enrichment Score (NES)")
+    expect_identical(plot_CTD(gsea, type = "dot")$labels$x,
+        "Normalized Enrichment Score (NES)")
+
+    # And a frame missing the column says which one, rather than failing
+    # inside data.frame() with a row-count mismatch.
+    expect_error(plot_CTD(ora[, setdiff(colnames(ora), "FoldEnrichment")]),
+        "FoldEnrichment' is missing")
 })
