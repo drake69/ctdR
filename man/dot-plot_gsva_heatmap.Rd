@@ -6,6 +6,18 @@
 \usage{
 .plot_gsva_heatmap(scores, n, title)
 }
+\arguments{
+\item{scores}{Numeric matrix of GSVA scores with chemicals in rows
+and samples in columns.}
+
+\item{n}{Integer. Number of chemicals to show, taken by decreasing
+score variance across samples.}
+
+\item{title}{Character. Plot title.}
+}
+\value{
+A \code{ggplot} object.
+}
 \description{
 Plot GSVA scores as a sample x chemical heatmap
 }

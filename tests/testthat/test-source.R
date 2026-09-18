@@ -62,7 +62,7 @@ test_that("import_CTD works from a file:// URL", {
     tmp_cache <- file.path(tempdir(), "ctdR_url_test")
     options(ctdR.cache = tmp_cache)
     on.exit({
-        options(ctdR.cache = NULL)
+        .restore_ctd_cache()
         unlink(tmp_cache, recursive = TRUE)
     })
 
@@ -86,7 +86,7 @@ test_that(".resolve_ctd_source returns a cached path for an already-seen URL", {
     env <- ctdR:::.ctdR_env
     env$license_shown <- FALSE
     on.exit({
-        options(ctdR.cache = NULL)
+        .restore_ctd_cache()
         env$license_shown <- FALSE
         unlink(tmp_cache, recursive = TRUE)
     })

@@ -20,6 +20,10 @@ knitr::opts_chunk$set(
     collapse = TRUE,
     comment = "#>"
 )
+# Build this vignette against a throwaway cache. Without it, knitting
+# would overwrite whatever CTD data the reader has already imported
+# with the ten-chemical sample used for the examples below.
+options(ctdR.cache = tempfile())
 ```
 
 # Overview
@@ -33,8 +37,8 @@ Four enrichment methods are supported through a single
 the method:
 
 - **ORA** (Over-Representation Analysis) -- gene list +
-    hypergeometric test. Powered by
-    `clusterProfiler::enricher`.
+    hypergeometric test, computed directly on
+    `stats::phyper`.
 - **GSEA** (Gene Set Enrichment Analysis) -- ranked gene
     list + permutation test. Powered by `fgsea::fgsea`.
 - **CAMERA** (competitive gene-set test) -- expression
@@ -132,6 +136,52 @@ This step takes several minutes with the full CTD file.
 You only need to run it once -- or again when you
 download a newer CTD release.
 
+### Which CTD release did I use?
+
+CTD is re-released continuously and its downloads are
+not versioned in the filename: two copies of
+`CTD_chem_gene_ixns.csv` months apart are
+indistinguishable from the outside. The release date
+lives inside the file, on the `# Report created:` line
+of its header, and it is the only thing that identifies
+which snapshot a result came from.
+
+`import_CTD()` reads that line, reports it, and keeps
+it. Every result then carries it, so an analysis can
+state the version of the data behind it without anyone
+having to remember:
+
+```{r provenance}
+# With no argument: what is in the cache right now.
+ctd_provenance()
+```
+
+Every result carries the same record, so you can also
+ask an object you are about to report on:
+`ctd_provenance(ora_results)`.
+
+The record holds the CTD release date, where the file
+came from, when you imported it, how much of it was
+kept, and the ctdR version. Release date and import
+date answer different questions and are both recorded:
+the first says which data, the second says when you
+took it.
+
+Use `ctd_provenance()` rather than reaching into the
+object, because the record is stored wherever the
+container provides room for it. Results that carry a
+`metadata()` slot keep it there, which is the case for
+the `SummarizedExperiment` returned by GSVA and for a
+`CTDFile` read with `import()`; the data frames from
+ORA, GSEA and CAMERA keep it in an attribute. The
+accessor hides the difference.
+
+The record follows subsetting, ordering, `head()` and
+the usual **dplyr** verbs. It does not follow `merge()`
+or `subset()`, which drop attributes; `ctd_provenance()`
+warns rather than quietly reporting nothing, so take
+the record before those if you need it after.
+
 ## Step 3 -- Run enrichment analysis
 
 ### Prepare your gene list
@@ -197,7 +247,6 @@ shared schema above):
 |---|---|
 | `GeneRatio` | Proportion of input genes in the set |
 | `BackgroundRatio` | Background ratio |
-| `QValue` | Storey's q-value (from `clusterProfiler`) |
 | `FoldEnrichment` | GeneRatio / BackgroundRatio |
 | `EnrichedGenes` | Enriched gene symbols (comma-separated) |
 | `Count` | Number of overlapping genes |
@@ -225,10 +274,9 @@ shared schema above):
 | Column | Description |
 |---|---|
 | `EnrichmentScore` | Enrichment score (`ES` from fgsea) |
-| `NormalizedEnrichmentScore` | Normalized enrichment score (`NES`) |
+| `NormalizedEnrichmentScore` | Normalized enrichment score (`NES` from fgsea): the enrichment score scaled for gene set size. This is the quantity to compare between chemicals |
 | `GeneSetSize` | Size of the gene set used |
 | `LeadingEdge` | Leading-edge gene subset |
-| `FoldEnrichment` | `abs(ES) / mean(ES)` |
 | `EnrichedGenes` | Comma-separated enriched genes |
 
 ### End-to-end example with real RNA-seq data (GSE311566)
@@ -503,7 +551,7 @@ universe, but the degree of user control differs:
 
 | Method | Size filter | Configurable | Background universe | Configurable |
 |--------|-------------|:---:|---------------------|:---:|
-| ORA | `minGSSize` / `maxGSSize` | ✓ | All genes in TERM2GENE (default) or user-supplied `universe` | ✓ |
+| ORA | `minGSSize` (default 2) / `maxGSSize` (default `Inf`) | ✓ | All genes in TERM2GENE (default) or user-supplied `universe` | ✓ |
 | GSEA | `minSize` / `maxSize` | ✓ | No universe concept — uses the full ranked list | — |
 | CAMERA | ≥ 2 genes (hard-coded) | ✗ | `rownames(x)` | implicit |
 | GSVA | `minSize` / `maxSize` | ✓ | `rownames(x)` | implicit |
@@ -512,13 +560,232 @@ ORA, GSEA, and GSVA accept size-filter arguments via `...`, which are
 forwarded to the underlying engine. CAMERA's minimum of 2 genes is
 hard-coded and cannot be changed.
 
+### The background universe is the choice that matters most
+
+Of everything on this page, this is the argument worth getting right.
+
+A hypergeometric test asks: drawing *n* genes at random from a
+background of *N*, how many would land in this chemical's set? If *N*
+contains genes your experiment could never have detected, those genes
+fill the urn with balls that cannot be drawn. The overlap you observed
+then looks more selective than it was, and the p-value comes out too
+small. The error is **anti-conservative**: it manufactures significance
+rather than hiding it.
+
+`ctdR` defaults to every gene in the CTD gene sets, and says so when it
+does. That is a fallback, not a recommendation: the package cannot know
+what your platform measured. On the RNA-seq analysis in this package's
+tutorial the difference is not subtle:
+
+| Background | *N* | Chemicals significant at FDR < 0.05 |
+|---|---:|---:|
+| All CTD genes (the default) | 27,444 | **32** |
+| Genes that entered the DE test | 24,845 | **19** |
+
+Thirteen of those thirty-two are produced by the background alone.
+Rankings move too: benzo(a)pyrene sits fourth on the default background
+and tenth on the correct one.
+
+**The simpler way: hand over the whole table.** Rather than filtering
+first and then describing the background, pass the result table and say
+which p-value to judge on:
+
+```r
+enrichment_CTD(de, method = "ORA", alpha = 0.05, alpha_column = "padj")
+```
+
+The genes below the threshold become the list to test and **every row**
+becomes the background, the selected ones included: the test draws *n*
+genes from an urn of *N*, and the drawn genes were in the urn. The
+background is everything you studied, not the non-significant
+remainder. Both come from one object, so they cannot disagree. `alpha_column` takes a name or an index, and naming it
+matters: on a table from `limma::topTable()` the second column is the
+log fold change, not a p-value. Which p-value to judge on is your
+decision, not the package's, and the function reports the column it
+used.
+
+**Or supply the background yourself**, if you have already selected
+your genes:
+
+```r
+enrichment_CTD(sig_genes, method = "ORA", universe = de$EntrezID)
+```
+
+What belongs in `universe` is every gene that entered your differential
+test. Not every gene you sequenced, and not only the significant ones. A
+gene filtered out for low expression could not have come out
+significant, so it does not belong in the urn either; a gene that was
+tested and did not reach significance very much does.
+
+The two are mutually exclusive: with `alpha` the background is already
+decided.
+
+**Only ORA needs this argument, and it is worth seeing why.** The three
+other methods cannot get the background wrong, because their input
+carries it. GSEA ranks the whole list you give it, so the list is the
+background. CAMERA and GSVA intersect the gene sets with
+`rownames(x)`, so their background is the set of genes you measured, by
+construction.
+
+ORA is the exception because a bare gene list records only which genes
+came out, not which ones could have. That missing information is what
+`universe` supplies, and why its absence is the one input error this
+package cannot detect for you. Passing it to GSEA, CAMERA or GSVA
+raises a warning rather than being silently dropped.
+
+### Why the size thresholds are what they are
+
+In `ctdR` every chemical *is* a gene set, and CTD gene sets are small:
+the median chemical has **4** target genes, against 72 for KEGG and 11
+for GO. Size thresholds tuned for those collections do not transfer.
+Measured on the full CTD chemical-gene file, of 11,067 chemicals:
+
+| `minGSSize` | Chemicals tested | % |
+|---:|---:|---:|
+| 1 | 10,802 | 97.6 |
+| **2** *(default)* | **7,970** | **72.0** |
+| 3 | 6,498 | 58.7 |
+| 5 | 4,844 | 43.8 |
+| 10 | 2,971 | 26.8 |
+
+A `minGSSize` of 10, the conventional value, would test barely a
+quarter of them. The rest are not tested and found unremarkable: they
+are absent from the output altogether.
+
+One-gene sets are excluded on purpose rather than by accident. For a
+set of one gene the hypergeometric p-value is exactly the number of
+input genes divided by the background size, the same value whichever
+gene the set contains. It measures whether that gene is in your list,
+not whether the chemical is enriched. Removing those sets also makes
+the remaining ones easier to call significant, since they no longer add
+to the multiple-testing burden.
+
+Chemicals removed by the filter are reported rather than dropped
+quietly. `ora()` emits a message giving how many chemicals went
+untested and whether they fell below or above the thresholds, so a
+chemical missing from the results can be told apart from one that was
+tested and came back non-significant.
+
+Raise `minGSSize` when you want only well-characterised chemicals, and
+lower it to 1 only if you are deliberately looking for single-gene
+associations and will read those p-values accordingly.
+
+#### And why there is no upper limit
+
+The same reasoning applied to the other end reaches the opposite
+answer, so `maxGSSize` defaults to `Inf`.
+
+A set of *M* genes cannot, even when every one of the *m* input genes
+falls inside it, produce a p-value below *C*(*M*,*m*)/*C*(*N*,*m*),
+which is roughly (*M*/*N*)^*m*. That floor **rises** with *M*: a large
+enough set becomes untestable, just as a small enough one does. The
+question is whether CTD contains any such set.
+
+It does not. With the 28,571 genes CTD covers and an input list of 169
+differentially expressed genes, the largest still-testable set is about
+**26,600** genes, 93% of the universe. The largest chemical in CTD,
+benzo(a)pyrene, has 16,536. Every chemical in the database is testable
+from above, so an upper cut removes sets that could have been declared
+significant.
+
+What a cut removes is also not marginal. At 500 it excludes 265
+chemicals, among them benzo(a)pyrene, valproic acid, sodium arsenite,
+bisphenol A, aflatoxin B1 and particulate matter. Their sets are large
+because the literature on them is large. This is where CTD differs from
+GO: there a large term is one that has stopped meaning anything, here a
+large set is a chemical somebody has studied for decades. Keeping them
+costs 3% more tests, 8,235 against 7,970.
+
+Set `maxGSSize` to a finite value if you have a reason of your own, for
+instance to keep the focus on chemicals with sharply defined targets.
+`ctdR` does not impose one.
+
+#### What that costs, and how to read around it
+
+Removing the cap has a consequence worth stating rather than
+discovering: with no upper limit, the significant results skew towards
+large sets. On the analysis in this vignette's tutorial, the median
+chemical among the significant hits carries about 4,100 target genes,
+against a median of 7 across every chemical tested.
+
+This is worth understanding rather than memorising, because the fold
+enrichment appears to say the opposite. Fold is
+`(k/n) / (M/N)`: the set size *M* sits in the denominator, so for a
+fixed overlap *k* a larger set gives a **lower** fold. Yet larger sets
+reach smaller p-values. Both are true, because the two measure
+different things.
+
+The p-value does not measure the ratio. It measures how unlikely the
+excess is, and the excess is counted in genes, not in proportion. With
+154 input genes drawn from a background of 27,444, holding the fold
+fixed at 1.5:
+
+| Genes in set | Expected by chance | Observed at fold 1.5 | p |
+|---:|---:|---:|---:|
+| 100 | 0.6 | 1 | 0.43 |
+| 2,000 | 11.2 | 17 | 0.057 |
+| 16,000 | 89.8 | 135 | 1.4e-15 |
+
+The same 50% enrichment spans fifteen orders of magnitude. A set of 100
+genes at fold 1.5 is 0.4 genes above expectation, which happens
+constantly by chance; a set of 16,000 at the same fold is 45 genes
+above, which does not. The identical ratio carries incomparable
+evidence, and the test is right to say so.
+
+In CTD, set size also measures **how much a chemical has been
+studied**: the database curates published literature, so a chemical
+measured in many genome-wide experiments accumulates many recorded
+genes. It is tempting to read that as a bias, and to suspect that large
+sets are padded with genes that respond to everything. Measured, they
+are not. The genes in sets above 500 appear in a median of 47 chemicals
+each; the genes in sets of 4 or fewer appear in a median of 232. Small
+sets are the ones made of the usual suspects, because a chemical
+studied once was studied with a targeted assay aimed at a gene somebody
+already suspected. Large sets are, per gene, more specific rather than
+less.
+
+So finding well-studied chemicals near the top is not an artefact to be
+corrected. The evidence behind them is real, and no method can find a
+chemical nobody has measured: that is a limit of the available data,
+not of the test.
+
+What it does change is what a result means, and this holds for every
+enrichment analysis run against a curated database, not only this one.
+The question the test answers is not *is this chemical associated with
+these genes*, but **is this chemical associated with these genes, as
+far as the published literature records**. Between two chemicals of
+equal biological relevance, the better-studied one has more opportunity
+to overlap your gene list and ranks higher. A chemical absent from the
+output is therefore uninvolved only as far as anyone currently knows:
+the analysis measures the state of the evidence, and reports the
+biology through it.
+
+The practical consequence is how to read the output. Results are sorted
+by adjusted p-value, which is the quantity the false discovery rate is
+controlled on. Fold enrichment is **not** a sound sort key on its own:
+it has no error control, and a two-gene set with both genes hit would
+sit at the top of it. Read the two columns together:
+
+| Chemical | Genes in set | Overlap | Fold | Adjusted p |
+|---|---:|---:|---:|---:|
+| Benzo(a)pyrene | 16,337 | 124 | 1.35 | 4.3e-05 |
+| GSK-J4 | 2,331 | 35 | 2.68 | 8.0e-05 |
+
+Both are significant, and the first ranks higher. The second is the
+sharper association. Neither column answers the question alone.
+
+`FoldEnrichment`, `Count` and `BackgroundRatio` are in the output for
+this reason. Sorting by `FoldEnrichment` **within** the chemicals that
+pass your FDR threshold is a reasonable second pass, and gives a
+different and equally legitimate reading of the same result.
+
 ```{r size-universe}
-# ORA: restrict background to expressed genes and apply size filters
+# ORA: restrict the background to expressed genes. Both size thresholds
+# are left at their defaults; maxGSSize is shown here only to make the
+# point that capping it is a deliberate choice, not a starting position.
 ora_expressed <- enrichment_CTD(
     genes, method = "ORA",
-    universe   = c(genes$EntrezID, "7422", "836"),  # expressed genes
-    minGSSize  = 3,
-    maxGSSize  = 300
+    universe   = c(genes$EntrezID, "7422", "836")  # expressed genes
 )
 
 # GSEA: filter gene sets by size
@@ -556,7 +823,8 @@ per-sample score to feed into downstream analyses
 
 `ctdR`'s contribution is the CTD chemical-gene sets and a unified
 interface; the statistical tests themselves are delegated to
-established engines (`clusterProfiler`, `fgsea`, `limma`, `GSVA`).
+established engines (`fgsea`, `limma`, `GSVA`); ORA is a
+hypergeometric test computed on `stats::phyper`.
 If you would rather run the CTD gene sets through a different engine,
 `ctdR` exposes them directly.
 
@@ -588,8 +856,8 @@ gene_sets[[1]]
 
 ```{r sbea, eval=FALSE}
 # Illustrative: route the CTD gene sets through EnrichmentBrowser's
-# set-based engine. sbea() covers ora / gsea / camera (but not GSVA,
-# which is a per-sample scoring method with no sbea equivalent).
+# set-based engine. sbea() covers all four of ctdR's methods, GSVA
+# included, plus eight more (see EnrichmentBrowser::sbeaMethods()).
 library(EnrichmentBrowser)
 res <- sbea(method = "camera", se = my_se, gs = as_genesets_CTD("entrez"))
 gsRanking(res)

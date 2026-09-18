@@ -9,8 +9,8 @@
 #' \describe{
 #'   \item{\strong{ORA}}{Over-Representation Analysis (default). Tests whether
 #'     the overlap between your gene list and each chemical's target genes is
-#'     larger than expected by chance.
-#'     Uses \code{\link[clusterProfiler]{enricher}}.
+#'     larger than expected by chance. Uses a hypergeometric test
+#'     computed directly on \code{\link[stats]{phyper}}.
 #'     Input: data frame with column \code{EntrezID} (character or
 #'     numeric Entrez gene IDs) and an optional numeric value column.}
 #'   \item{\strong{GSEA}}{Gene Set Enrichment Analysis. Uses a ranked gene list
@@ -47,7 +47,10 @@
 #'   \itemize{
 #'     \item For \code{"ORA"} and \code{"GSEA"}: a data frame with at least two
 #'       columns, \code{EntrezID} (character or numeric Entrez gene IDs)
-#'       and a numeric value column (e.g. p-value). For GSEA, an optional
+#'       and a numeric value column (e.g. p-value). For ORA this is
+#'       either the genes you have already selected, in which case say
+#'       what the background was with \code{universe}, or the whole
+#'       result table with \code{alpha} to select from it. For GSEA, an optional
 #'       column named \code{stat} can be added with a signed ranking statistic
 #'       (e.g. the moderated t-statistic from \code{limma::eBayes()});
 #'       when present it is used directly for ranking, preserving directionality
@@ -91,13 +94,69 @@
 #'   \code{import_CTD()} has been run (the filter is applied to the cached
 #'   \code{ctd_interactions.rda} file). Restricting to expression interactions
 #'   is recommended for RNA-seq analyses to improve biological specificity.
+#' @param universe Background gene identifiers for \code{"ORA"}: every
+#'   gene that entered your differential test, not only the significant
+#'   ones and not every gene sequenced. \code{NULL} (default) falls back
+#'   to every gene in the CTD gene sets, and says so, because the package
+#'   cannot know what your platform measured.
+#'
+#'   This is the input that decides whether an ORA result means anything.
+#'   A background wider than what the experiment could detect fills the
+#'   urn with genes that could never have been drawn, so the overlap looks
+#'   more selective than it was and p-values come out too small. The error
+#'   is anti-conservative. On the RNA-seq example bundled with this
+#'   package, the fallback background returns 32 chemicals at FDR < 0.05
+#'   and the correct one returns 19.
+#'
+#'   ORA is the only method that needs this argument, and the reason is
+#'   the shape of its input. A bare gene list carries no record of what
+#'   was measurable, so the background has to be supplied separately.
+#'   GSEA ranks the whole list you give it, which is already the
+#'   background; \code{"CAMERA"} and \code{"GSVA"} intersect the gene
+#'   sets with \code{rownames(x)}, so theirs is the set of measured
+#'   genes by construction. Passing \code{universe} to any of those
+#'   three raises a warning rather than being quietly dropped.
+#' @param alpha Significance threshold for \code{"ORA"}, or \code{NULL}
+#'   (default). Supplying it says that \code{x} is the \emph{whole}
+#'   result table rather than a list already filtered: the rows whose
+#'   second column falls below \code{alpha} become the genes to test,
+#'   and every row becomes the background.
+#'
+#'   Every row of the table becomes the background, the selected genes
+#'   included: a hypergeometric test draws \eqn{n} genes from an urn of
+#'   \eqn{N}, and the drawn ones were in the urn. The background is not
+#'   the non-significant remainder.
+#'
+#'   This is the safer way to run ORA, because the background is then
+#'   derived from the same object as the gene list and cannot disagree
+#'   with it. Filtering first and passing \code{universe} separately
+#'   asks the caller to reconnect two things that were together a moment
+#'   earlier, and that reconnection is what goes wrong.
+#'
+#'   Name the column to threshold with \code{alpha_column}: which
+#'   p-value to judge on is the researcher's decision, not the package's.
+#'   The function reports the column it used, how many genes passed and
+#'   how many form the background.
+#'
+#'   Mutually exclusive with \code{universe}, and ignored by the other
+#'   three methods, which already hold their own background.
+#' @param alpha_column Which column \code{alpha} applies to: a name, a
+#'   positive index, or \code{NULL} (default) for the second column.
+#'   Naming it matters on a real result table, where the second column is
+#'   usually a fold change: \code{limma::topTable()} puts \code{logFC}
+#'   there. Pass the whole table and say which p-value to judge on,
+#'   \code{alpha_column = "padj"} or \code{"adj.P.Val"}, rather than
+#'   cutting the table down to two columns first.
 #' @param assay Which assay to use when \code{x} is a
 #'   \code{\link[SummarizedExperiment]{SummarizedExperiment}}: an assay name,
 #'   a positive index, or \code{NULL} (default) for the first assay. Ignored
 #'   when \code{x} is a matrix or a data frame.
 #' @param ... Additional arguments forwarded to the underlying engine:
-#'   \code{\link[clusterProfiler]{enricher}} for ORA (e.g. \code{universe},
-#'   \code{minGSSize}, \code{maxGSSize}),
+#'   \code{\link{ora}} for ORA (\code{universe}, \code{minGSSize},
+#'   \code{maxGSSize}; both thresholds are chosen for CTD rather than
+#'   inherited, \code{minGSSize} defaulting to 2 and \code{maxGSSize}
+#'   to \code{Inf}, see \code{\link{ora}} for the measurements behind
+#'   them),
 #'   \code{\link[fgsea]{fgseaMultilevel}} for GSEA (e.g. \code{minSize},
 #'   \code{maxSize}, \code{nproc}),
 #'   \code{\link[limma]{camera}} for CAMERA,
@@ -125,6 +184,11 @@
 #'
 #' @examples
 #' # Import the bundled sample data first:
+#' # Examples write to a temporary cache, so running them cannot
+#' # disturb CTD data you have already imported. Set the same option
+#' # yourself to keep an analysis isolated from your main cache.
+#' options(ctdR.cache = tempfile())
+#'
 #' sample_file <- system.file(
 #'     "extdata", "CTD_chem_gene_ixns_sample.csv",
 #'     package = "ctdR"
@@ -163,6 +227,9 @@ enrichment_CTD <- function(x,
     pAdjustMethod = "BH",
     interaction_types = NULL,
     gene_id_type = c("symbol", "entrez"),
+    universe = NULL,
+    alpha = NULL,
+    alpha_column = NULL,
     assay = NULL,
     ...) {
     gene_id_type <- match.arg(gene_id_type)
@@ -175,12 +242,44 @@ enrichment_CTD <- function(x,
     .validate_enrichment_args(x, method, design, contrast,
         pAdjustMethod, cache_dir)
 
-    chemicals <- .ctd_cache_load(.ctd_bfc(cache_dir), "chemicals")
+    if (!is.null(alpha)) {
+        if (method != "ORA")
+            warning("'alpha' applies to method = \"ORA\" only and is ",
+                "ignored for \"", method, "\".", call. = FALSE)
+        if (!is.null(universe))
+            stop("Give either 'alpha' or 'universe', not both. With ",
+                "'alpha' the whole table is the background, so there is ",
+                "nothing left for 'universe' to say.", call. = FALSE)
+    }
 
-    switch(method,
+    # Only ORA takes a background it cannot infer. GSEA ranks the whole
+    # list it is given, and CAMERA and GSVA intersect the gene sets with
+    # rownames(x), so for those three the universe is the measured genes
+    # by construction. Accepting the argument and dropping it silently
+    # would leave a caller believing they had narrowed a background that
+    # was never widened.
+    if (!is.null(universe) && method != "ORA")
+        warning("'universe' applies to method = \"ORA\" only and is ",
+            "ignored for \"", method, "\". ",
+            if (method == "GSEA")
+                paste("GSEA ranks the whole list you supply, which is",
+                    "already the background.")
+            else
+                "The background is rownames(x), the genes you measured.",
+            call. = FALSE)
+
+    bfc <- .ctd_bfc(cache_dir)
+    chemicals <- .ctd_cache_load(bfc, "chemicals")
+    # Read once here rather than in each runner: every method carries the
+    # same record, and the runners differ only in the container it goes on.
+    provenance <- .ctd_provenance_cached(bfc)
+
+    res <- switch(method,
         ORA = .run_ora(x, chemicals, cache_dir, pAdjustMethod,
                        interaction_types = interaction_types,
-                       gene_id_type = gene_id_type, ...),
+                       gene_id_type = gene_id_type,
+                       universe = universe, alpha = alpha,
+                       alpha_column = alpha_column, ...),
         GSEA = .run_gsea(x, chemicals, cache_dir, pAdjustMethod,
                          interaction_types = interaction_types,
                          gene_id_type = gene_id_type, ...),
@@ -202,6 +301,7 @@ enrichment_CTD <- function(x,
             ...
         )
     )
+    .attach_provenance(res, provenance)
 }
 
 #' Validate user inputs for enrichment_CTD()
@@ -279,11 +379,54 @@ enrichment_CTD <- function(x,
 #'   \code{ChemicalName} columns.
 #' @param cache_dir Directory holding cached CTD \code{.rda} files.
 #' @param pAdjustMethod Multiple-testing correction name.
+#' @param interaction_types Character vector of CTD \code{InteractionActions}
+#'   values to retain when building gene sets, or \code{NULL} for all.
+#' @param gene_id_type Either \code{"symbol"} or \code{"entrez"}: the
+#'   identifier used to build the TERM2GENE table and reported in the
+#'   \code{EnrichedGenes} column.
+#' @param universe Background gene identifiers, or \code{NULL} for all
+#'   genes in the gene sets. Converted to match \code{gene_id_type}, so
+#'   Entrez IDs may be supplied whichever mode is in use.
+#' @param alpha Significance threshold, or \code{NULL}. When given,
+#'   \code{x} is taken to be the whole result table: the rows below the
+#'   threshold are tested and every row is the background.
+#' @param alpha_column Column \code{alpha} applies to: a name, an index,
+#'   or \code{NULL} for the second column.
+#' @param ... Forwarded to \code{\link{ora}} (\code{minGSSize},
+#'   \code{maxGSSize}).
 #'
 #' @return A data frame of ORA enrichment results.
 #' @keywords internal
 .run_ora <- function(x, chemicals_meta, cache_dir, pAdjustMethod,
-    interaction_types = NULL, gene_id_type = "symbol", ...) {
+    interaction_types = NULL, gene_id_type = "symbol", universe = NULL,
+    alpha = NULL, alpha_column = NULL, ...) {
+    if (!is.null(alpha)) {
+        # The table is complete: ALL of its rows are the background, and
+        # the ones under the threshold are the list to test. The tested
+        # genes are part of the background, not its complement: the
+        # hypergeometric draws n genes from an urn of N, and the drawn
+        # ones were in the urn. Deriving both from one object is the
+        # point. Handing over a pre-filtered list and a separate universe
+        # leaves the caller to reconnect two things that were together a
+        # moment earlier, and that reconnection is what goes wrong.
+        col <- .resolve_alpha_column(x, alpha_column)
+        vals <- x[[col]]
+        if (!is.numeric(vals))
+            stop("Column '", col, "' is ", class(vals)[1], ", not numeric, ",
+                "so 'alpha' cannot be applied to it. Name the column to ",
+                "threshold on with 'alpha_column'.", call. = FALSE)
+        universe <- as.character(x$EntrezID)
+        keep <- !is.na(vals) & vals < alpha
+        message(sprintf(
+            paste0("alpha = %s on column '%s': %d genes selected, ",
+                "background = all %d rows of the table (the selected ",
+                "ones included)."),
+            format(alpha), col, sum(keep), nrow(x)))
+        if (!any(keep))
+            stop("No gene is below alpha = ", format(alpha), " in column '",
+                col, "'. Nothing to test.", call. = FALSE)
+        x <- x[keep, , drop = FALSE]
+    }
     if (gene_id_type == "entrez") {
         if (!is.null(interaction_types)) {
             entrez_list <- .filter_gene_sets(cache_dir, interaction_types)$entrez
@@ -310,11 +453,17 @@ enrichment_CTD <- function(x,
         ))
         # Fallback to Entrez ID for unmapped genes
         input_genes <- ifelse(is.na(sym_map), names(sym_map), sym_map)
+        # The universe has to go through the same conversion as the input.
+        # Left as Entrez IDs it would not intersect a symbol-keyed
+        # background at all, and an empty background silently produces an
+        # empty result rather than an error.
+        universe <- .to_symbols(universe)
     }
 
     res <- ora(
         term2gene, input_genes,
         pAdjustMethod = pAdjustMethod,
+        universe = universe,
         ...
     )
 
@@ -322,13 +471,77 @@ enrichment_CTD <- function(x,
         method = "ORA",
         rename = c(
             pvalue         = "PValue",
-            qvalue         = "QValue",
             BgRatio        = "BackgroundRatio",
             geneID         = "EnrichedGenes",
             foldEnrichment = "FoldEnrichment"
         ),
-        drop = c("p.adjust", "Description")
+        drop = c("p.adjust")
     )
+}
+
+#' Decide which column a significance threshold applies to
+#'
+#' A real differential-expression table has several numeric columns and
+#' the interesting one is rarely the second: \code{limma::topTable()}
+#' puts the log fold change there. Thresholding a position rather than a
+#' name would silently filter on the wrong quantity, so the column is
+#' named by the caller. The second column remains the fallback for the
+#' two-column case, and the choice is reported either way.
+#'
+#' @param x The input data frame.
+#' @param alpha_column A column name, a positive index, or \code{NULL}
+#'   to take the second column.
+#' @return The resolved column name.
+#' @keywords internal
+.resolve_alpha_column <- function(x, alpha_column) {
+    if (is.null(alpha_column)) {
+        if (ncol(x) < 2L)
+            stop("With 'alpha', 'x' needs a column holding the value to ",
+                "threshold on. Name it with 'alpha_column'.", call. = FALSE)
+        return(colnames(x)[2L])
+    }
+    if (is.numeric(alpha_column)) {
+        if (length(alpha_column) != 1L || alpha_column < 1 ||
+                alpha_column > ncol(x))
+            stop("'alpha_column' is out of range: 'x' has ", ncol(x),
+                " columns.", call. = FALSE)
+        return(colnames(x)[as.integer(alpha_column)])
+    }
+    if (!is.character(alpha_column) || length(alpha_column) != 1L)
+        stop("'alpha_column' must be a single column name or index.",
+            call. = FALSE)
+    if (!alpha_column %in% colnames(x))
+        stop("Column '", alpha_column, "' is not in 'x'. Available: ",
+            paste(colnames(x), collapse = ", "), ".", call. = FALSE)
+    alpha_column
+}
+
+#' Convert gene identifiers to HGNC symbols where possible
+#'
+#' Entrez IDs that do not map keep their original value, matching how the
+#' input gene list is handled, so a partially mappable universe narrows
+#' the background rather than emptying it. Values that are already
+#' symbols pass through: they simply do not map, and are kept.
+#'
+#' @param ids Vector of gene identifiers, or \code{NULL}.
+#' @return A character vector of symbols, or \code{NULL} for \code{NULL}
+#'   input.
+#' @keywords internal
+.to_symbols <- function(ids) {
+    if (is.null(ids)) return(NULL)
+    ids <- as.character(ids)
+    # Only all-digit values can be Entrez IDs. Asking AnnotationDbi to map
+    # a vector of symbols is not merely useless, it errors when none of
+    # the keys is valid, so a universe already given as symbols would
+    # bring the call down.
+    is_entrez <- grepl("^[0-9]+$", ids)
+    if (!any(is_entrez)) return(ids)
+    mapped <- suppressMessages(suppressWarnings(AnnotationDbi::mapIds(
+        org.Hs.eg.db::org.Hs.eg.db, keys = ids[is_entrez],
+        column = "SYMBOL", keytype = "ENTREZID", multiVals = "first"
+    )))
+    ids[is_entrez] <- ifelse(is.na(mapped), ids[is_entrez], mapped)
+    unname(ids)
 }
 
 #' Run GSEA branch of enrichment analysis
@@ -343,6 +556,12 @@ enrichment_CTD <- function(x,
 #'   \code{ChemicalName} columns.
 #' @param cache_dir Directory holding cached CTD \code{.rda} files.
 #' @param pAdjustMethod Multiple-testing correction name.
+#' @param interaction_types Character vector of CTD \code{InteractionActions}
+#'   values to retain when building gene sets, or \code{NULL} for all.
+#' @param gene_id_type Either \code{"symbol"} or \code{"entrez"}: the
+#'   identifier reported in the \code{EnrichedGenes} column.
+#' @param ... Forwarded to \code{\link{gsea}} (e.g. \code{minSize},
+#'   \code{maxSize}).
 #'
 #' @return A data frame of GSEA enrichment results, formatted by
 #'   \code{\link{.format_enrichment_result}}.
@@ -381,7 +600,6 @@ enrichment_CTD <- function(x,
             NES            = "NormalizedEnrichmentScore",
             size           = "GeneSetSize",
             leadingEdge    = "LeadingEdge",
-            foldEnrichment = "FoldEnrichment",
             Enriched_GENE  = "EnrichedGenes"
         ),
         drop = c("padj")

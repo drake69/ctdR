@@ -22,3 +22,7 @@ tests/testthat/_problems/
 
 # internal code-reader inbox (never publish)
 .code_reader/
+
+# Output of inst/scripts/example_gse311566_full_pipeline.R, produced by
+# whoever runs it. Generated, not authored.
+example_outputs/

@@ -10,7 +10,8 @@
 \item{file_path}{Path to the CTD CSV file.}
 }
 \value{
-A filtered data frame of human CTD interactions.
+A filtered data frame of human CTD interactions, carrying the
+  parsed header in its \code{"ctd_header"} attribute.
 }
 \description{
 Read and validate a CTD CSV file

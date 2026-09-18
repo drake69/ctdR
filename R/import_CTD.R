@@ -57,6 +57,11 @@
 #'   import, including the \code{interaction_types} filter.
 #'
 #' @examples
+#' # Examples write to a temporary cache, so running them cannot
+#' # disturb CTD data you have already imported. Set the same option
+#' # yourself to keep an analysis isolated from your main cache.
+#' options(ctdR.cache = tempfile())
+#'
 #' sample_file <- system.file(
 #'     "extdata", "CTD_chem_gene_ixns_sample.csv",
 #'     package = "ctdR"
@@ -82,17 +87,30 @@ import_CTD <- function(file_path) {
 
     interactions <- .build_interaction_table(CTD_chem_gene_ixns)
 
+    hdr <- attr(CTD_chem_gene_ixns, "ctd_header")
+    provenance <- .ctd_provenance_new(
+        report_created = hdr$report_created,
+        # The source as the user gave it, not the resolved path: for a URL
+        # the resolved path is a cache filename that names nothing.
+        source = file_path,
+        n_chemicals = nrow(chemicals),
+        n_interactions = nrow(interactions)
+    )
+
     .save_ctd_cache(bfc, chemicals,
-                    gene_maps$entrez, gene_maps$symbols, interactions)
+                    gene_maps$entrez, gene_maps$symbols, interactions,
+                    provenance)
 
     elapsed <- proc.time()[["elapsed"]] - t0
+    release <- if (is.na(provenance$report_created))
+        "not stated in the file" else provenance$report_created
     message(sprintf(
-        "CTD data cached successfully in: %s\n  %d chemicals | %d unique genes | %.0f s",
-        BiocFileCache::bfccache(bfc),
+        "CTD data cached successfully in: %s", BiocFileCache::bfccache(bfc)))
+    message(sprintf("  %d chemicals | %d unique genes | %.0f s",
         nrow(chemicals),
         length(unique(interactions$EntrezID)),
-        elapsed
-    ))
+        elapsed))
+    message("  CTD release: ", release)
     invisible(NULL)
 }
 
@@ -205,14 +223,118 @@ import_CTD <- function(file_path) {
     list(entrez = entrez_map, symbols = symbols_df)
 }
 
+#' Column names a CTD chemical-gene interactions file must provide
+#'
+#' Used both to locate the column-name line inside the file header and to
+#' validate the result of reading it.
+#' @return Character vector of expected CTD field names.
+#' @keywords internal
+.ctd_known_fields <- function() {
+    c("ChemicalName", "ChemicalID", "CasRN", "GeneSymbol", "GeneID",
+        "GeneForms", "Organism", "OrganismID", "Interaction",
+        "InteractionActions", "PubMedIDs")
+}
+
+#' Parse the comment header of a CTD file
+#'
+#' A CTD download has no header row. The field names sit \emph{inside} the
+#' commented preamble, on the line after \code{# Fields:}, and the release
+#' date sits on the line beginning \code{# Report created:}.
+#'
+#' The column-name line is located by looking for the commented line that
+#' lists at least \code{min_match} of the names in
+#' \code{\link{.ctd_known_fields}}, rather than by counting header lines.
+#' Counting is the more fragile assumption of the two: the package already
+#' depends on those names everywhere (\code{OrganismID}, \code{ChemicalID}
+#' and the rest are referenced throughout), so matching them adds no new
+#' dependency, whereas a hard-coded line count adds one that buys nothing.
+#' The failure modes differ too. If CTD inserts a comment line, a fixed
+#' count shifts every column silently and the analysis proceeds on
+#' misaligned data; if CTD renames a column, this search finds nothing and
+#' stops before a single record is read.
+#'
+#' @param file_path Path to the CTD CSV file.
+#' @param min_match Integer. How many known field names a commented line
+#'   must list to be taken as the column-name line. Three, so that a
+#'   passing mention of one name in the licence text cannot be mistaken
+#'   for the real thing.
+#' @param n_peek Integer. How many lines to read from the top of the file.
+#'   The header of a CTD download is 29 lines, so 50 leaves room for it to
+#'   grow while keeping this a single bounded read of a file that is
+#'   hundreds of megabytes on disk.
+#'
+#' @return A list with \code{fields} (character vector of column names in
+#'   file order), \code{report_created} (the CTD release string, or
+#'   \code{NA_character_} when the file does not carry one) and
+#'   \code{n_comment_lines}.
+#' @keywords internal
+.parse_ctd_header <- function(file_path, min_match = 3L, n_peek = 50L) {
+    known <- .ctd_known_fields()
+    peek <- readLines(file_path, n = n_peek, warn = FALSE)
+    if (!length(peek))
+        stop("'", file_path, "' is empty.", call. = FALSE)
+    # Only the leading run of comment lines is the header; anything after
+    # the first data row is data and must not be searched for field names.
+    is_comment <- grepl("^#", peek)
+    first_data <- match(FALSE, is_comment, nomatch = length(peek) + 1L)
+    hdr <- peek[seq_len(first_data - 1L)]
+
+    split_fields <- function(line)
+        trimws(strsplit(sub("^#[[:space:]]*", "", line), ",",
+            fixed = TRUE)[[1]])
+    n_known <- vapply(hdr,
+        function(l) sum(split_fields(l) %in% known), integer(1),
+        USE.NAMES = FALSE)
+
+    # Among the lines that match best, take the LAST. The field-name line
+    # sits immediately before the data by convention, so anything earlier
+    # naming the same columns is prose in the preamble, or a duplicate.
+    best_i <- if (length(n_known))
+        max(which(n_known == max(n_known))) else NA_integer_
+
+    if (!length(n_known) || max(n_known) < min_match) {
+        best <- if (length(n_known)) hdr[best_i] else NA_character_
+        stop("Could not find the column-name line in the header of '",
+            file_path, "'.\n",
+            "  Expected: a commented line listing at least ", min_match,
+            " of these names, separated by commas:\n    ",
+            paste(known, collapse = ", "), "\n",
+            "  Scanned ", length(hdr), " commented line(s)",
+            if (length(hdr) >= n_peek)
+                paste0(" (the first ", n_peek, " lines were all comments; ",
+                    "raise 'n_peek' if this file has a longer header)") else "",
+            "; the closest listed ",
+            if (length(n_known)) max(n_known) else 0L, " of them",
+            if (!is.na(best)) paste0(":\n    ", substr(best, 1, 120)) else ".",
+            call. = FALSE
+        )
+    }
+
+    created <- grep("^#[[:space:]]*Report created:", hdr, value = TRUE)
+    list(
+        fields = split_fields(hdr[[best_i]]),
+        report_created = if (length(created))
+            trimws(sub("^#[[:space:]]*Report created:[[:space:]]*", "",
+                created[[1]])) else NA_character_,
+        n_comment_lines = length(hdr)
+    )
+}
+
 #' Read and validate a CTD CSV file
 #' @param file_path Path to the CTD CSV file.
-#' @return A filtered data frame of human CTD interactions.
+#' @return A filtered data frame of human CTD interactions, carrying the
+#'   parsed header in its \code{"ctd_header"} attribute.
 #' @keywords internal
 .read_and_validate_ctd <- function(file_path) {
     message("Reading CTD chemical-gene interactions from: ", file_path)
+    hdr <- .parse_ctd_header(file_path)
+    # comment = "#" rather than a hard-coded skip, as requested in review.
+    # Note for future maintenance: readr drops everything after a "#"
+    # anywhere in a line, not only at the start. No record in the CTD
+    # chemical-gene file carries one, so this is safe here; it would stop
+    # being safe if CTD ever admitted "#" into a field.
     ctd <- suppressWarnings(readr::read_csv(file_path,
-        skip = 27, show_col_types = FALSE,
+        comment = "#", col_names = hdr$fields, show_col_types = FALSE,
         col_types = readr::cols(.default = readr::col_character())
     ))
     if (nrow(ctd) < 2) {
@@ -233,10 +355,9 @@ import_CTD <- function(file_path) {
             call. = FALSE
         )
     }
-    ctd <- ctd[-1, ]
-    names(ctd)[1] <- "ChemicalName"
     ctd <- subset(ctd, ctd$OrganismID == 9606)
     message("Filtered to ", nrow(ctd), " human interactions")
+    attr(ctd, "ctd_header") <- hdr
     ctd
 }
 
@@ -247,12 +368,17 @@ import_CTD <- function(file_path) {
 #' @param symbols Data frame of term-gene symbol mappings.
 #' @param interactions Long-format data frame (ChemicalID, EntrezID,
 #'   InteractionActions).
+#' @param provenance A \code{ctd_provenance} record, or \code{NULL} to skip
+#'   writing one (which is what a caller that has none should pass).
 #' @return Invisible \code{NULL}.
 #' @keywords internal
-.save_ctd_cache <- function(bfc, chemicals, entrez, symbols, interactions) {
+.save_ctd_cache <- function(bfc, chemicals, entrez, symbols, interactions,
+    provenance = NULL) {
     .ctd_cache_save(bfc, "chemicals", chemicals)
     .ctd_cache_save(bfc, "ChemicalName_GeneEntrezIds", entrez)
     .ctd_cache_save(bfc, "ChemicalName_GeneSymbols", symbols)
     .ctd_cache_save(bfc, "ctd_interactions", interactions)
+    if (!is.null(provenance))
+        .ctd_cache_save(bfc, "ctd_provenance", provenance)
     invisible(NULL)
 }

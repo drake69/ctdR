@@ -4,7 +4,14 @@
 \alias{.save_ctd_cache}
 \title{Save CTD cache files}
 \usage{
-.save_ctd_cache(bfc, chemicals, entrez, symbols, interactions)
+.save_ctd_cache(
+  bfc,
+  chemicals,
+  entrez,
+  symbols,
+  interactions,
+  provenance = NULL
+)
 }
 \arguments{
 \item{bfc}{A \code{BiocFileCache} object (from \code{.ctd_bfc()}).}
@@ -17,6 +24,9 @@
 
 \item{interactions}{Long-format data frame (ChemicalID, EntrezID,
 InteractionActions).}
+
+\item{provenance}{A \code{ctd_provenance} record, or \code{NULL} to skip
+writing one (which is what a caller that has none should pass).}
 }
 \value{
 Invisible \code{NULL}.

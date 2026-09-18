@@ -24,6 +24,15 @@ value column used for ranking.}
 \item{cache_dir}{Directory holding cached CTD \code{.rda} files.}
 
 \item{pAdjustMethod}{Multiple-testing correction name.}
+
+\item{interaction_types}{Character vector of CTD \code{InteractionActions}
+values to retain when building gene sets, or \code{NULL} for all.}
+
+\item{gene_id_type}{Either \code{"symbol"} or \code{"entrez"}: the
+identifier reported in the \code{EnrichedGenes} column.}
+
+\item{...}{Forwarded to \code{\link{gsea}} (e.g. \code{minSize},
+\code{maxSize}).}
 }
 \value{
 A data frame of GSEA enrichment results, formatted by

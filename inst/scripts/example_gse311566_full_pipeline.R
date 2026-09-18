@@ -78,7 +78,6 @@ suppressPackageStartupMessages({
     library(ctdR)
     library(limma)
     library(ggplot2)
-    library(rappdirs)
     library(AnnotationDbi)
     library(org.Hs.eg.db)
 })
@@ -235,12 +234,16 @@ log_step(sprintf(
 
 ## ---- Step E -- verify CTD cache is populated with real data ---
 
-cache_dir <- rappdirs::user_cache_dir("ctdR")
-chem_rda <- file.path(cache_dir, "chemicals.rda")
-if (!file.exists(file.path(cache_dir, "ChemicalName_GeneEntrezIds.rda")) ||
-    !file.exists(chem_rda)) {
+## Ask the package where its cache is and what is in it, rather than
+## rebuilding the path here. This check used to call
+## rappdirs::user_cache_dir("ctdR"), the location ctdR used before it
+## moved to BiocFileCache, so it was validating a directory the package
+## no longer writes to: it passed on machines that still had the old
+## files lying about and refused to run on clean ones, in both cases
+## saying nothing about the data the analysis would actually read.
+chemicals <- tryCatch(ctdR::ctd_cache("chemicals"), error = function(e) {
     stop(
-        "CTD data not found in ", cache_dir, ".\n",
+        conditionMessage(e), "\n",
         "Download CTD_chem_gene_ixns.csv.gz from\n",
         "  https://ctdbase.org/reports/CTD_chem_gene_ixns.csv.gz\n",
         "gunzip and run:\n",
@@ -248,19 +251,17 @@ if (!file.exists(file.path(cache_dir, "ChemicalName_GeneEntrezIds.rda")) ||
         "This script intentionally refuses the bundled toy sample.",
         call. = FALSE
     )
-}
+})
 
 ## The bundled toy sample has 10 chemicals; the real CTD release has
 ## tens of thousands. Refuse anything that looks like the toy cache,
 ## so we never silently report "0 chemicals at FDR < 0.05" coming
 ## from a 10-chemical universe.
 MIN_REAL_CHEMICALS <- 1000L
-e <- new.env(parent = emptyenv())
-load(chem_rda, envir = e)
-n_cached <- nrow(e$chemicals)
+n_cached <- nrow(chemicals)
 if (n_cached < MIN_REAL_CHEMICALS) {
     stop(
-        "CTD cache at ", cache_dir, " holds only ", n_cached,
+        "The CTD cache holds only ", n_cached,
         " chemicals -- this looks like the bundled toy sample.\n",
         "This script requires the real CTD release. Download\n",
         "  https://ctdbase.org/reports/CTD_chem_gene_ixns.csv.gz\n",
@@ -270,8 +271,10 @@ if (n_cached < MIN_REAL_CHEMICALS) {
         call. = FALSE
     )
 }
-log_step("Step E -- CTD cache OK at ", cache_dir,
-    " (", n_cached, " chemicals)")
+prov <- tryCatch(ctdR::ctd_provenance(), warning = function(w) NULL)
+log_step("Step E -- CTD cache OK (", n_cached, " chemicals",
+    if (!is.null(prov) && !is.na(prov$report_created))
+        paste0(", CTD release ", prov$report_created) else "", ")")
 
 ## ---- Step F -- enrichment with all four methods ------------
 
@@ -298,17 +301,26 @@ write_method <- function(df, name) {
         sep = "\t", quote = FALSE, row.names = FALSE)
 }
 
-## ORA: significant genes only (BH-FDR < alpha_fdr_de)
-sig_de <- de[de$padj < CONFIG$alpha_fdr_de,
-    c("EntrezID", "pvalue"), drop = FALSE]
-if (nrow(sig_de) == 0) {
+## ORA. Choose which column the threshold applies to, then hand over the
+## whole table: the genes under the threshold and the background come out
+## of the same object, so they cannot disagree.
+ora_col <- "padj"
+ora_alpha <- CONFIG$alpha_fdr_de
+if (!any(de$padj < ora_alpha, na.rm = TRUE)) {
     log_step("Step F -- no genes pass FDR for ORA; ",
-        "falling back to nominal p < ",
-        CONFIG$alpha_nominal_de, " as input set")
-    sig_de <- de[de$pvalue < CONFIG$alpha_nominal_de,
-        c("EntrezID", "pvalue"), drop = FALSE]
+        "falling back to nominal p < ", CONFIG$alpha_nominal_de)
+    ora_col <- "pvalue"
+    ora_alpha <- CONFIG$alpha_nominal_de
 }
-ora_full <- enrichment_CTD(sig_de, method = "ORA",
+# The whole table goes in, with the threshold, rather than a list
+# filtered beforehand. The background is then every gene that entered the
+# differential test, derived from the same object as the gene list and
+# unable to disagree with it. Handing over a pre-filtered list and a
+# separate background is the same analysis with one more chance to get it
+# wrong: on this dataset the wrong background gives 32 significant
+# chemicals against 19, so thirteen of them would be manufactured.
+ora_full <- enrichment_CTD(de, method = "ORA",
+    alpha = ora_alpha, alpha_column = ora_col,
     pAdjustMethod = CONFIG$p_adjust_method)
 ora_sig <- apply_alpha(ora_full, CONFIG$alpha_fdr_chemical)
 write_method(ora_full, "ora_full")
@@ -352,17 +364,30 @@ log_step("Step F -- GSVA: ", nrow(gsva_scores), " chemicals x ",
 
 ## ---- Step F.5 -- top-N summary (printed + saved) -----------
 
-TOP_N <- 5L
+TOP_N <- 10L
 top_summary <- function(df, method) {
     if (!nrow(df)) return(NULL)
     df <- df[order(df$PValue), , drop = FALSE]
+    i <- seq_len(min(TOP_N, nrow(df)))
+    # Effect size travels with significance. Ranking is by p-value, which
+    # is the quantity error is controlled on, but a p-value in ORA mixes
+    # overlap with set size: a chemical with 16,000 target genes reaches
+    # significance at a fold enrichment of 1.35, while one with 2,300
+    # needs 2.68. Reporting the rank without the effect hides that.
+    hits <- if ("Count" %in% names(df)) df$Count[i] else NA_integer_
+    setn <- if ("BackgroundRatio" %in% names(df))
+        as.integer(sub("/.*", "", df$BackgroundRatio[i])) else NA_integer_
+    fold <- if ("FoldEnrichment" %in% names(df)) df$FoldEnrichment[i] else NA_real_
     data.frame(
         Method = method,
-        Rank = seq_len(min(TOP_N, nrow(df))),
-        ChemicalID = df$ChemicalID[seq_len(min(TOP_N, nrow(df)))],
-        ChemicalName = df$ChemicalName[seq_len(min(TOP_N, nrow(df)))],
-        PValue = df$PValue[seq_len(min(TOP_N, nrow(df)))],
-        PValueAdjusted = df$PValueAdjusted[seq_len(min(TOP_N, nrow(df)))],
+        Rank = i,
+        ChemicalID = df$ChemicalID[i],
+        ChemicalName = df$ChemicalName[i],
+        Hits = hits,
+        SetSize = setn,
+        FoldEnrichment = fold,
+        PValue = df$PValue[i],
+        PValueAdjusted = df$PValueAdjusted[i],
         stringsAsFactors = FALSE
     )
 }
@@ -374,8 +399,48 @@ top_all <- do.call(rbind, list(
 utils::write.table(top_all,
     file.path(CONFIG$out_dir, "top_chemicals_summary.tsv"),
     sep = "\t", quote = FALSE, row.names = FALSE)
+# Print one block per method, with fixed-width columns, instead of one
+# wide data frame. print() on a frame this wide wraps it into three
+# detached chunks: every ChemicalID, then every ChemicalName, then every
+# p-value, so reading off which chemical ranks third means counting rows
+# across three blocks. Chemical names run to seventy characters, so this
+# is not an edge case, it is every run.
+NAME_W <- 34L
+print_top <- function(df, method, alpha) {
+    rows <- df[df$Method == method, , drop = FALSE]
+    message("\n  ", method, " -- top ", nrow(rows), " by raw p-value")
+    if (!nrow(rows)) {
+        message("    (no results)")
+        return(invisible(NULL))
+    }
+    message(sprintf("    %-4s  %-*s  %12s  %5s  %9s  %9s  %s",
+        "rank", NAME_W, "chemical", "hits/set", "fold", "p", "p.adj", "sig"))
+    for (i in seq_len(nrow(rows))) {
+        nm <- rows$ChemicalName[i]
+        if (is.na(nm)) nm <- rows$ChemicalID[i]
+        if (nchar(nm) > NAME_W) nm <- paste0(substr(nm, 1, NAME_W - 3), "...")
+        ratio <- if (is.na(rows$Hits[i]) || is.na(rows$SetSize[i])) "-"
+            else paste0(rows$Hits[i], "/", rows$SetSize[i])
+        fold <- if (is.na(rows$FoldEnrichment[i])) "-"
+            else sprintf("%.2f", rows$FoldEnrichment[i])
+        message(sprintf("    %-4d  %-*s  %12s  %5s  %9.2e  %9.2e  %s",
+            rows$Rank[i], NAME_W, nm, ratio, fold, rows$PValue[i],
+            rows$PValueAdjusted[i],
+            if (!is.na(rows$PValueAdjusted[i]) &&
+                rows$PValueAdjusted[i] < alpha) "*" else ""))
+    }
+    invisible(NULL)
+}
+
 message("\n--- Top ", TOP_N, " chemicals per method (by raw p-value) ---")
-print(top_all, row.names = FALSE)
+message("    * marks FDR < ", CONFIG$alpha_fdr_chemical)
+message("    hits/set = input genes in the chemical's set / size of that set")
+message("    Ranking is by p-value, not by fold enrichment: fold alone has")
+message("    no error control, and a two-gene set with both genes hit would")
+message("    top it. Read the two together. A large set can reach")
+message("    significance at a modest fold, a small one cannot.")
+for (m in c("ORA", "GSEA", "CAMERA"))
+    print_top(top_all, m, CONFIG$alpha_fdr_chemical)
 message("")
 
 ## ---- Step F.6 -- expected-hit ranking ----------------------
@@ -436,7 +501,25 @@ utils::write.table(hit,
     sep = "\t", quote = FALSE, row.names = FALSE)
 message("--- Expected-hit check: ", EXPECTED_HIT$name,
     " (", EXPECTED_HIT$id, ") ---")
-print(hit, row.names = FALSE)
+# One line per method, and say in words what a rank of NA means: that the
+# chemical never entered the test, which is not the same as having been
+# tested and found unremarkable.
+for (i in seq_len(nrow(hit))) {
+    r <- hit$rank[i]
+    if (is.na(r)) {
+        message(sprintf(
+            paste0("  %-7s NOT TESTED -- excluded before the test, ",
+                "not reported as non-significant (%s chemicals tested)"),
+            hit$Method[i], format(hit$total[i], big.mark = ",")))
+    } else {
+        message(sprintf("  %-7s rank %s of %s   p = %.2e   p.adj = %.2e%s",
+            hit$Method[i], format(r, big.mark = ","),
+            format(hit$total[i], big.mark = ","),
+            hit$PValue[i], hit$PValueAdjusted[i],
+            if (hit$PValueAdjusted[i] < CONFIG$alpha_fdr_chemical)
+                "   SIGNIFICANT" else ""))
+    }
+}
 message("")
 
 ## ---- Step G -- plots ---------------------------------------

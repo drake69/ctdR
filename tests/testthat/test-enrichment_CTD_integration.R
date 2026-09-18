@@ -1,6 +1,5 @@
 test_that("enrichment_CTD ORA path works with cached data", {
     skip_on_cran()
-    skip_if_not_installed("clusterProfiler")
     skip_if_not_installed("AnnotationDbi")
     skip_if_not_installed("org.Hs.eg.db")
 
@@ -35,7 +34,7 @@ test_that("enrichment_CTD ORA path works with cached data", {
     ctdR:::.ctd_cache_save(bfc, "ChemicalName_GeneSymbols", ChemicalName_GeneSymbols)
     ctdR:::.ctd_cache_save(bfc, "ChemicalName_GeneEntrezIds", ChemicalName_GeneEntrezIds)
     on.exit({
-        options(ctdR.cache = NULL)
+        .restore_ctd_cache()
         unlink(tmp_cache, recursive = TRUE)
     })
 
@@ -90,7 +89,7 @@ test_that("enrichment_CTD GSEA path works with cached data", {
     ctdR:::.ctd_cache_save(bfc, "chemicals", chemicals)
     ctdR:::.ctd_cache_save(bfc, "ChemicalName_GeneEntrezIds", ChemicalName_GeneEntrezIds)
     on.exit({
-        options(ctdR.cache = NULL)
+        .restore_ctd_cache()
         unlink(tmp_cache, recursive = TRUE)
     })
 
@@ -107,7 +106,10 @@ test_that("enrichment_CTD GSEA path works with cached data", {
     expect_true("ChemicalID" %in% colnames(result))
     expect_true("ChemicalName" %in% colnames(result))
     expect_true("PValueAdjusted" %in% colnames(result))
-    expect_true("FoldEnrichment" %in% colnames(result))
+    # GSEA reports NES, not a fold enrichment: the fold it used to
+    # carry described the run, not the chemical.
+    expect_false("FoldEnrichment" %in% colnames(result))
+    expect_true("NormalizedEnrichmentScore" %in% colnames(result))
     expect_true("EnrichedGenes" %in% colnames(result))
     expect_true("Method" %in% colnames(result))
     expect_equal(unique(result$Method), "GSEA")
@@ -136,7 +138,7 @@ test_that("enrichment_CTD GSEA applies pAdjustMethod correctly", {
     ctdR:::.ctd_cache_save(bfc, "chemicals", chemicals)
     ctdR:::.ctd_cache_save(bfc, "ChemicalName_GeneEntrezIds", ChemicalName_GeneEntrezIds)
     on.exit({
-        options(ctdR.cache = NULL)
+        .restore_ctd_cache()
         unlink(tmp_cache, recursive = TRUE)
     })
 
@@ -185,7 +187,7 @@ test_that("enrichment_CTD GSEA handles NA EntrezID values", {
     ctdR:::.ctd_cache_save(bfc, "chemicals", chemicals)
     ctdR:::.ctd_cache_save(bfc, "ChemicalName_GeneEntrezIds", ChemicalName_GeneEntrezIds)
     on.exit({
-        options(ctdR.cache = NULL)
+        .restore_ctd_cache()
         unlink(tmp_cache, recursive = TRUE)
     })
 

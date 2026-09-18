@@ -13,6 +13,9 @@ enrichment_CTD(
   pAdjustMethod = "BH",
   interaction_types = NULL,
   gene_id_type = c("symbol", "entrez"),
+  universe = NULL,
+  alpha = NULL,
+  alpha_column = NULL,
   assay = NULL,
   ...
 )
@@ -22,7 +25,10 @@ enrichment_CTD(
 \itemize{
   \item For \code{"ORA"} and \code{"GSEA"}: a data frame with at least two
     columns, \code{EntrezID} (character or numeric Entrez gene IDs)
-    and a numeric value column (e.g. p-value). For GSEA, an optional
+    and a numeric value column (e.g. p-value). For ORA this is
+    either the genes you have already selected, in which case say
+    what the background was with \code{universe}, or the whole
+    result table with \code{alpha} to select from it. For GSEA, an optional
     column named \code{stat} can be added with a signed ranking statistic
     (e.g. the moderated t-statistic from \code{limma::eBayes()});
     when present it is used directly for ranking, preserving directionality
@@ -74,14 +80,73 @@ Entrez ID as fallback for unmapped genes; \code{"entrez"} skips the
 symbol lookup and returns Entrez IDs directly. Only applies to \code{"ORA"}
 and \code{"GSEA"}; ignored by \code{"CAMERA"} and \code{"GSVA"}.}
 
+\item{universe}{Background gene identifiers for \code{"ORA"}: every
+  gene that entered your differential test, not only the significant
+  ones and not every gene sequenced. \code{NULL} (default) falls back
+  to every gene in the CTD gene sets, and says so, because the package
+  cannot know what your platform measured.
+
+  This is the input that decides whether an ORA result means anything.
+  A background wider than what the experiment could detect fills the
+  urn with genes that could never have been drawn, so the overlap looks
+  more selective than it was and p-values come out too small. The error
+  is anti-conservative. On the RNA-seq example bundled with this
+  package, the fallback background returns 32 chemicals at FDR < 0.05
+  and the correct one returns 19.
+
+  ORA is the only method that needs this argument, and the reason is
+  the shape of its input. A bare gene list carries no record of what
+  was measurable, so the background has to be supplied separately.
+  GSEA ranks the whole list you give it, which is already the
+  background; \code{"CAMERA"} and \code{"GSVA"} intersect the gene
+  sets with \code{rownames(x)}, so theirs is the set of measured
+  genes by construction. Passing \code{universe} to any of those
+  three raises a warning rather than being quietly dropped.}
+
+\item{alpha}{Significance threshold for \code{"ORA"}, or \code{NULL}
+  (default). Supplying it says that \code{x} is the \emph{whole}
+  result table rather than a list already filtered: the rows whose
+  second column falls below \code{alpha} become the genes to test,
+  and every row becomes the background.
+
+  Every row of the table becomes the background, the selected genes
+  included: a hypergeometric test draws \eqn{n} genes from an urn of
+  \eqn{N}, and the drawn ones were in the urn. The background is not
+  the non-significant remainder.
+
+  This is the safer way to run ORA, because the background is then
+  derived from the same object as the gene list and cannot disagree
+  with it. Filtering first and passing \code{universe} separately
+  asks the caller to reconnect two things that were together a moment
+  earlier, and that reconnection is what goes wrong.
+
+  Name the column to threshold with \code{alpha_column}: which
+  p-value to judge on is the researcher's decision, not the package's.
+  The function reports the column it used, how many genes passed and
+  how many form the background.
+
+  Mutually exclusive with \code{universe}, and ignored by the other
+  three methods, which already hold their own background.}
+
+\item{alpha_column}{Which column \code{alpha} applies to: a name, a
+positive index, or \code{NULL} (default) for the second column.
+Naming it matters on a real result table, where the second column is
+usually a fold change: \code{limma::topTable()} puts \code{logFC}
+there. Pass the whole table and say which p-value to judge on,
+\code{alpha_column = "padj"} or \code{"adj.P.Val"}, rather than
+cutting the table down to two columns first.}
+
 \item{assay}{Which assay to use when \code{x} is a
 \code{\link[SummarizedExperiment]{SummarizedExperiment}}: an assay name,
 a positive index, or \code{NULL} (default) for the first assay. Ignored
 when \code{x} is a matrix or a data frame.}
 
 \item{...}{Additional arguments forwarded to the underlying engine:
-\code{\link[clusterProfiler]{enricher}} for ORA (e.g. \code{universe},
-\code{minGSSize}, \code{maxGSSize}),
+\code{\link{ora}} for ORA (\code{universe}, \code{minGSSize},
+\code{maxGSSize}; both thresholds are chosen for CTD rather than
+inherited, \code{minGSSize} defaulting to 2 and \code{maxGSSize}
+to \code{Inf}, see \code{\link{ora}} for the measurements behind
+them),
 \code{\link[fgsea]{fgseaMultilevel}} for GSEA (e.g. \code{minSize},
 \code{maxSize}, \code{nproc}),
 \code{\link[limma]{camera}} for CAMERA,
@@ -113,8 +178,8 @@ Four methods are available:
 \describe{
   \item{\strong{ORA}}{Over-Representation Analysis (default). Tests whether
     the overlap between your gene list and each chemical's target genes is
-    larger than expected by chance.
-    Uses \code{\link[clusterProfiler]{enricher}}.
+    larger than expected by chance. Uses a hypergeometric test
+    computed directly on \code{\link[stats]{phyper}}.
     Input: data frame with column \code{EntrezID} (character or
     numeric Entrez gene IDs) and an optional numeric value column.}
   \item{\strong{GSEA}}{Gene Set Enrichment Analysis. Uses a ranked gene list
@@ -151,6 +216,11 @@ of Service (\url{https://ctdbase.org/about/legal.jsp}).
 
 \examples{
 # Import the bundled sample data first:
+# Examples write to a temporary cache, so running them cannot
+# disturb CTD data you have already imported. Set the same option
+# yourself to keep an analysis isolated from your main cache.
+options(ctdR.cache = tempfile())
+
 sample_file <- system.file(
     "extdata", "CTD_chem_gene_ixns_sample.csv",
     package = "ctdR"

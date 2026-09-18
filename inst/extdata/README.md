@@ -26,6 +26,25 @@ Metformin, Valproic Acid) and 17 unique Entrez gene targets.
 > comply with the
 > [CTD Terms of Service](https://ctdbase.org/about/legal.jsp).
 
+### File structure
+
+The file mirrors the structure of a real CTD download, header
+included, so that what the tests and examples exercise is the
+parsing users actually get. A CTD file has **no header row**: the
+field names sit inside the commented preamble, on the line after
+`# Fields:`, and the release date sits on the `# Report created:`
+line.
+
+Its preamble is deliberately a **different length** from a real
+download's, currently 18 lines against 29. Nothing in the reader
+may depend on that count, and a fixture of the same length would
+hide it if something did.
+
+The `# Report created:` line carries a fixed placeholder date,
+`Mon Jan 01 00:00:00 EST 2024`. It is not a real CTD release, and
+it is stable so that examples showing `ctd_provenance()` produce
+the same output on every build.
+
 ## `GSE311566_subset.rds`
 
 A small subset of the **GSE311566** RNA-seq series:

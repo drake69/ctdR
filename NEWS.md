@@ -1,3 +1,301 @@
+# Changes in version 0.99.9
+
+## Significant user-visible changes
+
+* ORA no longer goes through `clusterProfiler::enricher()`. The
+  hypergeometric test is computed directly with `stats::phyper()`, and
+  `clusterProfiler` has been removed from `Imports`. The p-values are
+  unchanged: `scripts/ora_equivalence_check.R` in the revisions
+  repository compares the two implementations across 24 configurations
+  and finds them identical. The reason is cost, not correctness.
+  `clusterProfiler` accounted for 59 of the package's 175 hard
+  dependencies for this single call, and its visualization layer, which
+  ctdR never used, put Pandoc, cairo, fontconfig, freetype2, libuv and
+  glpk among the system requirements of every installation. The
+  dependency closure drops from 175 to 116 packages and the system
+  requirements from 14 to 7.
+
+* **`maxGSSize` no longer defaults to 500. There is no upper limit.**
+  The lower threshold was corrected in this same release because it had
+  been inherited from a tool tuned for KEGG and GO; the upper one had
+  been inherited from exactly the same place and kept without question.
+
+  The criterion is the one used for the lower threshold, read from the
+  other end. A set of *M* genes cannot, even when every one of the *m*
+  input genes falls inside it, produce a p-value below
+  `choose(M, m) / choose(N, m)`, roughly `(M/N)^m`. That floor rises
+  with *M*, so a large enough set is untestable. Whether CTD holds any
+  such set is a measurement, not an opinion: with N = 28,571 and an
+  input list of 169, the largest still-testable set is about 26,600
+  genes, 93% of the universe, while the largest chemical in CTD has
+  16,536. No chemical is untestable from above.
+
+  A cap at 500 excluded 265 chemicals, among them benzo(a)pyrene,
+  valproic acid, sodium arsenite, bisphenol A, aflatoxin B1 and
+  particulate matter: the canonical compounds of toxicology, whose sets
+  are large because the literature on them is. This is where CTD parts
+  company with GO, in which a large term is one that has stopped meaning
+  anything. Removing the cap costs 3% more tests, 8,235 against 7,970.
+
+  In the bundled RNA-seq example the cap excluded dexamethasone, the
+  treatment the experiment applied, which without it ranks third of
+  8,193 chemicals at an adjusted p-value of 0.0002.
+
+  `maxGSSize` remains settable for anyone who wants a cap of their own.
+
+* The default `minGSSize` for ORA is now **2**, chosen for CTD instead
+  of inherited from a general-purpose tool. The previous value, 10,
+  came from `enricher()`'s own default, which suits KEGG and GO (median
+  set sizes 72 and 11) but not CTD, where the median chemical has 4
+  target genes: it silently excluded 7,831 of 11,067 chemicals from
+  testing altogether. Coverage goes from 26.8% to 72.0% of chemicals.
+  One-gene sets remain excluded on purpose: their hypergeometric
+  p-value equals the ratio of input genes to background whichever gene
+  they contain, so they measure membership rather than enrichment.
+
+* **Bug fix.** Running an example, knitting the vignette or running
+  `R CMD check` overwrote whatever CTD data the user had imported,
+  replacing it with the ten-chemical sample those examples run on. The
+  examples called `import_CTD()` against the real user cache under
+  `tools::R_user_dir()`; only the test suite knew to redirect it. They
+  now write to a temporary cache, as does the vignette. Writing outside
+  the session temporary directory is also against both CRAN and
+  Bioconductor policy, so this was a defect on two counts.
+
+  The examples set `options(ctdR.cache = tempfile())` visibly rather
+  than hiding it, because the same option is how a user isolates one
+  analysis from their main cache. The test suite now redirects the cache
+  from a single `setup.R` as well: five of its six importing files were
+  writing to the real one, so running the tests carried the same cost.
+  Tests that need a cache of their own restore the suite's, where they
+  previously cleared the option, which sent every later test in the run
+  back to the user's cache.
+
+* New `ctd_provenance()` returns the record of which CTD release an
+  analysis ran on: the `Report created` date CTD stamps into its own file
+  header, where the file came from, when it was imported, how many
+  chemicals and chemical-gene pairs were retained, and the ctdR version.
+  CTD re-releases continuously and does not version its download
+  filenames, so that header date is the only thing identifying which
+  snapshot a result came from. `import_CTD()` now reads it, caches it and
+  prints it, and `enrichment_CTD()` attaches it to every result.
+
+  Where it is stored follows the container: `metadata()` on objects that
+  have the slot, which covers the `SummarizedExperiment` GSVA returns and
+  the `DataFrame` from importing a `CTDFile`; an attribute on the data
+  frames from ORA, GSEA and CAMERA. Use the accessor rather than either
+  directly. The record survives subsetting, ordering, `head()` and the
+  common dplyr verbs; it does not survive `merge()` or `subset()`, which
+  drop attributes, and the accessor says so rather than returning an
+  empty answer.
+
+* `import_CTD()` no longer assumes the CTD header is 27 lines long. A CTD
+  download has no header row: the field names sit inside the commented
+  preamble. The names are now located by finding the commented line that
+  lists at least three known CTD field names, taking the last such line,
+  and the file is read with `comment = "#"` as suggested in review. The
+  hard-coded `skip`, the row dropped afterwards to compensate, and the
+  patch that stripped `"# "` from the first column name are all gone.
+
+  This matters beyond tidiness. A fixed line count fails silently: insert
+  one comment line upstream and every column shifts, with the analysis
+  proceeding on misaligned data. Matching field names fails loudly, and
+  it adds no assumption the package was not already making, since those
+  names are referenced throughout.
+
+* The bundled sample file now mirrors the structure of a real CTD
+  download, header included. It previously carried an uncommented,
+  duplicated header row, shaped so the old hard-coded skip would work,
+  which meant tests and examples never exercised the format users
+  actually have. Its preamble is deliberately a different length from a
+  real download's, so that nothing can come to depend on the count again.
+
+* **Bug fix.** The ORA `universe` argument was unusable in the default
+  identifier mode, and failed silently. With `gene_id_type = "symbol"`,
+  the gene sets are keyed by HGNC symbol and the input gene list is
+  converted for that reason, but the universe was passed through as
+  given. A universe of Entrez IDs therefore intersected the background
+  at nothing, the size filter then removed every gene set, and the call
+  returned zero rows instead of an error. The vignette's own example of
+  restricting the background to expressed genes shipped in that state.
+  The universe is now converted alongside the input; identifiers that
+  are not Entrez IDs, and Entrez IDs that do not map, are kept as they
+  are, so a universe of symbols or a mixture of the two works too.
+
+* `plot_CTD()` draws each method on its own measure of effect: fold
+  enrichment for ORA, the normalized enrichment score for GSEA, with the
+  axis labelled accordingly. It previously drew `FoldEnrichment` for
+  both, which is why removing the fabricated GSEA fold broke plotting
+  until this release. A result frame missing the column it needs now
+  says which one, instead of failing inside `data.frame()` with a
+  row-count mismatch.
+
+* **Breaking change.** `FoldEnrichment` is gone from GSEA results. It was
+  computed as `abs(ES) / mean(ES)`, where the divisor is the mean
+  enrichment score across whichever chemicals happened to be tested in
+  the same run. That made it a property of the run rather than of the
+  chemical: the same chemical scored against a different collection got
+  a different value, with nothing about the chemical having changed. It
+  also duplicated, badly, a quantity fgsea already computes properly:
+  `NormalizedEnrichmentScore`, the NES, which scales the score for gene
+  set size and is what the field compares. Sharing a name with ORA's
+  fold enrichment, which is a genuine observed-over-expected ratio,
+  invited a cross-method comparison that never meant anything.
+
+  The shared output schema is unaffected. It has always been the five
+  leading columns, with method-specific extras differing by method, so
+  GSEA was never obliged to carry a column ORA has.
+
+* The example script checks the cache the package actually uses. It was
+  rebuilding the path with `rappdirs::user_cache_dir("ctdR")`, the
+  location ctdR kept its cache in before moving to `BiocFileCache`, so
+  it inspected a directory the package no longer writes to: it passed
+  where old files happened to remain and refused to run on a clean
+  machine with a perfectly good cache. It now asks the package, through
+  `ctd_cache()` and `ctd_provenance()`, and reports the CTD release it
+  found.
+
+* New tests cover both cache states, empty and populated, on the bundled
+  ten-chemical sample. They pin what the package says when nothing has
+  been imported and what it returns when something has, which is the
+  contract the example script branches on.
+
+* **New `alpha` and `alpha_column` arguments for ORA.** Hand
+  `enrichment_CTD()` the whole differential-expression table and say
+  which p-value column to judge on, instead of filtering first and then
+  describing the background separately:
+
+  ```r
+  enrichment_CTD(de, method = "ORA", alpha = 0.05, alpha_column = "padj")
+  ```
+
+  The genes under the threshold become the list to test and every row
+  becomes the background, so the two are derived from one object and
+  cannot disagree. Filtering first and passing `universe` asks the caller
+  to reconnect two things that were together a moment earlier, and that
+  reconnection is where the background goes wrong.
+
+  `alpha_column` takes a name or an index and defaults to the second
+  column. Naming it matters on a real table, where the second column is
+  usually a fold change: `limma::topTable()` puts `logFC` there. Which
+  p-value to judge on is the researcher's decision, and the function
+  reports the column it used along with how many genes passed.
+
+  `alpha` and `universe` are mutually exclusive: with `alpha` the
+  background is already decided, so passing both is an error rather than
+  a precedence rule applied in silence.
+
+* Passing `universe` to `"GSEA"`, `"CAMERA"` or `"GSVA"` now warns
+  instead of being dropped without comment. Only ORA needs the argument,
+  because only ORA takes an input that does not record what was
+  measurable: GSEA ranks the whole list supplied, and CAMERA and GSVA
+  intersect the gene sets with `rownames(x)`.
+
+* **`universe` is now a named argument of `enrichment_CTD()`** rather
+  than something passed through `...`. It appears in the help page and
+  in autocompletion, and a misspelling raises an error instead of being
+  swallowed silently by `...` and running the analysis on the wrong
+  background.
+
+* **ORA now says which background it used when none was given.** The
+  default is every gene in the CTD gene sets, which is a fallback rather
+  than a recommendation: the package cannot know what a given platform
+  measured. A background wider than what the experiment could detect
+  makes p-values too small, because genes that could never have been
+  selected still count in it. The error is anti-conservative, so it was
+  worth a message rather than a footnote.
+
+  On the RNA-seq analysis bundled with the package, the default
+  background returns 32 chemicals at FDR < 0.05 and the correct one,
+  the genes that entered the differential test, returns 19. Thirteen of
+  the thirty-two come from the background alone. The bundled example
+  script now passes `universe` and explains why, and the vignette
+  carries the comparison.
+
+* The vignette explains how to read the size of a chemical's gene set,
+  which in CTD also reflects how much the chemical has been studied. The
+  natural suspicion, that large sets are padded with genes responding to
+  everything, does not hold when measured: genes in sets above 500
+  appear in a median of 47 chemicals, against 232 for genes in sets of
+  4 or fewer. Small sets are the ones built from the usual suspects. The
+  consequence is about what a result means, and holds for any enrichment
+  analysis run against a curated database: the question answered is not
+  whether a chemical is associated with a gene list, but whether it is
+  associated as far as the published literature records. A chemical
+  absent from the output is uninvolved only as far as anyone currently
+  knows.
+
+* The bundled example script prints its per-method summary one method at
+  a time, with fixed-width columns, ten chemicals rather than five, and
+  the overlap, set size and fold enrichment beside the p-values. It
+  previously printed one wide data frame, which R wrapped into three
+  detached blocks, so reading off which chemical ranked third meant
+  counting rows across all three. The expected-hit check likewise says
+  in words when a chemical was never tested, rather than printing a bare
+  `NA` that reads as an absent result.
+
+* The ORA `universe` argument now accepts any vector of gene
+  identifiers, not only a character one. A DE table read back with
+  `read.delim()` gives integer Entrez IDs, so the most ordinary use of
+  the argument, `universe = de$EntrezID` to restrict the background to
+  measured genes, used to fail while the same column passed as the input
+  gene list worked. Both are now coerced. The previous backend accepted
+  a non-character universe and then silently ignored it, computing
+  against a background the caller had not asked for.
+
+* ORA now reports what its size filter removed. A chemical excluded for
+  having too few or too many target genes is absent from the results,
+  not present with an unremarkable p-value, and the two cases used to be
+  indistinguishable. `ora()` emits a message giving how many chemicals
+  went untested and on which side of the thresholds they fell.
+
+* **Breaking change.** ORA results now have 10 columns instead of 13.
+  `ChemicalID`, `ChemicalName`, `Method`, `PValue`, `PValueAdjusted`,
+  `GeneRatio`, `BackgroundRatio`, `EnrichedGenes`, `Count` and
+  `FoldEnrichment` are unchanged. Three columns are gone, none of which
+  carried information the remaining ones do not:
+
+  - `QValue` held Storey's q-value from the `qvalue` package. On
+    result sets of the size a CTD analysis produces it was identical to
+    `PValueAdjusted`, because the q-value estimator falls back to
+    Benjamini-Hochberg when it cannot estimate the proportion of true
+    nulls, so the two columns held the same numbers.
+    Reproducing it would mean taking the dependency back for a
+    duplicate. Use `PValueAdjusted` for false-discovery control.
+  - `RichFactor` and `zScore` came from the previous backend and were
+    passed through undocumented: neither appeared in the output schema
+    described in the vignette.
+
+  This also fixes a defect. The previous output carried **two** columns
+  named `FoldEnrichment`, one from the backend and one from ctdR's own
+  rename. Every ORA call raised a duplicated-column warning from
+  `merge()`, and `results$FoldEnrichment` returned whichever of the two
+  came first. There is now one.
+
+## Internal
+
+* The internal `ora()` engine takes `universe`, `minGSSize` and
+  `maxGSSize` as explicit arguments rather than forwarding an opaque
+  `...` to another package, so an unrecognised argument now raises an
+  error instead of being silently discarded.
+
+* `.parse_ratio()` has been removed. Fold enrichment is computed from
+  the counts directly instead of being parsed back out of the
+  `"n/d"` strings.
+
+* New `tools/check_internal_params.R`, wired into CI, fails the build
+  when a documented function has an argument without its `@param`.
+  `R CMD check` skips that cross-check for topics marked
+  `\keyword{internal}`, so such an argument used to ship undocumented
+  with the check still reporting Status OK. Six internal topics that
+  were already in that state have been documented.
+
+* The ORA test suite checks `ora()` against `stats::phyper()` and
+  closed-form values rather than against another implementation. After
+  the migration the hypergeometric distribution is the reference; an
+  equivalence test against `clusterProfiler` would have pinned ctdR's
+  correctness to a package it no longer depends on.
+
 # Changes in version 0.99.8
 
 ## New features

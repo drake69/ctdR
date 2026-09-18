@@ -8,7 +8,7 @@
 #' Four enrichment methods are supported through a unified interface:
 #' \describe{
 #'   \item{\strong{ORA}}{Over-Representation Analysis via
-#'     \code{\link[clusterProfiler]{enricher}}.}
+#'     \code{\link[stats]{phyper}}.}
 #'   \item{\strong{GSEA}}{Gene Set Enrichment Analysis via
 #'     \code{\link[fgsea]{fgsea}}.}
 #'   \item{\strong{CAMERA}}{Competitive gene-set test accounting for
@@ -71,7 +71,7 @@
 utils::globalVariables(c(
     "chemicals", "ChemicalName_GeneSymbols",
     "ChemicalName_GeneEntrezIds",
-    "ChemicalName", "foldEnrichment", "padj", "Count",
+    "ChemicalName", "effect", "padj", "Count",
     "negLog10padj", "Direction", "NGenes",
     "Chemical", "Sample", "Score"
 ))
