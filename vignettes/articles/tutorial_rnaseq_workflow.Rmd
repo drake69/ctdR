@@ -264,15 +264,21 @@ gsea_results <- enrichment_CTD(
 )
 head(gsea_results[, c(
     "ChemicalName", "PValue", "PValueAdjusted",
-    "NormalizedEnrichmentScore", "FoldEnrichment"
+    "NormalizedEnrichmentScore", "GeneSetSize"
 )])
 ```
 
-`FoldEnrichment` here is `|ES| / mean(|ES|)` across all tested chemicals
-— a relative measure of how strongly enriched this chemical's gene set
-is compared to the average. `NES` (Normalized Enrichment Score) accounts
-for gene set size differences and is the primary statistic for ranking
-chemicals.
+`NES`, the normalized enrichment score, is the statistic to compare
+between chemicals: it scales the raw enrichment score for gene set size,
+which is what makes two sets of different sizes comparable at all. Its
+sign carries the direction, positive for targets clustering at the top
+of the ranking and negative for the bottom.
+
+Earlier versions also reported a `FoldEnrichment` for GSEA, computed as
+`|ES| / mean(ES)` across the chemicals tested in the same run. That made
+it a property of the run rather than of the chemical, so it has been
+removed. Fold enrichment in this package now means one thing, the
+observed-over-expected ratio ORA reports.
 
 ```{r plot-gsea, fig.width=7, fig.height=5}
 plot_CTD(gsea_results, type = "bar", n = 10,
@@ -299,7 +305,7 @@ dex_idx  <- grep("dexamethasone", gsea_results$ChemicalName,
 if (length(dex_idx) > 0) {
     cat("Dexamethasone: rank", dex_idx, "of", nrow(gsea_results), "\n")
     gsea_results[dex_idx, c("ChemicalName", "PValue", "PValueAdjusted",
-                             "NormalizedEnrichmentScore", "FoldEnrichment")]
+                             "NormalizedEnrichmentScore", "GeneSetSize")]
 } else {
     message("Dexamethasone not found — it may be absent from the loaded CTD cache.")
 }
@@ -443,10 +449,11 @@ head(camera_results[, c(
 )])
 ```
 
-Unlike ORA and GSEA, CAMERA does not report a `FoldEnrichment` value —
-it reports `Direction` (`"Up"` or `"Down"`), indicating whether the
+CAMERA reports `Direction` (`"Up"` or `"Down"`), indicating whether the
 chemical's target genes are predominantly up- or down-regulated under
-the tested contrast.
+the tested contrast. Each method reports the effect size its test
+actually produces: fold enrichment for ORA, `NES` for GSEA, direction
+for CAMERA.
 
 ```{r plot-camera, fig.width=7, fig.height=5}
 plot_CTD(camera_results, type = "bar", n = 10,
@@ -532,16 +539,17 @@ Each method answers a subtly different question:
 
 | Method | Input | Question answered | Key output column |
 |------------------|------------------|------------------|------------------|
-| GSEA | Full ranked list | Do this chemical's targets cluster at the extreme of the ranking? | `NES`, `FoldEnrichment` |
+| GSEA | Full ranked list | Do this chemical's targets cluster at the extreme of the ranking? | `NES` |
 | ORA | Significant gene list | Is the overlap larger than expected by chance? | `FoldEnrichment`, `Count` |
 | CAMERA | Expression matrix + design | Is the differential signal stronger than the transcriptome average? | `Direction` |
 | GSVA | Expression matrix | What is the per-sample enrichment score? | score matrix |
 
-GSEA and ORA both report `FoldEnrichment`, but it means different
-things: in GSEA it is relative to the mean ES across chemicals
-(`|ES| / mean(|ES|)`); in ORA it is the ratio of observed to expected
-overlap (`GeneRatio / BackgroundRatio`). Do not compare these numbers
-across methods.
+Each method's effect size answers its own question, so there is nothing
+to compare across the last column. `FoldEnrichment` is ORA's and means
+the ratio of observed to expected overlap; `NES` is GSEA's and means the
+enrichment score scaled for gene set size. Earlier versions gave both
+methods a column called `FoldEnrichment`, which invited exactly the
+comparison that does not hold.
 
 For a discovery workflow on a single contrast, **GSEA is recommended as
 the primary method** — it uses all genes and is robust to the choice of
