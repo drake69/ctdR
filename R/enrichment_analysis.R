@@ -350,6 +350,16 @@ enrichment_CTD <- function(x,
                 call. = FALSE
             )
         }
+        # Without this the missing column surfaces much later, as
+        # "mapIds must have at least one key to match against" from
+        # AnnotationDbi, which names neither the column nor the caller.
+        if (!"EntrezID" %in% colnames(x)) {
+            stop("For method = '", method, "', 'x' needs a column named ",
+                "'EntrezID'. Columns present: ",
+                paste(colnames(x), collapse = ", "), ".",
+                call. = FALSE
+            )
+        }
     } else {
         if (!.is_se(x) && !(is.matrix(x) && is.numeric(x))) {
             stop("For method = '", method,

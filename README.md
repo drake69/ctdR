@@ -36,6 +36,7 @@ Four enrichment methods through a unified `enrichment_CTD()` interface, selected
 Additional features:
 
 - **Provenance tracking**: `ctd_provenance()` reports which CTD release an analysis ran on, read from the `Report created` line of the file's own header. CTD re-releases continuously and does not version its filenames, so this is what lets a result name the data behind it. Attached to every result, and readable from the cache before any analysis
+- **Size thresholds chosen for CTD**, not inherited: `minGSSize` defaults to 2 because the median chemical has 4 target genes, and there is no upper limit because no CTD gene set is large enough to be untestable. Chemicals the filter does leave out are reported rather than dropped in silence
 - **Automatic caching** — CTD data is parsed once and cached locally for fast repeated analyses
 - **Human-only filtering** — automatically restricts interactions to *Homo sapiens* (OrganismID 9606)
 - **Auto-detected gene identifiers**: Entrez vs HGNC SYMBOL detected from `rownames()` of the input matrix or `SummarizedExperiment` (CAMERA / GSVA); override via `id_type`
@@ -76,8 +77,9 @@ automatically by `install_github()`, but you can install them upfront with:
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 
-BiocManager::install(c("fgsea", "org.Hs.eg.db",
-                       "AnnotationDbi", "limma", "GSVA"))
+BiocManager::install(c("fgsea", "org.Hs.eg.db", "AnnotationDbi",
+                       "limma", "GSVA", "BiocIO", "BiocFileCache",
+                       "S4Vectors", "SummarizedExperiment"))
 ```
 
 ### From Bioconductor (once accepted)
@@ -128,15 +130,24 @@ matrix or a [`SummarizedExperiment`](https://bioconductor.org/packages/Summarize
 #### ORA / GSEA — gene-list paradigm
 
 ```r
-# Prepare your gene list as a data frame (Entrez IDs + numeric column)
+# Your gene list: a data frame with an EntrezID column and a numeric one
 genes <- data.frame(
-  entrez_ids = c("7124", "3569", "7157", "672", "1956"),
-  pvalue     = c(0.001, 0.003, 0.01, 0.02, 0.05)
+  EntrezID = c("7124", "3569", "7157", "672", "1956"),
+  pvalue   = c(0.001, 0.003, 0.01, 0.02, 0.05)
 )
 
 # Over-Representation Analysis (default)
 ora_results <- enrichment_CTD(genes, method = "ORA")
 head(ora_results)
+
+# Better, when you have the whole differential expression table: pass it
+# with a threshold and say which p-value to judge on. The genes below the
+# threshold are tested against every gene in the table as background, so
+# the list and the background cannot disagree. Left to itself the
+# background falls back to all CTD genes, which is wider than anything
+# your experiment could detect and makes p-values too small.
+ora_results <- enrichment_CTD(de_table, method = "ORA",
+                              alpha = 0.05, alpha_column = "padj")
 
 # Gene Set Enrichment Analysis (uses the second column as ranking)
 gsea_results <- enrichment_CTD(genes, method = "GSEA")
@@ -236,8 +247,8 @@ The first argument `x` of `enrichment_CTD()` depends on the method:
 
 | Column | Description |
 |---|---|
-| `entrez_ids` | Character or numeric Entrez gene IDs |
-| *(second column)* | A numeric value per gene (e.g. p-value, log fold-change). Used for ranking in GSEA; ignored in ORA. |
+| `EntrezID` | Character or numeric Entrez gene IDs |
+| *(a numeric column)* | A value per gene. GSEA ranks on the second column, or on `stat` when present. ORA ignores it unless you pass `alpha`, which thresholds the column named by `alpha_column`. |
 
 ### CAMERA / GSVA: numeric matrix or `SummarizedExperiment`
 

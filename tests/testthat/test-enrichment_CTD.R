@@ -277,3 +277,20 @@ test_that("alpha refuses a table it cannot threshold", {
             method = "ORA", alpha = 0.05)),
         "No gene is below alpha")
 })
+
+test_that("a missing EntrezID column is named, not left to AnnotationDbi", {
+    # The README shipped an example using `entrez_ids`, which failed with
+    # "mapIds must have at least one key to match against": an error from
+    # a package the caller never invoked, naming neither the column nor
+    # the function that wanted it.
+    skip_on_cran()
+    skip_if_not_installed("org.Hs.eg.db")
+
+    .setup_sample_cache()
+    wrong <- data.frame(entrez_ids = c("7124", "3569"), pvalue = c(0.001, 0.003))
+
+    for (m in c("ORA", "GSEA")) {
+        expect_error(enrichment_CTD(wrong, method = m), "needs a column named")
+        expect_error(enrichment_CTD(wrong, method = m), "entrez_ids")
+    }
+})

@@ -2,6 +2,19 @@
 
 ## Documentation
 
+* **Bug fix.** The README's first code example did not run. It built its
+  gene list with a column named `entrez_ids`, while the package needs
+  `EntrezID`, so copying it produced `mapIds must have at least one key
+  to match against`: an error from AnnotationDbi, naming neither the
+  column at fault nor the function that wanted it. The example and the
+  input schema table are corrected, and `enrichment_CTD()` now checks for
+  the column itself and says which columns it did find.
+
+* The README covers what this release changed: the size thresholds, the
+  provenance record, and the `alpha` form of ORA, which is the one worth
+  reaching for when the whole differential expression table is at hand.
+  Its list of Bioconductor dependencies was also missing four of them.
+
 * The vignette has a References section. Every method the package calls
   is published, and the Bioconductor submission guidance asks for the
   formal citations; there were none. It lists the CTD release paper, the
