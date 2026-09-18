@@ -38,7 +38,11 @@ template:
           "@type": "Person",
           "name": "Luigi Corsaro",
           "identifier": "https://orcid.org/0000-0003-1218-230X",
-          "url": "https://orcid.org/0000-0003-1218-230X"
+          "url": "https://drake69.github.io/",
+          "sameAs": [
+            "https://orcid.org/0000-0003-1218-230X",
+            "https://github.com/drake69"
+          ]
         },
         "identifier": "https://doi.org/10.5281/zenodo.19344200",
         "sameAs": [
@@ -49,6 +53,13 @@ template:
         "keywords": "hypothesis discovery, hypothesis generation, candidate chemical discovery, chemical–gene associations, exploratory analysis, Comparative Toxicogenomics Database, CTD, toxicogenomics, chemical enrichment analysis, gene set enrichment, ORA, GSEA, CAMERA, GSVA, Bioconductor"
       }
       </script>
+
+# Il nome dell'autore diventa un link al suo sito, ovunque pkgdown lo stampi: footer di ogni
+# pagina, sidebar della home, pagina autori. ORCID resta l'identificativo accademico e porta a
+# un elenco di pubblicazioni; questo porta alla persona e a cosa fa.
+authors:
+  Luigi Corsaro:
+    href: https://drake69.github.io/
 
 home:
   title: ctdR — Chemical Enrichment Analysis using CTD
