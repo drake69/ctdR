@@ -106,7 +106,10 @@ test_that("enrichment_CTD GSEA path works with cached data", {
     expect_true("ChemicalID" %in% colnames(result))
     expect_true("ChemicalName" %in% colnames(result))
     expect_true("PValueAdjusted" %in% colnames(result))
-    expect_true("FoldEnrichment" %in% colnames(result))
+    # GSEA reports NES, not a fold enrichment: the fold it used to
+    # carry described the run, not the chemical.
+    expect_false("FoldEnrichment" %in% colnames(result))
+    expect_true("NormalizedEnrichmentScore" %in% colnames(result))
     expect_true("EnrichedGenes" %in% colnames(result))
     expect_true("Method" %in% colnames(result))
     expect_equal(unique(result$Method), "GSEA")

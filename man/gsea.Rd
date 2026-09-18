@@ -32,7 +32,7 @@ number of parallel workers, \code{eps} for p-value precision).}
 A data frame with \code{fgsea::fgseaMultilevel}'s native columns
   (\code{pathway}, \code{pval}, \code{ES}, \code{NES}, \code{size},
   \code{leadingEdge}) plus two ctdR-added columns
-  (\code{foldEnrichment}, \code{Enriched_GENE}). Not yet sorted and not
+  (\code{Enriched_GENE}). Not yet sorted and not
   yet joined with chemical metadata; pass to
   \code{\link{.format_enrichment_result}} for the canonical shape.
 }
@@ -42,7 +42,7 @@ Internal engine that performs Gene Set Enrichment Analysis via
 genes cluster toward the extremes of a ranked gene list.
 
 This function returns the raw GSEA result with two GSEA-specific
-decorations (\code{foldEnrichment}, \code{Enriched_GENE}) and
+decorations (\code{Enriched_GENE}) and
 harmonized column names (\code{ChemicalID}, \code{pvalue}). The
 adjusted-p, chemical-name join, column ordering and sort are
 applied downstream by

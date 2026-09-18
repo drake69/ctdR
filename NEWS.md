@@ -122,6 +122,28 @@
   are not Entrez IDs, and Entrez IDs that do not map, are kept as they
   are, so a universe of symbols or a mixture of the two works too.
 
+* **Breaking change.** `FoldEnrichment` is gone from GSEA results. It was
+  computed as `abs(ES) / mean(ES)`, where the divisor is the mean
+  enrichment score across whichever chemicals happened to be tested in
+  the same run. That made it a property of the run rather than of the
+  chemical: the same chemical scored against a different collection got
+  a different value, with nothing about the chemical having changed. It
+  also duplicated, badly, a quantity fgsea already computes properly:
+  `NormalizedEnrichmentScore`, the NES, which scales the score for gene
+  set size and is what the field compares. Sharing a name with ORA's
+  fold enrichment, which is a genuine observed-over-expected ratio,
+  invited a cross-method comparison that never meant anything.
+
+  The shared output schema is unaffected. It has always been the five
+  leading columns, with method-specific extras differing by method, so
+  GSEA was never obliged to carry a column ORA has.
+
+* **`universe` is now a named argument of `enrichment_CTD()`** rather
+  than something passed through `...`. It appears in the help page and
+  in autocompletion, and a misspelling raises an error instead of being
+  swallowed silently by `...` and running the analysis on the wrong
+  background.
+
 * **ORA now says which background it used when none was given.** The
   default is every gene in the CTD gene sets, which is a fallback rather
   than a recommendation: the package cannot know what a given platform

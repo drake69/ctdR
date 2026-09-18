@@ -274,10 +274,9 @@ shared schema above):
 | Column | Description |
 |---|---|
 | `EnrichmentScore` | Enrichment score (`ES` from fgsea) |
-| `NormalizedEnrichmentScore` | Normalized enrichment score (`NES`) |
+| `NormalizedEnrichmentScore` | Normalized enrichment score (`NES` from fgsea): the enrichment score scaled for gene set size. This is the quantity to compare between chemicals |
 | `GeneSetSize` | Size of the gene set used |
 | `LeadingEdge` | Leading-edge gene subset |
-| `FoldEnrichment` | `abs(ES) / mean(ES)` |
 | `EnrichedGenes` | Comma-separated enriched genes |
 
 ### End-to-end example with real RNA-seq data (GSE311566)

@@ -91,6 +91,23 @@
 #'   \code{import_CTD()} has been run (the filter is applied to the cached
 #'   \code{ctd_interactions.rda} file). Restricting to expression interactions
 #'   is recommended for RNA-seq analyses to improve biological specificity.
+#' @param universe Background gene identifiers for \code{"ORA"}: every
+#'   gene that entered your differential test, not only the significant
+#'   ones and not every gene sequenced. \code{NULL} (default) falls back
+#'   to every gene in the CTD gene sets, and says so, because the package
+#'   cannot know what your platform measured.
+#'
+#'   This is the input that decides whether an ORA result means anything.
+#'   A background wider than what the experiment could detect fills the
+#'   urn with genes that could never have been drawn, so the overlap looks
+#'   more selective than it was and p-values come out too small. The error
+#'   is anti-conservative. On the RNA-seq example bundled with this
+#'   package, the fallback background returns 32 chemicals at FDR < 0.05
+#'   and the correct one returns 19.
+#'
+#'   Ignored by \code{"GSEA"}, which ranks the whole list it is given, and
+#'   by \code{"CAMERA"} and \code{"GSVA"}, which take the background from
+#'   \code{rownames(x)}.
 #' @param assay Which assay to use when \code{x} is a
 #'   \code{\link[SummarizedExperiment]{SummarizedExperiment}}: an assay name,
 #'   a positive index, or \code{NULL} (default) for the first assay. Ignored
@@ -171,6 +188,7 @@ enrichment_CTD <- function(x,
     pAdjustMethod = "BH",
     interaction_types = NULL,
     gene_id_type = c("symbol", "entrez"),
+    universe = NULL,
     assay = NULL,
     ...) {
     gene_id_type <- match.arg(gene_id_type)
@@ -192,7 +210,8 @@ enrichment_CTD <- function(x,
     res <- switch(method,
         ORA = .run_ora(x, chemicals, cache_dir, pAdjustMethod,
                        interaction_types = interaction_types,
-                       gene_id_type = gene_id_type, ...),
+                       gene_id_type = gene_id_type,
+                       universe = universe, ...),
         GSEA = .run_gsea(x, chemicals, cache_dir, pAdjustMethod,
                          interaction_types = interaction_types,
                          gene_id_type = gene_id_type, ...),
@@ -443,7 +462,6 @@ enrichment_CTD <- function(x,
             NES            = "NormalizedEnrichmentScore",
             size           = "GeneSetSize",
             leadingEdge    = "LeadingEdge",
-            foldEnrichment = "FoldEnrichment",
             Enriched_GENE  = "EnrichedGenes"
         ),
         drop = c("padj")

@@ -13,6 +13,7 @@ enrichment_CTD(
   pAdjustMethod = "BH",
   interaction_types = NULL,
   gene_id_type = c("symbol", "entrez"),
+  universe = NULL,
   assay = NULL,
   ...
 )
@@ -73,6 +74,24 @@ output column: \code{"symbol"} (default) returns HGNC gene symbols with
 Entrez ID as fallback for unmapped genes; \code{"entrez"} skips the
 symbol lookup and returns Entrez IDs directly. Only applies to \code{"ORA"}
 and \code{"GSEA"}; ignored by \code{"CAMERA"} and \code{"GSVA"}.}
+
+\item{universe}{Background gene identifiers for \code{"ORA"}: every
+  gene that entered your differential test, not only the significant
+  ones and not every gene sequenced. \code{NULL} (default) falls back
+  to every gene in the CTD gene sets, and says so, because the package
+  cannot know what your platform measured.
+
+  This is the input that decides whether an ORA result means anything.
+  A background wider than what the experiment could detect fills the
+  urn with genes that could never have been drawn, so the overlap looks
+  more selective than it was and p-values come out too small. The error
+  is anti-conservative. On the RNA-seq example bundled with this
+  package, the fallback background returns 32 chemicals at FDR < 0.05
+  and the correct one returns 19.
+
+  Ignored by \code{"GSEA"}, which ranks the whole list it is given, and
+  by \code{"CAMERA"} and \code{"GSVA"}, which take the background from
+  \code{rownames(x)}.}
 
 \item{assay}{Which assay to use when \code{x} is a
 \code{\link[SummarizedExperiment]{SummarizedExperiment}}: an assay name,
