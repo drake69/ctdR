@@ -138,6 +138,12 @@
   leading columns, with method-specific extras differing by method, so
   GSEA was never obliged to carry a column ORA has.
 
+* Passing `universe` to `"GSEA"`, `"CAMERA"` or `"GSVA"` now warns
+  instead of being dropped without comment. Only ORA needs the argument,
+  because only ORA takes an input that does not record what was
+  measurable: GSEA ranks the whole list supplied, and CAMERA and GSVA
+  intersect the gene sets with `rownames(x)`.
+
 * **`universe` is now a named argument of `enrichment_CTD()`** rather
   than something passed through `...`. It appears in the help page and
   in autocompletion, and a misspelling raises an error instead of being

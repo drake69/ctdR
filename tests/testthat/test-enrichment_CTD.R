@@ -133,3 +133,37 @@ test_that("an Entrez universe still works in entrez mode", {
 
     expect_gt(nrow(res), 0)
 })
+
+test_that("universe is refused loudly by the methods that cannot use it", {
+    # Only ORA takes a background it cannot infer. GSEA ranks the whole
+    # list supplied, and CAMERA and GSVA intersect the gene sets with
+    # rownames(x), so those three already have the measured genes as
+    # their background. Accepting the argument and dropping it would
+    # leave a caller believing they had narrowed something.
+    skip_on_cran()
+    skip_if_not_installed("org.Hs.eg.db")
+
+    .setup_sample_cache()
+    genes <- data.frame(EntrezID = c("7124", "3569"), pvalue = c(0.001, 0.003))
+    se <- readRDS(system.file("extdata", "GSE311566_subset.rds",
+        package = "ctdR"))
+    design <- stats::model.matrix(~ se$group)
+
+    expect_warning(
+        suppressMessages(enrichment_CTD(genes, method = "GSEA",
+            universe = "7124")),
+        "ignored for \"GSEA\"")
+    expect_warning(
+        suppressMessages(enrichment_CTD(se, method = "CAMERA",
+            design = design, contrast = 2, universe = "7124")),
+        "rownames\\(x\\)")
+    expect_warning(
+        suppressMessages(enrichment_CTD(se, method = "GSVA",
+            universe = "7124")),
+        "ignored for \"GSVA\"")
+
+    # ORA accepts it without comment: that is where it belongs.
+    expect_no_warning(
+        suppressMessages(enrichment_CTD(genes, method = "ORA",
+            universe = c("7124", "3569", "7157"))))
+})

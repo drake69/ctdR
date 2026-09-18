@@ -597,9 +597,18 @@ filtered out for low expression could not have come out significant, so
 it does not belong in the urn either; a gene that was tested and did
 not reach significance very much does.
 
-GSEA, CAMERA and GSVA do not need this argument. GSEA ranks the whole
-list you give it, and CAMERA and GSVA take the background from
-`rownames(x)`, which is already the set of measured genes.
+**Only ORA needs this argument, and it is worth seeing why.** The three
+other methods cannot get the background wrong, because their input
+carries it. GSEA ranks the whole list you give it, so the list is the
+background. CAMERA and GSVA intersect the gene sets with
+`rownames(x)`, so their background is the set of genes you measured, by
+construction.
+
+ORA is the exception because a bare gene list records only which genes
+came out, not which ones could have. That missing information is what
+`universe` supplies, and why its absence is the one input error this
+package cannot detect for you. Passing it to GSEA, CAMERA or GSVA
+raises a warning rather than being silently dropped.
 
 ### Why the size thresholds are what they are
 

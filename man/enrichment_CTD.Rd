@@ -89,9 +89,14 @@ and \code{"GSEA"}; ignored by \code{"CAMERA"} and \code{"GSVA"}.}
   package, the fallback background returns 32 chemicals at FDR < 0.05
   and the correct one returns 19.
 
-  Ignored by \code{"GSEA"}, which ranks the whole list it is given, and
-  by \code{"CAMERA"} and \code{"GSVA"}, which take the background from
-  \code{rownames(x)}.}
+  ORA is the only method that needs this argument, and the reason is
+  the shape of its input. A bare gene list carries no record of what
+  was measurable, so the background has to be supplied separately.
+  GSEA ranks the whole list you give it, which is already the
+  background; \code{"CAMERA"} and \code{"GSVA"} intersect the gene
+  sets with \code{rownames(x)}, so theirs is the set of measured
+  genes by construction. Passing \code{universe} to any of those
+  three raises a warning rather than being quietly dropped.}
 
 \item{assay}{Which assay to use when \code{x} is a
 \code{\link[SummarizedExperiment]{SummarizedExperiment}}: an assay name,

@@ -105,9 +105,14 @@
 #'   package, the fallback background returns 32 chemicals at FDR < 0.05
 #'   and the correct one returns 19.
 #'
-#'   Ignored by \code{"GSEA"}, which ranks the whole list it is given, and
-#'   by \code{"CAMERA"} and \code{"GSVA"}, which take the background from
-#'   \code{rownames(x)}.
+#'   ORA is the only method that needs this argument, and the reason is
+#'   the shape of its input. A bare gene list carries no record of what
+#'   was measurable, so the background has to be supplied separately.
+#'   GSEA ranks the whole list you give it, which is already the
+#'   background; \code{"CAMERA"} and \code{"GSVA"} intersect the gene
+#'   sets with \code{rownames(x)}, so theirs is the set of measured
+#'   genes by construction. Passing \code{universe} to any of those
+#'   three raises a warning rather than being quietly dropped.
 #' @param assay Which assay to use when \code{x} is a
 #'   \code{\link[SummarizedExperiment]{SummarizedExperiment}}: an assay name,
 #'   a positive index, or \code{NULL} (default) for the first assay. Ignored
@@ -200,6 +205,22 @@ enrichment_CTD <- function(x,
 
     .validate_enrichment_args(x, method, design, contrast,
         pAdjustMethod, cache_dir)
+
+    # Only ORA takes a background it cannot infer. GSEA ranks the whole
+    # list it is given, and CAMERA and GSVA intersect the gene sets with
+    # rownames(x), so for those three the universe is the measured genes
+    # by construction. Accepting the argument and dropping it silently
+    # would leave a caller believing they had narrowed a background that
+    # was never widened.
+    if (!is.null(universe) && method != "ORA")
+        warning("'universe' applies to method = \"ORA\" only and is ",
+            "ignored for \"", method, "\". ",
+            if (method == "GSEA")
+                paste("GSEA ranks the whole list you supply, which is",
+                    "already the background.")
+            else
+                "The background is rownames(x), the genes you measured.",
+            call. = FALSE)
 
     bfc <- .ctd_bfc(cache_dir)
     chemicals <- .ctd_cache_load(bfc, "chemicals")
