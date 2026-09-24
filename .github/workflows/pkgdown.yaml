@@ -1,17 +1,23 @@
 # Build the pkgdown site and deploy it to GitHub Pages via the
-# official Pages artifact + deploy-pages actions. The site is no
-# longer committed back to docs/ on main (main is protected).
+# official Pages artifact + deploy-pages actions.
 #
-# One-time repo setting required: Settings → Pages → Source =
-# "GitHub Actions" (instead of "Deploy from a branch").
+# This branch, and not main, is where the site lives. Bioconductor
+# requires the package source to carry no pkgdown content, so `_pkgdown.yml`,
+# `pkgdown/`, `vignettes/articles/` and this workflow were taken off main
+# and off the Bioconductor devel branch and kept here.
+#
+# How to publish an updated site: merge main into this branch and push.
+# The push is the trigger. A manual run is not available, because
+# workflow_dispatch only works for workflows that live on the default
+# branch, and a release event would run the default branch copy of this
+# file, which no longer exists.
+#
+# Two repo settings this depends on: Settings -> Pages -> Source =
+# "GitHub Actions", and this branch listed among the deployment branches
+# of the `github-pages` environment.
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-  release:
-    types: [published]
-  workflow_dispatch:
+    branches: [docs-site]
 
 name: pkgdown
 
