@@ -26,3 +26,6 @@ tests/testthat/_problems/
 # Output of inst/scripts/example_gse311566_full_pipeline.R, produced by
 # whoever runs it. Generated, not authored.
 example_outputs/
+
+# pkgdown site: built on the docs-site branch, never committed here
+docs/

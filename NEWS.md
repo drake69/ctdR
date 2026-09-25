@@ -1,3 +1,15 @@
+# Changes in version 0.99.10
+
+## Infrastructure
+
+* The package source no longer carries the pkgdown site. The site
+  configuration, its assets, the article written only for the website and
+  the workflow that builds it now live on the `docs-site` branch, which is
+  where the published site is built from. Bioconductor requires them to
+  be kept out of the package, and they were only ever needed to produce
+  the website, never to build, check or install the package. The site
+  itself is unchanged and stays at https://drake69.github.io/ctdR/.
+
 # Changes in version 0.99.9
 
 ## Documentation
