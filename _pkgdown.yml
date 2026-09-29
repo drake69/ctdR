@@ -1,4 +1,7 @@
-url: https://drake69.github.io/ctdR
+# Finisce nei canonical di ogni pagina e nelle <loc> della sitemap: dal 2026-09-29 il sito vive
+# sotto il dominio proprio, il vecchio indirizzo risponde 301 e un canonical che punta a un
+# redirect e' gia' un canonical sbagliato.
+url: https://luigicorsaro.com/ctdR
 
 template:
   bootstrap: 5
@@ -27,7 +30,7 @@ template:
         "@type": ["SoftwareApplication", "SoftwareSourceCode"],
         "name": "ctdR",
         "description": "An R tool for hypothesis discovery: it surfaces candidate chemicals associated with a set of genes, using the Comparative Toxicogenomics Database (CTD), for exploratory follow-up rather than confirmatory inference. Four enrichment methods (ORA, GSEA, CAMERA, GSVA) are the underlying means, exposed through a unified interface.",
-        "url": "https://drake69.github.io/ctdR/",
+        "url": "https://luigicorsaro.com/ctdR/",
         "applicationCategory": "Bioinformatics",
         "operatingSystem": "Cross-platform (Windows, macOS, Linux)",
         "programmingLanguage": "R",
@@ -38,7 +41,7 @@ template:
           "@type": "Person",
           "name": "Luigi Corsaro",
           "identifier": "https://orcid.org/0000-0003-1218-230X",
-          "url": "https://drake69.github.io/",
+          "url": "https://luigicorsaro.com/",
           "sameAs": [
             "https://orcid.org/0000-0003-1218-230X",
             "https://github.com/drake69"
@@ -59,7 +62,7 @@ template:
 # un elenco di pubblicazioni; questo porta alla persona e a cosa fa.
 authors:
   Luigi Corsaro:
-    href: https://drake69.github.io/
+    href: https://luigicorsaro.com/?utm_source=ctdr-docs
 
 home:
   title: ctdR — Chemical Enrichment Analysis using CTD
