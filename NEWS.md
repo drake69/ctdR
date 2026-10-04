@@ -1,3 +1,26 @@
+# Changes in version 0.99.11
+
+## Documentation
+
+* The installation instructions in the vignette and the README now reflect
+  that ctdR has been accepted into Bioconductor. They said the package was
+  still under review and pointed to GitHub as the only source. The package
+  is currently available in Bioconductor devel (3.24) and will install from
+  the standard repository after the next Bioconductor release; GitHub
+  remains available for the latest development version.
+
+# Changes in version 0.99.10
+
+## Infrastructure
+
+* The package source no longer carries the pkgdown site. The site
+  configuration, its assets, the article written only for the website and
+  the workflow that builds it now live on the `docs-site` branch, which is
+  where the published site is built from. Bioconductor requires them to
+  be kept out of the package, and they were only ever needed to produce
+  the website, never to build, check or install the package. The site
+  itself is unchanged and stays at https://drake69.github.io/ctdR/.
+
 # Changes in version 0.99.9
 
 ## Documentation

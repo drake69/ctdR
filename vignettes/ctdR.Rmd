@@ -62,21 +62,25 @@ the method:
 
 # Installation
 
-> 🚧 ctdR is *not yet accepted, or under review* for Bioconductor
-> (submission [#4232](https://github.com/Bioconductor/Contributions/issues/4232)).
-> Until then, please install from GitHub. *Fingers crossed* 🤞.
+ctdR has been accepted into Bioconductor. For now it is available only in
+Bioconductor devel (3.24); after the next Bioconductor release it will be
+installable from the standard (release) repository.
 
-## From GitHub (current installation method)
+## From Bioconductor devel (current installation method)
+
+    if (!require("BiocManager", quietly = TRUE))
+        install.packages("BiocManager")
+    BiocManager::install(version = "devel")
+    BiocManager::install("ctdR")
+
+## From Bioconductor release (after the next Bioconductor release)
+
+    BiocManager::install("ctdR")
+
+## From GitHub (latest development version)
 
     # install.packages("devtools")
     devtools::install_github("drake69/ctdR")
-
-## From Bioconductor (once accepted)
-
-Once ctdR is accepted into Bioconductor (currently under review), it
-will be installable directly via:
-
-    BiocManager::install("ctdR")
 
 # Quick start
 

@@ -28,7 +28,7 @@ jobs:
           curr_v=$(grep '^Version:' DESCRIPTION | sed 's/Version:[[:space:]]*//')
           month=$(date +'%Y-%m')
           {
-            echo "Monthly cadence reminder per PROJECT_BLUEPRINT §18: time to prepare a release."
+            echo "Monthly cadence reminder: time to prepare a release."
             echo
             echo "Current version in \`DESCRIPTION\`: \`${curr_v}\`"
             echo
@@ -38,13 +38,14 @@ jobs:
             echo "- [ ] Add a corresponding \`# Changes in version X.Y.Z\` section to \`NEWS.md\`"
             echo "- [ ] Open PR to \`main\`"
             echo "- [ ] Verify CI green: R-CMD-check, BiocCheck, security, test-coverage"
-            echo "- [ ] Merge PR — \`release.yaml\` tags and publishes the GitHub Release automatically"
+            echo "- [ ] Merge PR"
+            echo "- [ ] Cut the GitHub Release by hand: \`gh workflow run release.yaml --ref main\` (merging does not release)"
             echo "- [ ] Zenodo mints a versioned DOI for the new Release"
-            echo "- [ ] If Bioconductor review is open: comment on the Contributions issue with the new version"
+            echo "- [ ] Push \`main\` to the Bioconductor \`devel\` branch so the builder picks up the new version"
             echo
             echo "If there are no user-facing code changes since the last release, close this issue without action."
           } > body.md
           gh issue create \
-            --title "Release preparation ${month} — bump version and cut release" \
+            --title "Release preparation ${month}: bump version and cut release" \
             --label release \
             --body-file body.md
