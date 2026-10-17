@@ -18,6 +18,18 @@
   were imported. Records written by earlier versions print as human,
   which is the only thing those versions could import.
 
+## Documentation
+
+* New vignette, "Replicating a published CTD analysis". It repeats the
+  analysis of Yang et al. (2024, BMC Psychiatry) on the CTD release closest
+  to the one the authors used, recovered from the Internet Archive and
+  checked against the archive's digest: `ctdR` builds the same gene sets and,
+  with the authors' own test, reaches the same call at p < 0.05 for 49 of
+  the 51 chemicals whose sets agree. It then screens the whole catalogue with
+  the same genes, reporting unadjusted and adjusted p-values. Precomputed
+  tables are in `inst/extdata/yang2024/` (counts and p-values, no CTD
+  records) and the full script is `inst/scripts/replicate_yang2024.R`.
+
 ## Bug fixes
 
 * `import_CTD()` no longer warns that thousands of chemicals "appear with

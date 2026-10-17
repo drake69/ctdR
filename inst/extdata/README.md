@@ -76,3 +76,10 @@ A small subset of the **GSE311566** RNA-seq series:
 - **Licence**: GEO submissions are publicly available; downstream
   redistribution should respect any specific terms set by the
   original submitters.
+
+## `yang2024/`
+
+Precomputed tables for the vignette "Replicating a published CTD analysis":
+the dyslexia gene list of Yang et al. (2024, CC BY 4.0) and the results of
+running `inst/scripts/replicate_yang2024.R` on the CTD release of 23 May 2023.
+They hold counts and p-values only, no CTD records; see `yang2024/README.md`.

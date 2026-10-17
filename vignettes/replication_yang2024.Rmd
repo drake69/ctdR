@@ -1,0 +1,278 @@
+---
+title: "Replicating a published CTD analysis: Yang et al. (2024)"
+author:
+  - name: Luigi Corsaro
+    affiliation: ""
+    orcid: 0000-0003-1218-230X
+date: "`r Sys.Date()`"
+output:
+  BiocStyle::html_document:
+    toc: true
+    toc_depth: 2
+vignette: >
+  %\VignetteIndexEntry{Replicating a published CTD analysis}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+ext <- system.file("extdata", "yang2024", package = "ctdR")
+read_tsv <- function(f) utils::read.delim(file.path(ext, f),
+    stringsAsFactors = FALSE, check.names = FALSE)
+genes <- read_tsv("yang2024_genes.tsv")
+rep <- read_tsv("yang2024_replication.tsv")
+top <- read_tsv("yang2024_discovery_top30.tsv")
+pos <- read_tsv("yang2024_discovery_yang_chemicals.tsv")
+summ <- read_tsv("yang2024_discovery_summary.tsv")
+fmt <- function(p) ifelse(is.na(p), "", formatC(p, format = "g", digits = 3))
+```
+
+# Purpose
+
+`ctdR` introduces no statistical method: it applies established tests to the
+chemical-gene interactions of the Comparative Toxicogenomics Database (CTD).
+What it must show, then, is that it builds the same gene sets as CTD and,
+given the same CTD release and the same test, returns the same results as a
+published analysis. Anything else would validate CTD or the test, not the
+package.
+
+This vignette does that for a recent study, and then reads the same genes the
+other way round, screening the whole CTD catalogue. The CTD steps take about
+ten minutes and a 35 MB download, so they are shown with `eval = FALSE`; the
+tables are the results of running them, shipped in `inst/extdata/yang2024/`,
+and the complete script is `inst/scripts/replicate_yang2024.R`. These tables
+hold counts and p-values only, no CTD records.
+
+# The study
+
+Yang et al. (2024) asked whether developmental dyslexia genes are targeted by
+environmental pollutants
+([doi:10.1186/s12888-024-05952-4](https://doi.org/10.1186/s12888-024-05952-4),
+CC BY 4.0). Their design:
+
+- **Genes**: dyslexia risk genes from DisGeNET, OMIM and GeneCards; the text
+  says 131, their Table S2 lists `r nrow(genes)`.
+- **Chemicals**: 95 chosen in advance from US EPA and NPIC lists, in seven
+  classes (metals, persistent organic pollutants, PAHs, herbicides,
+  insecticides, fungicides, rodenticides).
+- **CTD**: "2023 data", interactions of every species, retrieved by uploading
+  the gene symbols to CTD.
+- **Test**: for each chemical, observed against expected dyslexia genes,
+  hypergeometric test with a fixed universe of 19,000 protein-coding genes,
+  FDR correction within each class.
+
+This is **verification**: the chemicals are chosen first, then tested. It is
+the same pattern as the CTD Batch Query or `CTDquerier`.
+
+# The same CTD release
+
+CTD distributes only its current release and overwrites the file in place.
+The release of 23 May 2023, the closest to the authors' "2023 data", survives
+as an Internet Archive capture; its SHA-1 matches the digest the archive
+publishes for that capture.
+
+```{r download, eval = FALSE}
+library(ctdR)
+ctd_file <- "CTD_chem_gene_ixns_2023-05-23.csv.gz"
+utils::download.file(paste0("https://web.archive.org/web/20230607020439id_/",
+    "https://ctdbase.org/reports/CTD_chem_gene_ixns.csv.gz"), ctd_file,
+    mode = "wb")
+```
+
+The authors pooled species, so the import keeps them all. With
+`organism = "all"` the symbol-keyed gene sets are **forced** to pool species by
+gene symbol, as the CTD website does: a mouse *Esr1* interaction counts as
+*ESR1*. This is orthology by homonymy, not an orthology mapping.
+
+```{r import, eval = FALSE}
+import_CTD(ctd_file, organism = "all")
+ctd_provenance()
+#> CTD provenance
+#>   Report created: Tue May 23 14:45:41 EDT 2023
+#>   Retained:       14,572 chemicals, 1,523,407 chemical-gene pairs
+#>   Organism:       all species
+```
+
+# Chemicals
+
+The paper's tables have 95 entries (hexachlorobenzene appears both as a
+persistent organic pollutant and as a fungicide). Of these, 72 match a CTD
+name exactly and 22 match a CTD synonym in
+the chemical vocabulary of January 2023 (for example *Chlordane* is CTD's
+*Chlordan*, *Benzo(j,k)fluorene* is *fluoranthene*; *lambda-cyhalothrin* maps
+to *cyhalothrin*, CTD not distinguishing the isomer). *Metam* is not in that
+vocabulary and is left out.
+
+```{r mapping}
+table(rep$Mapping, useNA = "ifany")
+```
+
+# Does ctdR build the same gene sets?
+
+For each chemical, `N` is the number of genes it affects and `k` how many of
+them are dyslexia genes. Both feed the test directly.
+
+```{r same-sets}
+m <- rep[!is.na(rep$ChemicalID) & nzchar(rep$ChemicalID), ]
+c(chemicals = nrow(m),
+  N_identical = sum(m$N_ctdR == m$N_paper, na.rm = TRUE),
+  N_within_2pct = sum(abs(m$N_ctdR / m$N_paper - 1) <= 0.02, na.rm = TRUE),
+  k_identical = sum(m$k_ctdR == m$k_paper, na.rm = TRUE))
+```
+
+```{r same-sets-plot, fig.width = 7, fig.height = 3.6}
+op <- par(mfrow = c(1, 2), mar = c(4.2, 4.2, 2, 1))
+plot(m$N_paper, m$N_ctdR, log = "xy", pch = 19, col = "#1f77b4",
+    xlab = "N, Yang et al.", ylab = "N, ctdR", main = "Set size")
+abline(0, 1, lty = 2)
+plot(m$k_paper, m$k_ctdR, pch = 19, col = "#1f77b4",
+    xlab = "k, Yang et al.", ylab = "k, ctdR", main = "Dyslexia genes in set")
+abline(0, 1, lty = 2)
+par(op)
+```
+
+Points on the diagonal are the same sets. The points well below it are parent
+terms and families (polychlorinated biphenyls, cobalt, nickel, chromium, DDT):
+the authors counted the chemical together with its descendants in the MeSH
+hierarchy, as CTD's web pages do, while `ctdR` uses the exact `ChemicalID`.
+Small differences of a few genes come from the release: the paper reports
+14,489 chemicals, the release of May 2023 has 14,572.
+
+# The same test on ctdR's sets
+
+The authors' p-values are reproduced by the hypergeometric test with a
+universe of 19,000 and the `r nrow(genes)` genes of Table S2. Their "Expected"
+column, however, is computed with 142 genes, which does not match either
+number. Applying their test to the sets `ctdR` builds, on the chemicals whose
+sets agree (N within 2%, same k, k > 0):
+
+```{r same-test}
+ok <- !is.na(m$PValue_paper) & m$k_paper > 0 &
+    abs(m$N_ctdR / m$N_paper - 1) <= 0.02 & m$k_ctdR == m$k_paper
+cmp <- m[ok, ]
+c(chemicals = nrow(cmp),
+  median_abs_log10_ratio = round(median(abs(log10(
+      cmp$PValue_sameTest_ctdR / cmp$PValue_paper))), 3),
+  same_call_at_0.05 = sum((cmp$PValue_sameTest_ctdR < 0.05) ==
+      (cmp$PValue_paper < 0.05)))
+```
+
+```{r same-test-table}
+show <- cmp[order(cmp$PValue_paper), c("Class", "Chemical", "N_paper",
+    "N_ctdR", "k_paper", "PValue_paper", "PValueFDR_paper",
+    "PValue_sameTest_ctdR")]
+show[, 6:8] <- lapply(show[, 6:8], fmt)
+knitr::kable(show, row.names = FALSE, col.names = c("Class", "Chemical",
+    "N paper", "N ctdR", "k", "p paper", "FDR paper", "p ctdR sets"))
+```
+
+The two calls that differ at 0.05:
+
+- **Mancozeb**: 0.048 in the paper, 0.050 here, on the threshold.
+- **Methyl parathion**: the paper reports p = 0.800 with 5 dyslexia genes out
+  of 101 against 0.75 expected; its own numbers give 6.5e-4, so the published
+  value is a transcription error.
+
+# The same genes, in discovery mode
+
+`ctdR` asks a different question: not whether chosen chemicals are enriched,
+but which chemicals, among all those in CTD, are. The same 130 genes were
+screened against every chemical of the May 2023 release with `ctdR`'s ORA.
+The universe is restricted to human protein-coding genes, the closest to the
+authors' 19,000 that `ctdR` can apply (it narrows the background, it does not
+widen it), and the Benjamini-Hochberg correction runs over every chemical
+tested.
+
+```{r discovery-run, eval = FALSE}
+entrez <- AnnotationDbi::mapIds(org.Hs.eg.db::org.Hs.eg.db,
+    genes$GeneSymbol, "ENTREZID", "SYMBOL")
+coding <- unique(AnnotationDbi::select(org.Hs.eg.db::org.Hs.eg.db,
+    keys = "protein-coding", keytype = "GENETYPE", columns = "SYMBOL")$SYMBOL)
+discovery <- enrichment_CTD(
+    data.frame(EntrezID = unname(entrez[!is.na(entrez)]), pvalue = 0.01),
+    method = "ORA", universe = coding, minGSSize = 2)
+```
+
+```{r discovery-summary}
+knitr::kable(summ, col.names = c("Analysis", "Chemicals tested",
+    "Adjusted p < 0.05", "Unadjusted p < 0.05"))
+```
+
+`main` is the analysis above; `all_human` uses every human gene symbol as the
+universe; `min10` requires at least ten genes per set.
+
+The 30 chemicals at the top, with unadjusted and adjusted p-values:
+
+```{r discovery-top}
+t30 <- top
+t30$PValue <- fmt(t30$PValue)
+t30$PValueAdjusted <- fmt(t30$PValueAdjusted)
+knitr::kable(t30[, c("Rank", "ChemicalName", "Count", "GeneSetSize",
+    "FoldEnrichment", "PValue", "PValueAdjusted", "InYangList")],
+    col.names = c("Rank", "Chemical", "k", "N", "Fold", "p",
+        "Adjusted p", "In Yang's list"))
+```
+
+Most of the chemicals at the top were not in the authors' list, and most act
+on the nervous system: oxidopamine, levodopa, clozapine, methamphetamine,
+MPTP, melatonin, as well as the pesticide rotenone and the solvent
+1-bromopropane. This fits the gene list, which contains dopaminergic and
+glutamatergic genes (*DRD2*, *COMT*, *GRIN2B*, *GABRA1*), and it is what a
+list of pollutants fixed in advance cannot show. Manganese chloride and
+aluminum chloride appear on their own: the MeSH hierarchy again, seen from
+the other side.
+
+Where the 35 chemicals the authors found significant fall in the full
+ranking:
+
+```{r discovery-yang}
+p35 <- pos[pos$Analysis == "main", c("Class", "Chemical", "Rank", "Count",
+    "GeneSetSize", "PValue", "PValueAdjusted")]
+p35$PValue <- fmt(p35$PValue)
+p35$PValueAdjusted <- fmt(p35$PValueAdjusted)
+knitr::kable(p35, row.names = FALSE, col.names = c("Class", "Chemical",
+    "Rank", "k", "N", "p", "Adjusted p"))
+```
+
+```{r discovery-yang-count}
+sapply(split(pos, pos$Analysis), function(d) c(
+    tested = sum(!is.na(d$Rank)),
+    adjusted_below_0.05 = sum(d$PValueAdjusted < 0.05, na.rm = TRUE),
+    unadjusted_below_0.05 = sum(d$PValue < 0.05, na.rm = TRUE)))
+```
+
+# Verification and discovery
+
+The two readings answer different questions, and each has a cost.
+
+- **Verification** (Yang et al., CTD Batch Query, `CTDquerier`) tests chemicals
+  chosen in advance. Few tests mean a mild correction and more power for the
+  chemicals one already suspects; the choice itself, though, is a selection
+  the correction does not see, and chemicals outside the list cannot appear.
+- **Discovery** (`ctdR`) tests every chemical. The correction is harsher, so
+  some suspected chemicals lose significance (11 of the authors' 34 tested in the
+  main analysis), but nothing is excluded in advance and the multiplicity is
+  accounted for in full.
+
+`ctdR` does not replace verification; it comes before it, producing the
+hypotheses that a targeted study then tests. Two cautions when reading a
+discovery ranking: very small sets reach significance with two or three genes
+(read `k` and `N` beside the p-value), and very large sets (ethanol, caffeine)
+reach it by size, because they are the most studied chemicals.
+
+# What differs from the original analysis
+
+| Difference | Effect |
+|---|---|
+| CTD release: May 2023 against the authors' early 2023 | a few genes per chemical |
+| MeSH descendants counted by the authors, not by `ctdR` | larger sets in the paper for parent terms |
+| Gene symbols: HGNC symbols of today's `org.Hs.eg.db` | a renamed gene changes name (for example *BVES* is now *POPDC1*) |
+| Universe: 19,000 fixed in the paper; `ctdR` narrows its background | different p-values in discovery mode, same sets |
+| 130 genes in Table S2, 131 in the text, 142 in the Expected column | p-values reproduced with 130 |
+
+# Session information
+
+```{r session}
+sessionInfo()
+```

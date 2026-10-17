@@ -1,0 +1,96 @@
+Class	Chemical	ChemicalID	Mapping	N_paper	k_paper	PValue_paper	PValueFDR_paper	N_ctdR	k_ctdR	PValue_sameTest_ctdR
+Fungicides	Benomyl	D001542	exact name	62	3	0.008	0.029	62	3	0.008823
+Fungicides	Chlorothalonil	C005806	CTD synonym	93	1	0.472	0.519	92	1	0.4691
+Fungicides	Cycloheximide	D003513	exact name	501	11	0.001	0.003	503	11	0.0006861
+Fungicides	Ferbam	C011251	exact name	3	1	0.014	0.038	3	1	0.02039
+Fungicides	Hexachlorobenzene	D006581	exact name	224	4	0.066	0.081	229	4	0.07248
+Fungicides	Mancozeb	C013099	exact name	121	3	0.048	0.072	121	3	0.05035
+Fungicides	Maneb	D008344	exact name	459	11	0	0.003	378	9	0.001181
+Fungicides	Metalaxyl	C028175	exact name	3	0			3	0	
+Fungicides	Metam		not mapped	105	0					
+Fungicides	Pentachloronitrobenzene	C005805	CTD synonym	8	0			8	0	
+Fungicides	Sodium	D012964	exact name	89	0			89	0	
+Fungicides	Thiabendazole	D013827	exact name	337	6	0.027	0.06	336	6	0.02815
+Fungicides	Triadimefon	C032910	exact name	492	7	0.051	0.072	752	9	0.07321
+Fungicides	Zineb	D015038	exact name	125	3	0.052	0.072	8	0	
+Fungicides	Ziram	D015039	exact name	157	1	0.662	0.662	157	1	0.6612
+Herbicides	2,4-D	D015084	CTD synonym	153	3	0.085	0.086	152	3	0.08643
+Herbicides	Atrazine	D001280	exact name	8397	72	0.007	0.01	8862	74	0.01168
+Herbicides	Cyanazine	C007168	exact name	12	4	1.48e-07	1.18e-06	12	4	9.927e-07
+Herbicides	Dicamba	D003996	exact name	14	1	0.086	0.086	14	1	0.09167
+Herbicides	Glyphosate	C010974	exact name	1831	25	0.001	0.002	1842	25	0.0006551
+Herbicides	Imazethapyr	C093630	exact name	1	0			1	0	
+Herbicides	Metolachlor	C051786	exact name	72	4	0.001	0.003	72	4	0.001503
+Herbicides	Pendimethalin	C030856	exact name	21	2	0.007	0.01	21	2	0.00896
+Herbicides	Trifluralin	D014274	exact name	18	2	0.005	0.01	18	2	0.006616
+Insecticides	Aldicarb	D000448	exact name	810	1	0.997	0.997	810	1	0.9966
+Insecticides	Carbofuran	D002235	exact name	120	2	0.196	0.293	120	2	0.1984
+Insecticides	Chlorpyrifos	D004390	exact name	3349	41	7.14e-05	0.000541	6561	54	0.05693
+Insecticides	Cyfluthrin	C052570	exact name	88	3	0.021	0.038	95	3	0.02746
+Insecticides	Dimethoate	D004117	exact name	62	3	0.008	0.018	52	3	0.005417
+Insecticides	Lambda-cyhalothrin	C037304	CTD synonym (cyhalothrin, isomer not distinguished)	210	8	8.04e-05	0.000241	210	8	9.99e-05
+Insecticides	Methyl parathion	D008743	exact name	101	5	0.8	0.997	101	5	0.0006504
+Insecticides	Permethrin	D026023	exact name	1318	27	1.76e-07	1.58e-06	1627	28	4.173e-06
+Insecticides	Tefluthrin	C489827	CTD synonym	10	0			10	0	
+Insecticides	Terbufos	C012568	exact name	733	1	0.994	0.997	733	1	0.9941
+Metals	Aluminum	D000535	exact name	1937	16	0.249	0.266	1932	16	0.2465
+Metals	Arsenic	D001151	exact name	4977	46	0.012	0.022	4977	46	0.01269
+Metals	Barium	D001464	exact name	81	3	0.017	0.027	81	3	0.01813
+Metals	Cadmium	D002104	exact name	5266	45	0.05	0.063	5257	48	0.01326
+Metals	Cesium	D002586	exact name	29	0			17	0	
+Metals	Chromium	D002857	exact name	2352	26	0.008	0.017	258	4	0.1012
+Metals	Cobalt	D003035	exact name	4849	48	0.003	0.008	347	6	0.03222
+Metals	Copper	D003300	exact name	6193	58	0.003	0.008	5440	53	0.001929
+Metals	Iron	D007501	exact name	458	7	0.037	0.054	458	7	0.03816
+Metals	Lead	D007854	exact name	3271	42	1.73e-05	0.000276	2990	37	0.0001625
+Metals	Manganese	D008345	exact name	558	12	0.000401	0.002	545	12	0.0003675
+Metals	Mercury	D008628	exact name	635	13	0.00037	0.002	633	13	0.0004057
+Metals	Nickel	D009532	exact name	7653	62	0.051	0.063	4406	30	0.5464
+Metals	Rubidium	D012413	exact name	15	0			13	0	
+Metals	Selenium	D012643	exact name	1978	24	0.004	0.008	1978	23	0.007756
+Metals	Strontium	D013324	exact name	21	0			9	0	
+Metals	Thallium	D013793	exact name	62	2	0.064	0.074	29	0	
+Metals	Vanadium	D014639	exact name	182	1	0.716	0.716	182	1	0.7151
+Metals	Zinc	D015032	exact name	2678	30	0.004	0.008	2677	30	0.003841
+PAHs	1-Nitropyrene	C032668	exact name	263	1	0.839	0.839	264	1	0.8388
+PAHs	3-Methylcholanthrene	D008748	CTD synonym	1305	8	0.678	0.724	1304	8	0.6759
+PAHs	5-Methylchrysene	C008422	exact name	4	0			4	0	
+PAHs	7 H-Dibenzo(c, g)carbazole	C013478	CTD synonym	2	0			2	0	
+PAHs	7,12-Dimethylbenz(a)anthracene	D015127	CTD synonym	1304	16	0.016	0.063	1305	16	0.01655
+PAHs	Acenaphthene	C042552	exact name	9	0			9	0	
+PAHs	Anthracene	C034020	exact name	21	3	0.000242	0.002	21	3	0.0003804
+PAHs	Benzo(a)anthracene	C030935	CTD synonym	1413	12	0.259	0.411	1413	12	0.2598
+PAHs	Benzo(a)phenanthrene	C031180	CTD synonym	954	8	0.328	0.438	953	8	0.3281
+PAHs	Benzo(b)fluoranthene	C006703	exact name	1684	12	0.487	0.599	1683	12	0.485
+PAHs	Benzo(g, h,i)perylene	C006718	CTD synonym	290	5	0.048	0.107	290	5	0.04925
+PAHs	Benzo(j)fluoranthene	C027704	exact name	5	0			5	0	
+PAHs	Benzo(j, k)fluorene	C007738	CTD synonym	956	12	0.03	0.08	956	12	0.03095
+PAHs	Benzo(k)fluoranthene	C022921	exact name	753	7	0.256	0.411	752	7	0.2562
+PAHs	Dibenzacridine	C022289	exact name	4	0			4	0	
+PAHs	Dibenzo(a, e)pyrene	C041516	CTD synonym	3	0			3	0	
+PAHs	Dibenzo(a, h)anthracene	C026486	CTD synonym	916	6	0.603	0.689	916	6	0.6017
+PAHs	Dibenzo(a, h)pyrene	C031195	CTD synonym	2	1	0.007	0.037	2	1	0.01364
+PAHs	Dibenzo(a, l)pyrene	C041517	CTD synonym	394	4	0.282	0.411	393	4	0.2825
+PAHs	Fluorene	C041509	exact name	16	0			16	0	
+PAHs	Indeno(1,2,3-cd)pyrene	C041508	exact name	255	5	0.03	0.08	255	5	0.03101
+PAHs	Phenanthrene	C031181	exact name	154	7	7.21e-05	0.001	155	7	9.588e-05
+PAHs	Pyrene	C030984	exact name	300	5	0.054	0.107	299	5	0.05479
+POPs	Aldrin	D000452	exact name	225	3	0.198	0.216	225	3	0.2
+POPs	Chlordane	D002706	CTD synonym	215	5	0.015	0.037	214	5	0.01593
+POPs	Dichlorodiphenyl trichloroethane	D003634	CTD synonym	1160	21	3.36e-05	0.000202	763	16	6.639e-05
+POPs	Dieldrin	D004026	exact name	1494	25	2.1e-05	0.000202	1494	25	2.434e-05
+POPs	Endrin	D004732	exact name	86	2	0.114	0.137	86	2	0.1173
+POPs	Heptachlor	D006533	exact name	229	7	0.001	0.004	129	7	2.986e-05
+POPs	Hexachlorobenzene	D006581	exact name	224	4	0.066	0.099	229	4	0.07248
+POPs	Mirex	D008917	exact name	53	2	0.048	0.097	51	2	0.04764
+POPs	Polychlorinated biphenyls	D011078	exact name	9137	72	0.057	0.098	839	10	0.06217
+POPs	Polychlorinated dibenzo-p-dioxins	D000072317	CTD synonym	17068	109	0.988	0.988	76	2	0.09551
+POPs	Polychlorinated dibenzofurans	D000072338	CTD synonym	75	2	0.09	0.121	75	2	0.0934
+POPs	Toxaphene	D014112	exact name	80	4	0.002	0.006	80	4	0.002215
+Rodenticides	Brodifacoum	C013418	CTD synonym	660	12	0.002	0.005	660	12	0.001925
+Rodenticides	Bromadiolone	C021636	exact name	14	1	0.086	0.115	14	1	0.09167
+Rodenticides	Cholecalciferol	D002762	exact name	2830	32	0.002	0.005	264	4	0.1077
+Rodenticides	Difethialone	C060340	exact name	4	0			4	0	
+Rodenticides	Diphacinone	C100262	CTD synonym	1	0			1	0	
+Rodenticides	Strychnine	D013331	exact name	37	0			15	0	
+Rodenticides	Warfarin	D014859	exact name	748	5	0.585	0.585	748	5	0.5844
