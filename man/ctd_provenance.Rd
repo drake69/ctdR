@@ -22,7 +22,8 @@ has been run.}
 An object of class \code{ctd_provenance}: a list with
   \code{report_created} (the CTD release string, \code{NA} if the file
   carried none), \code{source}, \code{accessed}, \code{n_chemicals},
-  \code{n_interactions} and \code{ctdR_version}. Returns \code{NULL},
+  \code{n_interactions}, \code{organism} (the NCBI Taxonomy IDs kept,
+  \code{NA} for every species) and \code{ctdR_version}. Returns \code{NULL},
   with a warning, when \code{x} carries no record.
 }
 \description{

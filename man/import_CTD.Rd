@@ -4,7 +4,7 @@
 \alias{import_CTD}
 \title{Import CTD Chemical-Gene Interaction Data}
 \usage{
-import_CTD(file_path)
+import_CTD(file_path, organism = 9606)
 }
 \arguments{
 \item{file_path}{Character. A local path \strong{or} a URL to the CTD
@@ -13,6 +13,11 @@ chemical-gene interactions file (\code{CTD_chem_gene_ixns.csv} or
 with \pkg{BiocFileCache}; the package assumes no default URL, so you supply
 the source and a one-time CTD data-licensing reminder is shown on first
 remote fetch.}
+
+\item{organism}{NCBI Taxonomy IDs of the species to keep, as numbers or
+character strings. Defaults to \code{9606} (\emph{Homo sapiens}).
+\code{NULL} keeps every species. The choice is recorded in the
+provenance of the import (see \code{\link{ctd_provenance}}).}
 }
 \value{
 Invisible \code{NULL}. Called for its side effect of caching the
@@ -31,7 +36,8 @@ required file is \strong{CTD_chem_gene_ixns.csv.gz}, available at
 Processing steps performed by \code{import_CTD}:
 \enumerate{
   \item Reads the CSV, skipping the 27 CTD header lines.
-  \item Filters interactions to \strong{Homo sapiens} only (OrganismID 9606).
+  \item Keeps the interactions of the species named in \code{organism},
+    \strong{Homo sapiens} only (OrganismID 9606) by default.
   \item For each chemical, collects the associated Entrez gene IDs.
   \item Maps Entrez IDs to HGNC gene symbols via \pkg{org.Hs.eg.db}.
   \item Saves four cached objects via \pkg{BiocFileCache}:
@@ -61,6 +67,23 @@ downloading the data directly from \url{https://ctdbase.org} and for
 complying with the CTD Terms of Service
 (\url{https://ctdbase.org/about/legal.jsp}). By using this function you
 acknowledge that you have read and accepted those terms.
+}
+
+\section{Species}{
+
+By default only human interactions are kept, as in every earlier
+version. \code{organism} accepts other NCBI Taxonomy IDs (for example
+\code{10090} for mouse, \code{10116} for rat), several at once, or
+\code{NULL} for every species in the file, including the interactions
+CTD records without a species.
+
+ctdR performs no orthology mapping: each interaction keeps the gene CTD
+curated it on, so a mouse interaction contributes a mouse gene. The
+Entrez-keyed gene sets therefore hold every species requested, and
+analyses run on Entrez IDs (\code{gene_id_type = "entrez"}) see them
+all. Gene symbols are assigned through \pkg{org.Hs.eg.db}, so the
+symbol-keyed sets keep only genes with a human Entrez ID. Supply your
+genes in the same species and identifier space as the sets you test.
 }
 
 \examples{

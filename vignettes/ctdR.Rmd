@@ -128,8 +128,9 @@ import_CTD(sample_file)
 `import_CTD()` performs the following:
 
 1. Reads the CSV (skipping the 27 CTD header lines).
-2. Filters interactions to **Homo sapiens** only
-    (OrganismID 9606).
+2. Keeps the interactions of **Homo sapiens**
+    (OrganismID 9606), unless `organism` says otherwise
+    (see below).
 3. Collects Entrez gene IDs for each chemical.
 4. Maps Entrez IDs to HGNC gene symbols via
     `org.Hs.eg.db`.
@@ -139,6 +140,28 @@ import_CTD(sample_file)
 This step takes several minutes with the full CTD file.
 You only need to run it once -- or again when you
 download a newer CTD release.
+
+### Other species
+
+By default only human interactions are imported. The
+`organism` argument takes other NCBI Taxonomy IDs, several
+at once, or `NULL` for every species in the file:
+
+```{r import-organism, eval = FALSE}
+import_CTD("~/Downloads/CTD_chem_gene_ixns.csv",
+    organism = c(9606, 10090, 10116))   # human, mouse, rat
+import_CTD("~/Downloads/CTD_chem_gene_ixns.csv",
+    organism = NULL)                     # every species
+```
+
+`ctdR` does not map genes between species. A mouse
+interaction keeps its mouse gene, so the Entrez-keyed sets
+contain every species you asked for, while the symbol-keyed
+sets (built through `org.Hs.eg.db`) keep only genes with a
+human Entrez ID. Give your genes in the same species and
+identifier space as the sets: for non-human data, pass
+Entrez IDs and use `gene_id_type = "entrez"`. The species
+imported is recorded by `ctd_provenance()`.
 
 ### Which CTD release did I use?
 
