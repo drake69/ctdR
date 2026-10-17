@@ -16,6 +16,16 @@
   were imported. Records written by earlier versions print as human,
   which is the only thing those versions could import.
 
+## Bug fixes
+
+* `import_CTD()` no longer warns that thousands of chemicals "appear with
+  more than one ChemicalName". The check counted every chemical with more
+  than one interaction, because it received one row per interaction; on
+  the May 2026 release it flagged 8,914 of 11,067 human chemicals, none of
+  which actually has two names. The names kept were already correct, so
+  results are unchanged. The warning now fires only for an ID that really
+  carries two different names.
+
 # Changes in version 0.99.11
 
 ## Documentation

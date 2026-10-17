@@ -148,6 +148,11 @@ import_CTD <- function(file_path, organism = 9606) {
 #' @return A data frame with one row per unique \code{ChemicalID}.
 #' @keywords internal
 .deduplicate_chemicals <- function(chem_df) {
+    # The caller passes one row per interaction, so the same (ID, name)
+    # pair repeats for every chemical with more than one interaction.
+    # Collapse those first: only an ID left with two different names is
+    # the data-quality problem the warning below reports.
+    chem_df <- unique(chem_df)
     dup_id <- duplicated(chem_df$ChemicalID)
     if (any(dup_id)) {
         ambiguous <- unique(chem_df$ChemicalID[dup_id])
