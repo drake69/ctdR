@@ -16,7 +16,9 @@ remote fetch.}
 
 \item{organism}{NCBI Taxonomy IDs of the species to keep, as numbers or
 character strings. Defaults to \code{9606} (\emph{Homo sapiens}).
-\code{NULL} keeps every species. The choice is recorded in the
+\code{"all"} keeps every species and forces symbol-keyed gene sets
+to pool species by gene symbol (see the Species section). The choice
+is recorded in the
 provenance of the import (see \code{\link{ctd_provenance}}).}
 }
 \value{
@@ -74,16 +76,21 @@ acknowledge that you have read and accepted those terms.
 By default only human interactions are kept, as in every earlier
 version. \code{organism} accepts other NCBI Taxonomy IDs (for example
 \code{10090} for mouse, \code{10116} for rat), several at once, or
-\code{NULL} for every species in the file, including the interactions
+\code{"all"} for every species in the file, including the interactions
 CTD records without a species.
 
-ctdR performs no orthology mapping: each interaction keeps the gene CTD
-curated it on, so a mouse interaction contributes a mouse gene. The
-Entrez-keyed gene sets therefore hold every species requested, and
-analyses run on Entrez IDs (\code{gene_id_type = "entrez"}) see them
-all. Gene symbols are assigned through \pkg{org.Hs.eg.db}, so the
-symbol-keyed sets keep only genes with a human Entrez ID. Supply your
-genes in the same species and identifier space as the sets you test.
+When species other than human are imported, and always with
+\code{organism = "all"}, the symbol-keyed gene sets are \strong{forced}
+to pool genes across species \strong{by gene symbol} (orthology by
+homonymy); there is no option to turn it off: a mouse \emph{Esr1}
+interaction counts as \emph{ESR1}. This is how the CTD website
+aggregates genes, and what published analyses based on it did; it is a
+match by name, not an orthology mapping. Human genes take their symbol
+from \pkg{org.Hs.eg.db} as before; genes of other species take the
+symbol CTD gives them, in upper case. The Entrez-keyed gene sets are not
+pooled: each interaction keeps the Entrez ID of the gene CTD curated it
+on, so analyses on Entrez IDs (\code{gene_id_type = "entrez"}, and GSEA)
+match a non-human gene only to an input in the same species.
 }
 
 \examples{

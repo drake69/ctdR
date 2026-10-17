@@ -654,14 +654,20 @@ enrichment_CTD <- function(x,
     entrez <- lapply(entrez, unique)
 
     all_entrez <- unique(unlist(entrez, use.names = FALSE))
-    sym_vec <- suppressMessages(AnnotationDbi::mapIds(
+    # The import's own Entrez-to-symbol map, so that a multi-species cache
+    # pools symbols here exactly as it did in ChemicalName_GeneSymbols.
+    # Caches written before the map existed hold human genes only, for
+    # which org.Hs.eg.db gives the same answer.
+    sym_vec <- if (.ctd_cache_has(bfc, "gene_symbol_map"))
+        .ctd_cache_load(bfc, "gene_symbol_map")[all_entrez]
+    else suppressMessages(AnnotationDbi::mapIds(
         org.Hs.eg.db::org.Hs.eg.db,
         keys = all_entrez, column = "SYMBOL",
         keytype = "ENTREZID", multiVals = "first"
     ))
     symbols <- do.call(rbind, lapply(names(entrez), function(chem) {
         syms <- sym_vec[entrez[[chem]]]
-        syms <- syms[!is.na(syms)]
+        syms <- unique(syms[!is.na(syms)])
         if (!length(syms)) return(NULL)
         data.frame(term = chem, gene = unname(syms),
                    stringsAsFactors = FALSE)

@@ -10,7 +10,7 @@
 \item{file_path}{Path to the CTD CSV file.}
 
 \item{organism}{Character vector of NCBI Taxonomy IDs to keep, or
-\code{NULL} for every species (as returned by \code{.check_organism()}).}
+\code{"all"} for every species (as returned by \code{.check_organism()}).}
 }
 \value{
 A filtered data frame of CTD interactions, carrying the

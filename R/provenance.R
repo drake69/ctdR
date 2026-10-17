@@ -38,7 +38,7 @@
 #'   \code{report_created} (the CTD release string, \code{NA} if the file
 #'   carried none), \code{source}, \code{accessed}, \code{n_chemicals},
 #'   \code{n_interactions}, \code{organism} (the NCBI Taxonomy IDs kept,
-#'   \code{NA} for every species) and \code{ctdR_version}. Returns \code{NULL},
+#'   or \code{"all"}) and \code{ctdR_version}. Returns \code{NULL},
 #'   with a warning, when \code{x} carries no record.
 #'
 #' @seealso \code{\link{import_CTD}}, which reads the record, and
@@ -100,7 +100,7 @@ ctd_provenance <- function(x) {
 #' @param n_chemicals Number of chemicals retained after filtering.
 #' @param n_interactions Number of chemical-gene pairs retained.
 #' @param organism Character vector of the NCBI Taxonomy IDs kept, or
-#'   \code{NULL} when every species was kept.
+#'   \code{"all"} when every species was kept.
 #' @return An object of class \code{ctd_provenance}.
 #' @keywords internal
 .ctd_provenance_new <- function(report_created, source,
@@ -112,9 +112,7 @@ ctd_provenance <- function(x) {
             accessed = format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z"),
             n_chemicals = as.integer(n_chemicals),
             n_interactions = as.integer(n_interactions),
-            # NA stands for every species, so the field is never absent
-            # and an older record (without it) can be told apart.
-            organism = if (is.null(organism)) NA_character_ else organism,
+            organism = organism,
             ctdR_version = as.character(utils::packageVersion("ctdR"))
         ),
         class = "ctd_provenance"
@@ -185,13 +183,13 @@ print.ctd_provenance <- function(x, ...) {
 
 #' Describe the species recorded in a provenance record
 #'
-#' @param organism The \code{organism} field: taxonomy IDs, \code{NA} for
-#'   every species, or \code{NULL} for a record written before the field
+#' @param organism The \code{organism} field: taxonomy IDs, \code{"all"}
+#'   for every species, or \code{NULL} for a record written before the field
 #'   existed, when only human interactions could be imported.
 #' @return A single string.
 #' @keywords internal
 .format_organism <- function(organism) {
     if (is.null(organism)) return("9606 (Homo sapiens; not recorded)")
-    if (length(organism) == 1L && is.na(organism)) return("all species")
+    if (identical(organism, "all")) return("all species")
     paste(organism, collapse = ", ")
 }

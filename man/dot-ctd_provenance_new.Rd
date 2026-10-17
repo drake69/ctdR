@@ -22,7 +22,7 @@
 \item{n_interactions}{Number of chemical-gene pairs retained.}
 
 \item{organism}{Character vector of the NCBI Taxonomy IDs kept, or
-\code{NULL} when every species was kept.}
+\code{"all"} when every species was kept.}
 }
 \value{
 An object of class \code{ctd_provenance}.

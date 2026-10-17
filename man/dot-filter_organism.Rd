@@ -9,7 +9,7 @@
 \arguments{
 \item{ctd}{CTD interaction data frame (all columns character).}
 
-\item{organism}{Character vector of taxonomy IDs, or \code{NULL}.}
+\item{organism}{Character vector of taxonomy IDs, or \code{"all"}.}
 }
 \value{
 The filtered data frame.

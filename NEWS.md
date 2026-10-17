@@ -5,13 +5,15 @@
 * `import_CTD()` gains an `organism` argument. It defaults to `9606`, so
   an import with no further argument keeps only human interactions,
   exactly as before. It also accepts other NCBI Taxonomy IDs, several at
-  once, or `NULL` for every species in the file, which is what a
+  once, or `"all"` for every species in the file, which is what a
   published analysis that pooled species needs in order to be repeated.
-  No orthology mapping is performed: each interaction keeps the gene CTD
-  curated it on. The Entrez-keyed gene sets hold every species requested;
-  the symbol-keyed sets keep only genes with a human Entrez ID, because
-  symbols come from org.Hs.eg.db. The import reports how many interactions
-  each species contributes.
+  When species other than human are imported, and always with `"all"`,
+  the symbol-keyed gene sets are forced to pool them by gene symbol
+  (orthology by homonymy, with no option to turn it off) (a mouse *Esr1* interaction counts as *ESR1*),
+  as the CTD website does. This is a match by name, not an orthology
+  mapping. The Entrez-keyed sets are not pooled: each interaction keeps the
+  gene CTD curated it on. The import reports how many interactions each
+  species contributes.
 * The provenance record (`ctd_provenance()`) now states which species
   were imported. Records written by earlier versions print as human,
   which is the only thing those versions could import.

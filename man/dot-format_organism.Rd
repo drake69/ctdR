@@ -7,8 +7,8 @@
 .format_organism(organism)
 }
 \arguments{
-\item{organism}{The \code{organism} field: taxonomy IDs, \code{NA} for
-every species, or \code{NULL} for a record written before the field
+\item{organism}{The \code{organism} field: taxonomy IDs, \code{"all"}
+for every species, or \code{NULL} for a record written before the field
 existed, when only human interactions could be imported.}
 }
 \value{

@@ -145,23 +145,26 @@ download a newer CTD release.
 
 By default only human interactions are imported. The
 `organism` argument takes other NCBI Taxonomy IDs, several
-at once, or `NULL` for every species in the file:
+at once, or `"all"` for every species in the file:
 
 ```{r import-organism, eval = FALSE}
 import_CTD("~/Downloads/CTD_chem_gene_ixns.csv",
     organism = c(9606, 10090, 10116))   # human, mouse, rat
 import_CTD("~/Downloads/CTD_chem_gene_ixns.csv",
-    organism = NULL)                     # every species
+    organism = "all")                    # every species
 ```
 
-`ctdR` does not map genes between species. A mouse
-interaction keeps its mouse gene, so the Entrez-keyed sets
-contain every species you asked for, while the symbol-keyed
-sets (built through `org.Hs.eg.db`) keep only genes with a
-human Entrez ID. Give your genes in the same species and
-identifier space as the sets: for non-human data, pass
-Entrez IDs and use `gene_id_type = "entrez"`. The species
-imported is recorded by `ctd_provenance()`.
+With species other than human, and always with
+`organism = "all"`, the symbol-keyed sets are **forced** to
+pool genes across species **by symbol** (orthology by
+homonymy, which cannot be turned off): a mouse *Esr1*
+interaction counts as *ESR1*. This is how the CTD website
+aggregates genes, and what analyses built on it did; it is a
+match by name, not an orthology mapping. The Entrez-keyed
+sets are not pooled, so analyses on Entrez IDs
+(`gene_id_type = "entrez"`, and GSEA) match a non-human gene
+only to an input in the same species. The species imported
+is recorded by `ctd_provenance()`.
 
 ### Which CTD release did I use?
 

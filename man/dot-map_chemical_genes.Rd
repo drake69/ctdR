@@ -4,12 +4,19 @@
 \alias{.map_chemical_genes}
 \title{Map chemicals to gene IDs and symbols}
 \usage{
-.map_chemical_genes(ctd_data, chemicals_ids)
+.map_chemical_genes(
+  ctd_data,
+  chemicals_ids,
+  symbol_map = .gene_symbol_map(ctd_data)
+)
 }
 \arguments{
 \item{ctd_data}{Filtered CTD interaction data frame.}
 
 \item{chemicals_ids}{Character vector of chemical IDs.}
+
+\item{symbol_map}{Named character vector, Entrez ID to symbol, as built
+by \code{.gene_symbol_map()}.}
 }
 \value{
 A list with \code{entrez} (named list) and

@@ -7,10 +7,10 @@
 .check_organism(organism)
 }
 \arguments{
-\item{organism}{\code{NULL}, or NCBI Taxonomy IDs as numbers or strings.}
+\item{organism}{\code{"all"}, or NCBI Taxonomy IDs as numbers or strings.}
 }
 \value{
-\code{NULL}, or a character vector of unique taxonomy IDs.
+\code{"all"}, or a character vector of unique taxonomy IDs.
 }
 \description{
 Validate the organism argument of import_CTD()
