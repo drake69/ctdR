@@ -29,6 +29,21 @@
   the same genes, reporting unadjusted and adjusted p-values. Precomputed
   tables are in `inst/extdata/yang2024/` (counts and p-values, no CTD
   records) and the full script is `inst/scripts/replicate_yang2024.R`.
+* The introductory vignette is now titled "ctdR: an application example",
+  says so at the top, and points to the replication vignette for how the
+  package was validated. It states the question `ctdR` answers (which
+  chemicals, among all those in CTD) as distinct from verifying chemicals
+  chosen in advance.
+* Download instructions no longer tell users to decompress the CTD file:
+  `import_CTD()` reads the `.gz` directly. They point to the CTD downloads
+  page, which now serves the file through a browser check, and give its
+  real size (about 40 MB compressed, not "several GB"). The same correction
+  applies to the error raised when no CTD data have been imported.
+* The vignette no longer says the import skips 27 header lines; the column
+  names are read from the commented header. The README no longer describes
+  the import as human-only.
+* "Updating the CTD data" now explains that CTD keeps no past releases, so
+  the file used must be kept for an analysis to be repeated.
 
 ## Bug fixes
 

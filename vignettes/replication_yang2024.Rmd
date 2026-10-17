@@ -62,6 +62,11 @@ CC BY 4.0). Their design:
   hypergeometric test with a fixed universe of 19,000 protein-coding genes,
   FDR correction within each class.
 
+Uploading the gene symbols and downloading the results is CTD's **Batch
+Query**, so the set sizes and overlaps in the paper's tables are the output
+of the Batch Query on CTD of 2023: comparing them with `ctdR` compares the
+two tools on the same period of CTD.
+
 This is **verification**: the chemicals are chosen first, then tested. It is
 the same pattern as the CTD Batch Query or `CTDquerier`.
 

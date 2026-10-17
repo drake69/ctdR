@@ -334,10 +334,8 @@ enrichment_CTD <- function(x,
         stop(
             "CTD data not found. Please:\n",
             "  1. Download CTD_chem_gene_ixns.csv.gz from\n",
-            "     https://ctdbase.org/reports/",
-            "CTD_chem_gene_ixns.csv.gz\n",
-            "  2. Decompress: gunzip CTD_chem_gene_ixns.csv.gz\n",
-            "  3. Run import_CTD(\"path/to/file.csv\")",
+            "     https://ctdbase.org/downloads/ (in a browser)\n",
+            "  2. Run import_CTD(\"path/to/CTD_chem_gene_ixns.csv.gz\")",
             call. = FALSE
         )
     }

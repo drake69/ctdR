@@ -21,7 +21,8 @@
 #' @details
 #' Processing steps performed by \code{import_CTD}:
 #' \enumerate{
-#'   \item Reads the CSV, skipping the 27 CTD header lines.
+#'   \item Reads the file (plain or gzip-compressed), taking the column
+#'     names from its commented header.
 #'   \item Keeps the interactions of the species named in \code{organism},
 #'     \strong{Homo sapiens} only (OrganismID 9606) by default.
 #'   \item For each chemical, collects the associated Entrez gene IDs.
