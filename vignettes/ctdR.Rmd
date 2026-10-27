@@ -676,8 +676,9 @@ raises a warning rather than being silently dropped.
 ### Why the size thresholds are what they are
 
 In `ctdR` every chemical *is* a gene set, and CTD gene sets are small:
-the median chemical has **4** target genes, against 72 for KEGG and 11
-for GO. Size thresholds tuned for those collections do not transfer.
+the median chemical has **4** target genes, against 79 for KEGG
+pathways and 8 for GO biological process terms (whole human
+collections, Bioconductor 3.23). Size thresholds tuned for those collections do not transfer.
 Measured on the full CTD chemical-gene file, of 11,067 chemicals:
 
 | `minGSSize` | Chemicals tested | % |
