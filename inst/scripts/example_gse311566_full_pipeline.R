@@ -105,6 +105,13 @@ CONFIG <- list(
     ## Multiple-testing correction passed through to enrichment_CTD().
     p_adjust_method = "BH",
 
+    ## Seed of the random number generator set before GSEA. fgsea
+    ## estimates p-values by sampling, so without a seed two runs on the
+    ## same input differ: up to 0.9 in a single p-value and 266 against
+    ## 271 chemicals at FDR < 0.05 on this dataset. Enrichment scores do
+    ## not depend on it.
+    gsea_seed = 20261027L,
+
     out_dir = file.path(getwd(), "example_outputs")
 )
 
@@ -400,6 +407,7 @@ log_step("Step F -- ORA: ", nrow(ora_significant),
     " (", nrow(ora_full), " total returned)")
 
 ## GSEA: full ranked list
+set.seed(CONFIG$gsea_seed)
 gsea_full <- enrichment_CTD(de_table[, c("EntrezID", "pvalue")],
     method = "GSEA",
     pAdjustMethod = CONFIG$p_adjust_method)
