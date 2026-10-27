@@ -1,6 +1,8 @@
 # Replicate Yang et al. (2024) with ctdR, then screen the whole CTD catalogue
-# with the same genes. Produces the tables in inst/extdata/yang2024/ that the
-# vignette "Replicating a published CTD analysis" displays.
+# with the same genes. Recomputes, on the CTD release closest to the authors',
+# the ctdR columns of inst/extdata/yang2024/yang2024_replication.tsv (set size,
+# overlap and the authors' p-value on ctdR's sets) and the ORA over every
+# chemical that the vignette "Replicating a published CTD analysis" displays.
 #
 # Yang Y, Zheng T, Tang Q, et al. Developmental dyslexia genes are selectively
 # targeted by diverse environmental pollutants. BMC Psychiatry 24, 509 (2024).
@@ -17,59 +19,105 @@
 library(ctdR)
 library(data.table)
 
-work <- file.path(tempdir(), "ctdR_yang2024")
-dir.create(work, showWarnings = FALSE)
-options(ctdR.cache = file.path(work, "cache"))
+# A private cache, so the 2023 release does not replace the user's own.
+work_dir <- file.path(tempdir(), "ctdR_yang2024")
+dir.create(work_dir, showWarnings = FALSE)
+options(ctdR.cache = file.path(work_dir, "cache"))
 
 ## 1. The CTD release of 23 May 2023, verified against the archive digest ----
-ctd_file <- file.path(work, "CTD_chem_gene_ixns_2023-05-23.csv.gz")
-capture <- paste0("https://web.archive.org/web/20230607020439id_/",
+ctd_file <- file.path(work_dir, "CTD_chem_gene_ixns_2023-05-23.csv.gz")
+archive_capture_url <- paste0("https://web.archive.org/web/20230607020439id_/",
     "https://ctdbase.org/reports/CTD_chem_gene_ixns.csv.gz")
 if (!file.exists(ctd_file))
-    utils::download.file(capture, ctd_file, mode = "wb")
-cdx <- readLines(paste0("https://web.archive.org/cdx/search/cdx?url=",
+    utils::download.file(archive_capture_url, ctd_file, mode = "wb")
+# The archive's index (CDX) records the digest of the capture it served.
+archive_digest <- readLines(paste0("https://web.archive.org/cdx/search/cdx?url=",
     "ctdbase.org/reports/CTD_chem_gene_ixns.csv.gz",
     "&from=20230607020439&to=20230607020439&fl=digest"))
-# The archive prints SHA-1 digests in base32 (RFC 4648).
-base32 <- function(raw) {
+
+#' Encode bytes in base32 (RFC 4648), the alphabet the archive prints.
+#'
+#' openssl returns the SHA-1 as raw bytes, the archive index as base32
+#' text; this puts the local digest in the archive's form so the two
+#' can be compared as strings.
+#'
+#' @param digest_bytes Raw vector, the bytes to encode (20 for a SHA-1,
+#'   whose 160 bits split exactly into 32 base32 characters).
+#' @return Character of length 1, the base32 encoding without padding.
+base32 <- function(digest_bytes) {
     # most significant bit first within each byte
-    bits <- unlist(lapply(raw, function(b) rev(as.integer(rawToBits(b)))))
-    idx <- vapply(split(bits, ceiling(seq_along(bits) / 5)),
-        function(b) sum(b * 2^(4:0)), numeric(1))
-    paste(c(LETTERS, 2:7)[idx + 1], collapse = "")
+    digest_bits <- unlist(lapply(digest_bytes,
+        function(one_byte) rev(as.integer(rawToBits(one_byte)))))
+    # each group of five bits is one base32 character, value 0-31
+    character_values <- vapply(
+        split(digest_bits, ceiling(seq_along(digest_bits) / 5)),
+        function(five_bits) sum(five_bits * 2^(4:0)), numeric(1))
+    paste(c(LETTERS, 2:7)[character_values + 1], collapse = "")
 }
-sha1 <- base32(as.raw(openssl::sha1(file(ctd_file, raw = TRUE))))
-stopifnot(identical(sha1, cdx[1]))
+local_digest <- base32(as.raw(openssl::sha1(file(ctd_file, raw = TRUE))))
+stopifnot(identical(local_digest, archive_digest[1]))
 
 ## 2. Import every species: symbol sets pool species by gene symbol --------
 import_CTD(ctd_file, organism = "all")
 print(ctd_provenance())
 
 ## 3. Inputs published by the authors ---------------------------------------
-ext <- system.file("extdata", "yang2024", package = "ctdR")
-genes <- fread(file.path(ext, "yang2024_genes.tsv"))$GeneSymbol
-rep <- fread(file.path(ext, "yang2024_replication.tsv"))
+yang_extdata_dir <- system.file("extdata", "yang2024", package = "ctdR")
+dyslexia_genes <- fread(file.path(yang_extdata_dir,
+    "yang2024_genes.tsv"))$GeneSymbol
+published_results <- fread(file.path(yang_extdata_dir,
+    "yang2024_replication.tsv"))
 
 ## 4. Same sets? Set size N and overlap k per chemical ----------------------
-sets <- as_genesets_CTD(id_type = "symbol")
-size <- data.table(ChemicalID = names(sets),
-    N_ctdR = lengths(lapply(sets, unique)),
-    k_ctdR = vapply(sets, function(g) sum(unique(g) %in% toupper(genes)), 0L))
+chemical_gene_sets <- as_genesets_CTD(id_type = "symbol")
+ctdR_set_overlap <- data.table(ChemicalID = names(chemical_gene_sets),
+    N_ctdR = lengths(lapply(chemical_gene_sets, unique)),
+    k_ctdR = vapply(chemical_gene_sets,
+        function(set_symbols) sum(unique(set_symbols) %in% toupper(dyslexia_genes)),
+        0L))
 
 ## 5. The authors' test on ctdR's sets: hypergeometric, universe 19,000 ----
 ## Their p-values are reproduced with the 130 genes of their Table S2.
-hyper <- function(k, N, n = 130, M = 19000)
-    ifelse(k > 0, phyper(k - 1, n, M - n, N, lower.tail = FALSE), NA_real_)
-check <- merge(rep[, .(Chemical, Class, ChemicalID, N_paper, k_paper,
-    PValue_paper, PValueFDR_paper)], size, by = "ChemicalID", all.x = TRUE)
-check[, PValue_sameTest_ctdR := hyper(k_ctdR, N_ctdR)]
+
+#' The authors' enrichment test: upper tail of the hypergeometric.
+#'
+#' Probability of drawing at least k_overlap genes of a chemical's set
+#' when drawing the n_input dyslexia genes from a universe of
+#' universe_size genes. Written out so the authors' settings stay
+#' visible next to ctdR's own ORA.
+#'
+#' @param k_overlap Integer vector, dyslexia genes in the chemical's set.
+#' @param N_set_size Integer vector, genes in the chemical's set.
+#' @param n_input Integer, dyslexia genes in the query (130, Table S2).
+#' @param universe_size Integer, genes in the universe (19,000, as the
+#'   authors state).
+#' @return Numeric vector of p-values; NA where k_overlap is 0, because
+#'   the authors report only chemicals that share at least one gene.
+hypergeometric_upper_tail <- function(k_overlap, N_set_size,
+                                      n_input = 130, universe_size = 19000)
+    ifelse(k_overlap > 0,
+        phyper(k_overlap - 1, n_input, universe_size - n_input, N_set_size,
+            lower.tail = FALSE),
+        NA_real_)
+replication_check <- merge(published_results[, .(Chemical, Class, ChemicalID,
+    N_paper, k_paper, PValue_paper, PValueFDR_paper)], ctdR_set_overlap,
+    by = "ChemicalID", all.x = TRUE)
+replication_check[, PValue_sameTest_ctdR :=
+    hypergeometric_upper_tail(k_ctdR, N_ctdR)]
 
 ## 6. Discovery: every chemical, ctdR's ORA --------------------------------
-entrez <- AnnotationDbi::mapIds(org.Hs.eg.db::org.Hs.eg.db, genes,
-    "ENTREZID", "SYMBOL")
-x <- data.frame(EntrezID = unname(entrez[!is.na(entrez)]), pvalue = 0.01)
-coding <- unique(AnnotationDbi::select(org.Hs.eg.db::org.Hs.eg.db,
-    keys = "protein-coding", keytype = "GENETYPE", columns = "SYMBOL")$SYMBOL)
-discovery <- enrichment_CTD(x, method = "ORA", universe = coding, minGSSize = 2)
+entrez_by_symbol <- AnnotationDbi::mapIds(org.Hs.eg.db::org.Hs.eg.db,
+    dyslexia_genes, "ENTREZID", "SYMBOL")
+# Without alpha, ORA tests every row of the table, so all the dyslexia
+# genes form the query; the pvalue column is a required placeholder, not a
+# measurement.
+ora_input <- data.frame(
+    EntrezID = unname(entrez_by_symbol[!is.na(entrez_by_symbol)]),
+    pvalue = 0.01)
+protein_coding_symbols <- unique(AnnotationDbi::select(
+    org.Hs.eg.db::org.Hs.eg.db, keys = "protein-coding",
+    keytype = "GENETYPE", columns = "SYMBOL")$SYMBOL)
+discovery <- enrichment_CTD(ora_input, method = "ORA",
+    universe = protein_coding_symbols, minGSSize = 2)
 head(discovery[, c("ChemicalName", "Count", "FoldEnrichment",
     "PValue", "PValueAdjusted")], 30)
