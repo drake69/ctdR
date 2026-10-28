@@ -859,9 +859,8 @@ arise when the background is larger than the actual measurement space.
 Use **ORA** when you have a well-defined gene list above a
 significance threshold; **GSEA** to leverage the full
 ranking without a cutoff; **CAMERA** when you have a
-proper multi-sample design and want to control the
-inflated false-positive rate that ORA/GSEA exhibit on
-strongly co-regulated gene sets; **GSVA** when you want a
+proper multi-sample design and want to account for
+inter-gene correlation, which ORA ignores; **GSVA** when you want a
 per-sample score to feed into downstream analyses
 (clustering, survival, correlation with phenotypes).
 
