@@ -410,9 +410,21 @@ log_step("Step F -- ORA: ", nrow(ora_significant),
     " (", nrow(ora_full), " total returned)")
 
 ## GSEA: full ranked list
+## Genes are ranked by -log10(p), without sign. A CTD chemical's gene set
+## mixes genes the chemical increases with genes it decreases, so a
+## signed statistic lets the two halves cancel: here the moderated t
+## gives 172 chemicals at FDR < 0.05 against 257, and 3 of the 6
+## reference chemicals of step F.7 against 5. The unsigned ranking asks
+## whether a chemical's genes change more than the others, in either
+## direction; every value is positive, so the score is one-sided.
+gsea_ranking <- data.frame(
+    EntrezID = de_table$EntrezID,
+    pvalue   = de_table$pvalue,
+    stat     = -log10(de_table$pvalue)
+)
 set.seed(CONFIG$gsea_seed)
-gsea_full <- enrichment_CTD(de_table[, c("EntrezID", "pvalue")],
-    method = "GSEA",
+gsea_full <- enrichment_CTD(gsea_ranking,
+    method = "GSEA", scoreType = "pos",
     pAdjustMethod = CONFIG$p_adjust_method)
 gsea_significant <- keep_significant(gsea_full, CONFIG$alpha_fdr_chemical)
 write_enrichment_table(gsea_full, "gsea_full")
