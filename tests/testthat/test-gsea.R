@@ -77,3 +77,71 @@ test_that("GSEA reports NES and not a fabricated fold enrichment", {
     expect_true(all(c("ChemicalID", "ChemicalName", "Method",
         "PValue", "PValueAdjusted") %in% colnames(res)))
 })
+
+test_that("GSEA refuses a second column that is not a p-value", {
+    # Without 'stat' the second column is ranked as -log10(value). A fold
+    # change there, as limma::topTable() puts it, would be ranked upside
+    # down and its negative values would become NaN and vanish in sort().
+    skip_on_cran()
+    skip_if_not_installed("fgsea")
+
+    chemical_sets <- list(CHEM1 = c("1", "2", "3"))
+    gene_table <- data.frame(
+        EntrezID = as.character(1:20),
+        logFC = seq(-2, 2, length.out = 20)
+    )
+    expect_error(gsea(chemical_sets, gene_table), "outside \\[0, 1\\]")
+})
+
+test_that("GSEA warns when the stat column holds p-values", {
+    # fgsea ranks the highest value first: p-values used as 'stat' put
+    # the least significant genes at the top.
+    skip_on_cran()
+    skip_if_not_installed("fgsea")
+
+    set.seed(42)
+    chemical_sets <- list(CHEM1 = c("1", "2", "3"))
+    gene_table <- data.frame(
+        EntrezID = as.character(1:50),
+        pvalue = runif(50),
+        stat = runif(50)
+    )
+    # fgsea adds its own warning on an all-positive 'stat'.
+    expect_warning(
+        expect_warning(gsea(chemical_sets, gene_table), "lies in \\[0, 1\\]"),
+        "scoreType"
+    )
+})
+
+test_that("GSEA scores the -log10(p) fallback one-sided", {
+    # Every -log10(p) is positive, so fgsea's default two-sided score
+    # does not apply: the fallback passes scoreType = "pos", and a value
+    # given by the caller still wins.
+    skip_on_cran()
+    skip_if_not_installed("fgsea")
+
+    set.seed(42)
+    chemical_sets <- list(CHEM1 = as.character(1:5),
+        CHEM2 = as.character(30:40))
+    gene_table <- data.frame(
+        EntrezID = as.character(1:100),
+        pvalue = sort(runif(100))
+    )
+    fallback_warnings <- character(0)
+    withCallingHandlers(
+        result <- gsea(chemical_sets, gene_table),
+        warning = function(condition) {
+            fallback_warnings <<- c(fallback_warnings,
+                conditionMessage(condition))
+            invokeRestart("muffleWarning")
+        }
+    )
+    expect_false(any(grepl("scoreType", fallback_warnings)))
+    expect_true(all(result$ES >= 0))
+
+    expect_warning(
+        expect_warning(gsea(chemical_sets, gene_table, scoreType = "std"),
+            "scoreType"),
+        "no 'stat' column"
+    )
+})

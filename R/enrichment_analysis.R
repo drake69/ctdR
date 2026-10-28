@@ -54,8 +54,10 @@
 #'       column named \code{stat} can be added with a signed ranking statistic
 #'       (e.g. the moderated t-statistic from \code{limma::eBayes()});
 #'       when present it is used directly for ranking, preserving directionality
-#'       and avoiding ties. When absent, the second column is transformed via
-#'       \code{-log10()} with a warning. The second column is ignored by ORA.
+#'       and avoiding ties. When absent, the second column must hold p-values:
+#'       it is transformed via \code{-log10()} with a warning, scored
+#'       one-sided (\code{scoreType = "pos"}), and values outside [0, 1]
+#'       stop the run. The second column is ignored by ORA.
 #'     \item For \code{"CAMERA"} and \code{"GSVA"}: either a numeric
 #'       expression matrix with genes in rows and samples in columns, or a
 #'       \code{\link[SummarizedExperiment]{SummarizedExperiment}} whose
