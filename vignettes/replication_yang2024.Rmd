@@ -25,6 +25,7 @@ rep <- read_tsv("yang2024_replication.tsv")
 top <- read_tsv("yang2024_discovery_top30.tsv")
 pos <- read_tsv("yang2024_discovery_yang_chemicals.tsv")
 summ <- read_tsv("yang2024_discovery_summary.tsv")
+yang_vs_ctdR <- read_tsv("yang2024_comparison.tsv")
 fmt <- function(p) ifelse(is.na(p), "", formatC(p, format = "g", digits = 3))
 ```
 
@@ -275,6 +276,58 @@ reach it by size, because they are the most studied chemicals.
 | Gene symbols: HGNC symbols of today's `org.Hs.eg.db` | a renamed gene changes name (for example *BVES* is now *POPDC1*) |
 | Universe: 19,000 fixed in the paper; `ctdR` narrows its background | different p-values in discovery mode, same sets |
 | 130 genes in Table S2, 131 in the text, 142 in the Expected column | p-values reproduced with 130 |
+
+# Yang et al. and ctdR, chemical by chemical
+
+Each of the `r nrow(yang_vs_ctdR)` entries of the paper's tables, with the
+authors' call next to `ctdR`'s call in discovery, both at 0.05, twice:
+without correction (the paper's p-value against `ctdR`'s raw p-value) and with
+it (the paper's FDR within each class against `ctdR`'s Benjamini-Hochberg
+p-value over every chemical tested). The table is step 7 of
+`inst/scripts/replicate_yang2024.R`.
+
+```{r comparison-count}
+outcome_levels <- c("significant in both", "significant only in Yang et al.",
+    "significant only in ctdR", "significant in neither", "not tested by ctdR")
+cbind(
+    unadjusted = table(factor(yang_vs_ctdR$Outcome_unadjusted, outcome_levels)),
+    adjusted = table(factor(yang_vs_ctdR$Outcome_adjusted, outcome_levels)))
+```
+
+Without correction the two analyses agree on most entries; the correction
+moves entries from "both" to "only in Yang et al." because the correction
+over every chemical in CTD is harsher than the one within each class of a
+list chosen in advance.
+
+The entries on which the calls disagree, with or without correction, or that
+`ctdR` did not test:
+
+```{r comparison-table}
+agree <- c("significant in both", "significant in neither")
+disagree <- yang_vs_ctdR[!(yang_vs_ctdR$Outcome_unadjusted %in% agree &
+    yang_vs_ctdR$Outcome_adjusted %in% agree), ]
+disagree <- disagree[, c("Chemical", "k_paper", "N_paper", "PValue_paper",
+    "PValue_discovery", "PValueFDR_paper", "PValueAdjusted_discovery",
+    "Outcome_unadjusted", "Outcome_adjusted")]
+disagree[, 4:7] <- lapply(disagree[, 4:7], fmt)
+knitr::kable(disagree, row.names = FALSE, col.names = c("Chemical", "k", "N",
+    "p paper", "p ctdR", "FDR paper", "Adjusted p ctdR", "Unadjusted",
+    "Adjusted"))
+```
+
+- **Significant only in Yang et al., without correction**: *chromium* and
+  *cholecalciferol* are parent terms whose sets the authors enlarged with
+  their MeSH descendants (2,352 and 2,830 genes in the paper, 258 and 264 for
+  the exact `ChemicalID` in `ctdR`), so the two analyses test different sets.
+- **Significant only in ctdR, without correction**: the paper's p-values are
+  just above 0.05 (0.050 to 0.066), except *methyl parathion*, the
+  transcription error discussed above.
+- **Not tested by ctdR**: *Metam* has no CTD identifier; the other three have
+  sets of one or two genes in the paper and do not reach `ctdR`'s minimum of
+  two genes in discovery.
+
+The full table, `inst/extdata/yang2024/yang2024_comparison.tsv`, also holds
+the authors' test applied to `ctdR`'s sets for every entry.
 
 # Session information
 

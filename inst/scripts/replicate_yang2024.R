@@ -121,3 +121,67 @@ discovery <- enrichment_CTD(ora_input, method = "ORA",
     universe = protein_coding_symbols, minGSSize = 2)
 head(discovery[, c("ChemicalName", "Count", "FoldEnrichment",
     "PValue", "PValueAdjusted")], 30)
+
+## 7. Yang et al. against ctdR, chemical by chemical --------------------------
+## One row per chemical of the paper's tables: the authors' call next to
+## ctdR's call in discovery, both at 0.05, twice. Unadjusted: the paper's
+## p-value against ctdR's raw p-value. Adjusted: the paper's FDR (within each
+## class, as published) against ctdR's Benjamini-Hochberg p-value (over every
+## chemical tested). The vignette shows the two cross-counts and the rows
+## where the calls disagree.
+SIGNIFICANCE_THRESHOLD <- 0.05
+output_dir <- file.path(getwd(), "yang2024_outputs")
+dir.create(output_dir, showWarnings = FALSE)
+
+#' Compare the authors' call with ctdR's for each chemical.
+#'
+#' The same rule is applied with and without multiple-testing correction,
+#' so the two cross-counts differ only in the p-values they read.
+#'
+#' @param paper_pvalue Numeric vector, the authors' p-value or FDR per
+#'   chemical; NA where the paper gives none, which happens only when no
+#'   dyslexia gene is in the set (k = 0), so NA counts as not significant.
+#' @param ctdR_pvalue Numeric vector, ctdR's p-value for the same chemicals;
+#'   NA where ctdR did not test the chemical.
+#' @return Character vector, one of "significant in both",
+#'   "significant only in Yang et al.", "significant only in ctdR",
+#'   "significant in neither" or "not tested by ctdR". A chemical ctdR did
+#'   not test is reported as such, not as non-significant.
+compare_calls <- function(paper_pvalue, ctdR_pvalue) {
+    significant_in_paper <- !is.na(paper_pvalue) &
+        paper_pvalue < SIGNIFICANCE_THRESHOLD
+    significant_in_ctdR <- ctdR_pvalue < SIGNIFICANCE_THRESHOLD
+    ifelse(is.na(ctdR_pvalue), "not tested by ctdR",
+    ifelse(significant_in_paper & significant_in_ctdR, "significant in both",
+    ifelse(significant_in_paper, "significant only in Yang et al.",
+    ifelse(significant_in_ctdR, "significant only in ctdR",
+        "significant in neither"))))
+}
+
+discovery_by_pvalue <- discovery[order(discovery$PValue), ]
+discovery_row <- match(replication_check$ChemicalID,
+    discovery_by_pvalue$ChemicalID)
+yang_vs_ctdR <- replication_check[, .(Class, Chemical, ChemicalID,
+    k_paper, N_paper, PValue_paper, PValueFDR_paper, PValue_sameTest_ctdR)]
+yang_vs_ctdR[, `:=`(
+    Rank_discovery = discovery_row,
+    Tested_discovery = nrow(discovery_by_pvalue),
+    PValue_discovery = discovery_by_pvalue$PValue[discovery_row],
+    PValueAdjusted_discovery =
+        discovery_by_pvalue$PValueAdjusted[discovery_row])]
+yang_vs_ctdR[, `:=`(
+    Outcome_unadjusted = compare_calls(PValue_paper, PValue_discovery),
+    Outcome_adjusted = compare_calls(PValueFDR_paper,
+        PValueAdjusted_discovery))]
+setorder(yang_vs_ctdR, PValueFDR_paper, Rank_discovery, na.last = TRUE)
+# four significant digits, as in the other bundled tables
+yang_vs_ctdR[, `:=`(
+    PValue_sameTest_ctdR = signif(PValue_sameTest_ctdR, 4),
+    PValue_discovery = signif(PValue_discovery, 4),
+    PValueAdjusted_discovery = signif(PValueAdjusted_discovery, 4))]
+fwrite(yang_vs_ctdR, file.path(output_dir, "yang2024_comparison.tsv"),
+    sep = "\t")
+print(table(Unadjusted = yang_vs_ctdR$Outcome_unadjusted,
+    Adjusted = yang_vs_ctdR$Outcome_adjusted))
+message("Comparison written to ", file.path(output_dir,
+    "yang2024_comparison.tsv"))

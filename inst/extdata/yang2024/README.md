@@ -16,3 +16,7 @@ p-values only, no CTD records.
   `yang2024_discovery_yang_chemicals.tsv`: ctdR's ORA over every chemical with
   the same genes (unadjusted and Benjamini-Hochberg adjusted p-values), and the
   position of the 35 chemicals the authors found significant.
+- `yang2024_comparison.tsv`: step 7 of the script. For every entry of the
+  paper's tables, the authors' call next to ctdR's call in discovery at 0.05,
+  without correction (paper p-value against ctdR's raw p-value) and with it
+  (paper FDR within each class against ctdR's Benjamini-Hochberg p-value).
