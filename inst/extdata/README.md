@@ -83,3 +83,12 @@ Precomputed tables for the vignette "Replicating a published CTD analysis":
 the dyslexia gene list of Yang et al. (2024, CC BY 4.0) and the results of
 running `inst/scripts/replicate_yang2024.R` on the CTD release of 23 May 2023.
 They hold counts and p-values only, no CTD records; see `yang2024/README.md`.
+
+## `iulini2026/`
+
+The 25 upstream regulators that Ingenuity Pathway Analysis reports for the
+GSE311566 contrast (female donors, 24 h dexamethasone against vehicle) in
+Figure 5B of Iulini et al. (2026), Archives of Toxicology 100:3073-3090,
+doi:10.1007/s00204-026-04377-0 (CC BY 4.0), with the CTD identifier of each
+chemical. Read by Step F.7 of `inst/scripts/example_gse311566_full_pipeline.R`
+to compare ctdR with the original study; see `iulini2026/README.md`.

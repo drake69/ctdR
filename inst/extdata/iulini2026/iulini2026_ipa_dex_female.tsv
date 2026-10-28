@@ -1,0 +1,26 @@
+OverlapRank	Regulator	RegulatorType	IPAState	ChemicalID	CTDChemicalName
+1	lipopolysaccharide	chemical	not relevant	D008070	Lipopolysaccharides
+2	dexamethasone	chemical	activated	D003907	Dexamethasone
+3	IL4	protein	activated		
+4	TNF	protein	not relevant		
+5	TP53	protein	activated		
+6	Interferon alpha	protein	inhibited		
+7	filgrastim	biologic drug	activated		
+8	IFNG	protein	inhibited		
+9	TGFB1	protein	activated		
+10	Immunoglobulin	protein	inhibited		
+11	IL2	protein	not relevant		
+12	methylprednisolone	chemical	activated	D008775	Methylprednisolone
+13	CD40LG	protein	not relevant		
+14	XBP1	protein	activated		
+15	IL15	protein	not relevant		
+16	ESR1	protein	not relevant		
+17	poly rI:rC-RNA	chemical	inhibited	D011070	Poly I-C
+18	CD3	protein	not relevant		
+19	TCF3	protein	not relevant		
+20	CSF1	protein	not relevant		
+21	FOXO3	protein	activated		
+22	PTEN	protein	not relevant		
+23	beta-estradiol	chemical	activated	D004958	Estradiol
+24	Tnf (family)	protein	not relevant		
+25	camptothecin	chemical	not relevant	D002166	Camptothecin

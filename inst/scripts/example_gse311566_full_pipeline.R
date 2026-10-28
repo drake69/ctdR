@@ -66,6 +66,8 @@
 ##     - power_report.txt             a-priori power analysis summary
 ##     - top_chemicals_summary.tsv    top-N hits per method by raw p-value
 ##     - expected_hit_ranks.tsv       where Dexamethasone (D003907) lands
+##     - reference_comparison.tsv     ctdR against the regulators IPA
+##                                    reports in Iulini et al. 2026
 ##     - sessionInfo.txt              R session info for reproducibility
 ##
 ## Licensing
@@ -95,6 +97,7 @@ CONFIG <- list(
     alpha_nominal_de   = 0.05,  # per-gene t-test nominal alpha
     alpha_fdr_de       = 0.05,  # BH-adjusted alpha for DE calls
     alpha_fdr_chemical = 0.05,  # BH-adjusted alpha for chemical hits
+    alpha_nominal_chemical = 0.05,  # unadjusted alpha, for comparison only
 
     ## Effect-size target for the a-priori power calculation.
     ## log2FC = 1 (a doubling) with residual sd ~ 0.5 on log2 scale
@@ -648,6 +651,104 @@ for (i in seq_len(nrow(expected_hit_ranks))) {
 }
 message("")
 
+## ---- Step F.7 -- comparison with the original study --------
+##
+## Iulini et al. (2026, Archives of Toxicology 100:3073-3090, CC BY 4.0)
+## analysed the same contrast, female donors, 24 h Dex against vehicle,
+## with the Upstream Regulator analysis of Ingenuity Pathway Analysis
+## (IPA). Their Figure 5B lists the 25 regulators with the most
+## significant overlap; seven are chemicals, six of them in CTD. IPA
+## infers regulators from its own knowledge base, not from CTD, so this
+## compares two independent resources on the same data: agreement is
+## expected for the glucocorticoids, not chemical by chemical.
+##
+## Each reference chemical gets, per method, its rank, p-values and a
+## symbol: "*" significant after correction (adjusted p below
+## alpha_fdr_chemical), a triangle significant only without correction
+## (raw p below alpha_nominal_chemical), empty otherwise.
+
+reference_regulators <- utils::read.delim(
+    system.file("extdata", "iulini2026", "iulini2026_ipa_dex_female.tsv",
+        package = "ctdR"),
+    stringsAsFactors = FALSE, na.strings = "")
+reference_chemicals <- reference_regulators[
+    reference_regulators$RegulatorType == "chemical" &
+    !is.na(reference_regulators$ChemicalID), ]
+
+ADJUSTED_SYMBOL <- "*"
+UNADJUSTED_SYMBOL <- "\u25B2"  # black up-pointing triangle
+
+#' Symbol saying whether ctdR also finds a chemical significant.
+#'
+#' One rule for the table and for the plots, so the two cannot disagree.
+#'
+#' @param pvalue Numeric vector, raw p-values; NA when not tested.
+#' @param adjusted_pvalue Numeric vector, adjusted p-values, same order.
+#' @return Character vector: ADJUSTED_SYMBOL when the adjusted p-value is
+#'   below CONFIG$alpha_fdr_chemical, UNADJUSTED_SYMBOL when only the raw
+#'   p-value is below CONFIG$alpha_nominal_chemical, "" otherwise or when
+#'   the chemical was not tested.
+agreement_symbol <- function(pvalue, adjusted_pvalue) {
+    ifelse(!is.na(adjusted_pvalue) &
+            adjusted_pvalue < CONFIG$alpha_fdr_chemical, ADJUSTED_SYMBOL,
+        ifelse(!is.na(pvalue) & pvalue < CONFIG$alpha_nominal_chemical,
+            UNADJUSTED_SYMBOL, ""))
+}
+
+method_results <- list(ORA = ora_full, GSEA = gsea_full,
+    CAMERA = camera_full)
+reference_comparison <- reference_chemicals[, c("OverlapRank",
+    "Regulator", "IPAState", "ChemicalID", "CTDChemicalName")]
+for (method_name in names(method_results)) {
+    method_ranks <- do.call(rbind, lapply(reference_comparison$ChemicalID,
+        function(chemical_id)
+            rank_of_chemical(method_results[[method_name]], chemical_id)))
+    reference_comparison[[paste0(method_name, "_Rank")]] <- method_ranks$rank
+    reference_comparison[[paste0(method_name, "_PValue")]] <-
+        method_ranks$PValue
+    reference_comparison[[paste0(method_name, "_PValueAdjusted")]] <-
+        method_ranks$PValueAdjusted
+    reference_comparison[[paste0(method_name, "_Agreement")]] <-
+        agreement_symbol(method_ranks$PValue, method_ranks$PValueAdjusted)
+}
+utils::write.table(reference_comparison,
+    file.path(CONFIG$out_dir, "reference_comparison.tsv"),
+    sep = "\t", quote = FALSE, row.names = FALSE, fileEncoding = "UTF-8")
+
+message("--- Comparison with Iulini et al. 2026 (IPA, Fig. 5B) ---")
+message(sprintf("    %s adjusted p < %.2f, %s raw p < %.2f only",
+    ADJUSTED_SYMBOL, CONFIG$alpha_fdr_chemical, UNADJUSTED_SYMBOL,
+    CONFIG$alpha_nominal_chemical))
+message(sprintf("  %-20s %-13s %-6s %-6s %-6s", "chemical", "IPA",
+    "ORA", "GSEA", "CAMERA"))
+for (i in seq_len(nrow(reference_comparison)))
+    message(sprintf("  %-20s %-13s %-6s %-6s %-6s",
+        reference_comparison$CTDChemicalName[i],
+        reference_comparison$IPAState[i],
+        reference_comparison$ORA_Agreement[i],
+        reference_comparison$GSEA_Agreement[i],
+        reference_comparison$CAMERA_Agreement[i]))
+message("")
+
+#' Append the agreement symbol to the names of the reference chemicals.
+#'
+#' Lets the plots show which of the plotted chemicals the original study
+#' also reports, without changing plot_CTD().
+#'
+#' @param enrichment_table Data frame returned by enrichment_CTD(), with
+#'   ChemicalID, ChemicalName, PValue and PValueAdjusted.
+#' @return The same table, ChemicalName followed by the symbol for the
+#'   reference chemicals that carry one.
+mark_reference_chemicals <- function(enrichment_table) {
+    is_reference <- enrichment_table$ChemicalID %in%
+        reference_chemicals$ChemicalID
+    symbols <- agreement_symbol(enrichment_table$PValue[is_reference],
+        enrichment_table$PValueAdjusted[is_reference])
+    enrichment_table$ChemicalName[is_reference] <- trimws(paste(
+        enrichment_table$ChemicalName[is_reference], symbols))
+    enrichment_table
+}
+
 ## ---- Step G -- plots ---------------------------------------
 
 #' Render one plot to a PNG in the output directory.
@@ -668,19 +769,24 @@ save_plot <- function(file_stem, build_plot) {
 
 ## Plot top-15 by raw p-value from the full result so a chart is
 ## always produced; the alpha-thresholded TSV files (`*_significant`)
-## remain the authoritative significance call.
+## remain the authoritative significance call. Chemicals the original
+## study also reports carry the symbol of Step F.7 after their name;
+## the comparison table lists them all, plotted or not.
 TOP_N_PLOT <- 15L
 if (nrow(ora_full)) {
     save_plot("plot_ora",
-        function() plot_CTD(ora_full, type = "bar", n = TOP_N_PLOT))
+        function() plot_CTD(mark_reference_chemicals(ora_full),
+            type = "bar", n = TOP_N_PLOT))
 }
 if (nrow(gsea_full)) {
     save_plot("plot_gsea",
-        function() plot_CTD(gsea_full, type = "bar", n = TOP_N_PLOT))
+        function() plot_CTD(mark_reference_chemicals(gsea_full),
+            type = "bar", n = TOP_N_PLOT))
 }
 if (nrow(camera_full)) {
     save_plot("plot_camera",
-        function() plot_CTD(camera_full, type = "bar", n = TOP_N_PLOT))
+        function() plot_CTD(mark_reference_chemicals(camera_full),
+            type = "bar", n = TOP_N_PLOT))
 }
 save_plot("plot_gsva", function() plot_CTD(gsva_scores))
 log_step("Step G -- plots written to ", CONFIG$out_dir)
