@@ -91,6 +91,6 @@ Metals	Rubidium	D012413	0	15				10261	10776	1	1	significant in neither	significa
 Fungicides	Sodium	D012964	0	89				10285	10776	1	1	significant in neither	significant in neither
 Metals	Strontium	D013324	0	21				10308	10776	1	1	significant in neither	significant in neither
 Rodenticides	Strychnine	D013331	0	37				10311	10776	1	1	significant in neither	significant in neither
-Fungicides	Metam	""	0	105					10776			not tested by ctdR	not tested by ctdR
+Fungicides	Metam		0	105					10776			not tested by ctdR	not tested by ctdR
 Herbicides	Imazethapyr	C093630	0	1					10776			not tested by ctdR	not tested by ctdR
 Rodenticides	Diphacinone	C100262	0	1					10776			not tested by ctdR	not tested by ctdR

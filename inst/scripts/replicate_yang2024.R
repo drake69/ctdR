@@ -117,21 +117,114 @@ ora_input <- data.frame(
 protein_coding_symbols <- unique(AnnotationDbi::select(
     org.Hs.eg.db::org.Hs.eg.db, keys = "protein-coding",
     keytype = "GENETYPE", columns = "SYMBOL")$SYMBOL)
-discovery <- enrichment_CTD(ora_input, method = "ORA",
-    universe = protein_coding_symbols, minGSSize = 2)
-head(discovery[, c("ChemicalName", "Count", "FoldEnrichment",
-    "PValue", "PValueAdjusted")], 30)
+all_human_symbols <- AnnotationDbi::keys(org.Hs.eg.db::org.Hs.eg.db, "SYMBOL")
 
-## 7. Yang et al. against ctdR, chemical by chemical --------------------------
-## One row per chemical of the paper's tables: the authors' call next to
-## ctdR's call in discovery, both at 0.05, twice. Unadjusted: the paper's
-## p-value against ctdR's raw p-value. Adjusted: the paper's FDR (within each
-## class, as published) against ctdR's Benjamini-Hochberg p-value (over every
-## chemical tested). The vignette shows the two cross-counts and the rows
-## where the calls disagree.
+#' Run ctdR's ORA on the dyslexia genes and rank every chemical.
+#'
+#' The three discovery analyses differ only in background and minimum set
+#' size; one helper keeps everything else identical.
+#'
+#' @param universe Character vector, gene symbols of the background.
+#' @param minimum_set_size Integer, smallest set tested, in genes.
+#' @return data.table of the ORA result ordered by adjusted, then raw,
+#'   p-value, with a Rank column (1 = most significant) and GeneSetSize,
+#'   the number of the chemical's genes in the background.
+run_discovery <- function(universe, minimum_set_size) {
+    ora_result <- as.data.table(enrichment_CTD(ora_input, method = "ORA",
+        universe = universe, minGSSize = minimum_set_size))
+    setorder(ora_result, PValueAdjusted, PValue)
+    ora_result[, `:=`(Rank = seq_len(.N),
+        GeneSetSize = as.integer(sub("/.*", "", BackgroundRatio)))]
+    ora_result
+}
+# main: human protein-coding background, the closest to the authors'
+# 19,000; all_human: every human gene symbol; min10: sets of ten genes or
+# more, the default minimum of pathway tools.
+discovery_runs <- list(
+    main = run_discovery(protein_coding_symbols, 2),
+    all_human = run_discovery(all_human_symbols, 2),
+    min10 = run_discovery(protein_coding_symbols, 10))
+discovery <- discovery_runs$main
+print(head(discovery[, .(ChemicalName, Count, FoldEnrichment, PValue,
+    PValueAdjusted)], 30))
+
+## 7. The tables of the vignette ---------------------------------------------
+## Written to ./yang2024_outputs/; compare them with inst/extdata/yang2024/
+## before replacing the bundled copies. Counts and p-values only, no CTD
+## records. P-values keep three or four significant digits.
 SIGNIFICANCE_THRESHOLD <- 0.05
 output_dir <- file.path(getwd(), "yang2024_outputs")
 dir.create(output_dir, showWarnings = FALSE)
+
+#' Write one table of the vignette as TSV in the output directory.
+#'
+#' @param table_to_write data.frame or data.table.
+#' @param file_name Character, file name with extension.
+write_vignette_table <- function(table_to_write, file_name) {
+    # no quotes: no field holds a tab, and an empty identifier stays empty
+    fwrite(table_to_write, file.path(output_dir, file_name), sep = "\t",
+        quote = FALSE)
+}
+
+## 7a. Same sets, same test: the paper's columns as published, in the
+##     paper's order, next to the ones ctdR recomputes.
+ctdR_row <- match(published_results$ChemicalID, replication_check$ChemicalID)
+replication_table <- published_results[, .(Class, Chemical, ChemicalID,
+    Mapping, N_paper, k_paper, PValue_paper, PValueFDR_paper)]
+replication_table[, `:=`(
+    N_ctdR = replication_check$N_ctdR[ctdR_row],
+    k_ctdR = replication_check$k_ctdR[ctdR_row],
+    PValue_sameTest_ctdR =
+        signif(replication_check$PValue_sameTest_ctdR[ctdR_row], 4))]
+write_vignette_table(replication_table, "yang2024_replication.tsv")
+
+## 7b. Discovery: how many chemicals each analysis tests and finds.
+write_vignette_table(rbindlist(lapply(names(discovery_runs),
+    function(analysis_name) {
+        ranking <- discovery_runs[[analysis_name]]
+        data.table(Analysis = analysis_name, Tested = nrow(ranking),
+            Significant = sum(ranking$PValueAdjusted < SIGNIFICANCE_THRESHOLD),
+            NominalP05 = sum(ranking$PValue < SIGNIFICANCE_THRESHOLD))
+    })), "yang2024_discovery_summary.tsv")
+
+## 7c. The top 30 of the main analysis, flagged when the chemical is in the
+##     authors' list.
+paper_chemical_ids <- unique(published_results[!is.na(ChemicalID) &
+    nzchar(ChemicalID), ChemicalID])
+write_vignette_table(discovery[1:30, .(Rank, ChemicalID, ChemicalName, Count,
+    GeneSetSize, FoldEnrichment = round(FoldEnrichment, 2),
+    PValue = signif(PValue, 3), PValueAdjusted = signif(PValueAdjusted, 3),
+    InYangList = ChemicalID %in% paper_chemical_ids)],
+    "yang2024_discovery_top30.tsv")
+
+## 7d. Where the chemicals the authors found significant fall, in each
+##     analysis. A chemical that appears in two classes counts once.
+yang_significant <- unique(published_results[!is.na(PValueFDR_paper) &
+    PValueFDR_paper < SIGNIFICANCE_THRESHOLD, .(ChemicalID, Chemical, Class)],
+    by = "ChemicalID")
+yang_positions <- rbindlist(lapply(names(discovery_runs),
+    function(analysis_name) {
+        ranking <- discovery_runs[[analysis_name]]
+        positions <- ranking[match(yang_significant$ChemicalID,
+            ranking$ChemicalID)]
+        data.table(yang_significant, Analysis = analysis_name,
+            Rank = positions$Rank, Count = positions$Count,
+            GeneSetSize = positions$GeneSetSize,
+            PValue = signif(positions$PValue, 3),
+            PValueAdjusted = signif(positions$PValueAdjusted, 3),
+            # blank where the chemical was not tested
+            Tested = ifelse(is.na(positions$Rank), NA_integer_,
+                nrow(ranking)))
+    }))
+setorder(yang_positions, Analysis, Rank, na.last = TRUE)
+write_vignette_table(yang_positions, "yang2024_discovery_yang_chemicals.tsv")
+
+## 7e. Yang et al. against ctdR, chemical by chemical. One row per entry of
+##     the paper's tables: the authors' call next to ctdR's call in the main
+##     discovery analysis, both at 0.05, twice. Unadjusted: the paper's
+##     p-value against ctdR's raw p-value. Adjusted: the paper's FDR (within
+##     each class, as published) against ctdR's Benjamini-Hochberg p-value
+##     (over every chemical tested).
 
 #' Compare the authors' call with ctdR's for each chemical.
 #'
@@ -158,30 +251,24 @@ compare_calls <- function(paper_pvalue, ctdR_pvalue) {
         "significant in neither"))))
 }
 
-discovery_by_pvalue <- discovery[order(discovery$PValue), ]
-discovery_row <- match(replication_check$ChemicalID,
-    discovery_by_pvalue$ChemicalID)
+discovery_row <- match(replication_check$ChemicalID, discovery$ChemicalID)
 yang_vs_ctdR <- replication_check[, .(Class, Chemical, ChemicalID,
     k_paper, N_paper, PValue_paper, PValueFDR_paper, PValue_sameTest_ctdR)]
 yang_vs_ctdR[, `:=`(
-    Rank_discovery = discovery_row,
-    Tested_discovery = nrow(discovery_by_pvalue),
-    PValue_discovery = discovery_by_pvalue$PValue[discovery_row],
-    PValueAdjusted_discovery =
-        discovery_by_pvalue$PValueAdjusted[discovery_row])]
+    Rank_discovery = discovery$Rank[discovery_row],
+    Tested_discovery = nrow(discovery),
+    PValue_discovery = discovery$PValue[discovery_row],
+    PValueAdjusted_discovery = discovery$PValueAdjusted[discovery_row])]
 yang_vs_ctdR[, `:=`(
     Outcome_unadjusted = compare_calls(PValue_paper, PValue_discovery),
     Outcome_adjusted = compare_calls(PValueFDR_paper,
         PValueAdjusted_discovery))]
 setorder(yang_vs_ctdR, PValueFDR_paper, Rank_discovery, na.last = TRUE)
-# four significant digits, as in the other bundled tables
 yang_vs_ctdR[, `:=`(
     PValue_sameTest_ctdR = signif(PValue_sameTest_ctdR, 4),
     PValue_discovery = signif(PValue_discovery, 4),
     PValueAdjusted_discovery = signif(PValueAdjusted_discovery, 4))]
-fwrite(yang_vs_ctdR, file.path(output_dir, "yang2024_comparison.tsv"),
-    sep = "\t")
+write_vignette_table(yang_vs_ctdR, "yang2024_comparison.tsv")
 print(table(Unadjusted = yang_vs_ctdR$Outcome_unadjusted,
     Adjusted = yang_vs_ctdR$Outcome_adjusted))
-message("Comparison written to ", file.path(output_dir,
-    "yang2024_comparison.tsv"))
+message("Tables written to ", output_dir)
