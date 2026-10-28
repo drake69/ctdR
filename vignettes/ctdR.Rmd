@@ -296,11 +296,22 @@ shared schema above):
 
 GSEA uses the full ranked gene list to detect chemicals
 whose targets cluster toward the top or bottom of the
-ranking. For best results, supply a signed ranking
-statistic (e.g. the moderated t-statistic from
-`limma::eBayes()`) as a column named `stat`. When `stat`
-is absent, ctdR falls back to `-log10(pvalue)`, which
-loses directionality and may produce ties.
+ranking, and the ranking decides the question it answers.
+A signed statistic in a column named `stat`, such as the
+moderated t-statistic from `limma::eBayes()`, asks whether
+a chemical's genes move together in one direction. Without
+`stat`, ctdR ranks by `-log10(pvalue)`: the ranking has no
+sign, so the test asks whether the genes change more than
+the others in either direction, and ctdR scores it
+one-sided (`scoreType = "pos"`). The second column must
+then hold p-values; ctdR stops if its values fall outside
+[0, 1], because a fold change there would be ranked upside
+down. A CTD gene set mixes genes a chemical increases with
+genes it decreases, and a signed ranking lets the two
+halves cancel, so the unsigned ranking is often the more
+useful question: the reference pipeline in
+`inst/scripts/example_gse311566_full_pipeline.R` uses it
+and compares the two.
 
 ```{r gsea}
 # Quick-start: no signed statistic available in this
@@ -382,10 +393,13 @@ c(padj_lt_05 = sum(de$padj < 0.05),
 
 #### Real-data GSEA
 
-GSEA uses the full ranked gene list and tends to surface the
-expected chemical (Dexamethasone) near the top even with this
-small DE. We supply `log2FC` as the `stat` column so that
-direction (up/down) is preserved in the ranking.
+Here we supply `log2FC` as the `stat` column, a signed ranking:
+the test asks whether a chemical's genes move together in one
+direction. A t-statistic would be a better choice, because it also
+weighs the variance. On this subset and the synthetic CTD file no
+chemical is significant after correction, so the chunk shows the
+call, not a result: the gene sets of the sample file are not CTD
+curation.
 
 ```{r gsea-real}
 set.seed(20261027L)

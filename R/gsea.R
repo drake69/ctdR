@@ -71,11 +71,12 @@ gsea <- function(ChemicalName_GeneEntrezIds, gene_table, ...) {
                 call. = FALSE
             )
         warning(
-            "GSEA: no 'stat' column found in input. ",
-            "Falling back to -log10(second column) for ranking, which loses ",
-            "directionality and may produce ties at non-significant genes. ",
-            "Add a signed ranking statistic (e.g. the moderated t-statistic ",
-            "from limma::eBayes()) as a column named 'stat' to suppress this warning.",
+            "GSEA: no 'stat' column found in input. Genes are ranked by ",
+            "-log10(second column), without sign, and scored one-sided: the ",
+            "test asks whether a chemical's genes change more than the ",
+            "others, in either direction. To ask about one direction, add a ",
+            "signed statistic (e.g. the moderated t-statistic from ",
+            "limma::eBayes()) as a column named 'stat'.",
             call. = FALSE
         )
         stats <- -log10(gene_table[, 2] + 1e-10)

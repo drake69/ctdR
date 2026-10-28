@@ -47,6 +47,16 @@
 
 ## Bug fixes
 
+* GSEA checks the direction of the ranking it receives. Without a `stat`
+  column it ranks the second column as `-log10(value)`: a fold change
+  there, as `limma::topTable()` puts it, was ranked upside down and its
+  negative values were dropped without a message. The run now stops when
+  that column has values outside [0, 1], and warns when a `stat` column
+  looks like p-values. The `-log10(p)` ranking has no sign, so it is now
+  scored one-sided (`scoreType = "pos"`, unless the caller passes
+  another): with fgsea's two-sided default a chemical whose genes sit
+  among the unchanged ones could reach a small p-value with a negative
+  enrichment score. Results with an explicit `stat` column are unchanged.
 * `import_CTD()` no longer warns that thousands of chemicals "appear with
   more than one ChemicalName". The check counted every chemical with more
   than one interaction, because it received one row per interaction; on
