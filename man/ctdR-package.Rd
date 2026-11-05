@@ -31,11 +31,11 @@ annotation stays attached to the results.
 \section{Quick Start}{
 
 \enumerate{
-  \item Download \strong{CTD_chem_gene_ixns.csv.gz} from
-    \url{https://ctdbase.org/reports/CTD_chem_gene_ixns.csv.gz} and
-    decompress it (\code{gunzip CTD_chem_gene_ixns.csv.gz}).
+  \item Download \strong{CTD_chem_gene_ixns.csv.gz} from the CTD
+    downloads page, \url{https://ctdbase.org/downloads/}, in a browser.
+    There is no need to decompress it.
   \item Import the data once:
-    \code{import_CTD("path/to/CTD_chem_gene_ixns.csv")}
+    \code{import_CTD("path/to/CTD_chem_gene_ixns.csv.gz")}
   \item Run enrichment analysis:
     \code{enrichment_CTD(my_genes, method = "ORA")}
 }

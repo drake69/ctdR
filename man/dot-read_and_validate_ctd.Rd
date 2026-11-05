@@ -4,13 +4,16 @@
 \alias{.read_and_validate_ctd}
 \title{Read and validate a CTD CSV file}
 \usage{
-.read_and_validate_ctd(file_path)
+.read_and_validate_ctd(file_path, organism = "9606")
 }
 \arguments{
 \item{file_path}{Path to the CTD CSV file.}
+
+\item{organism}{Character vector of NCBI Taxonomy IDs to keep, or
+\code{"all"} for every species (as returned by \code{.check_organism()}).}
 }
 \value{
-A filtered data frame of human CTD interactions, carrying the
+A filtered data frame of CTD interactions, carrying the
   parsed header in its \code{"ctd_header"} attribute.
 }
 \description{

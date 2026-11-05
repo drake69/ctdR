@@ -19,19 +19,25 @@
 #' @param gene_table A data frame with at least two columns:
 #'   \describe{
 #'     \item{\code{EntrezID}}{Entrez gene IDs (character).}
-#'     \item{(second column)}{Numeric values (e.g. p-values), used as
+#'     \item{(second column)}{P-values, used as the
 #'       \code{-log10(value)} fallback ranking when no \code{stat} column
-#'       is present.}
-#'     \item{\code{stat} (optional)}{Signed numeric ranking statistic used
+#'       is present. Values outside [0, 1] stop the run: a fold change
+#'       there would be ranked upside down, and its negative values
+#'       dropped.}
+#'     \item{\code{stat} (optional)}{Numeric ranking statistic used
 #'       directly by \code{fgsea} (higher = ranked first). Recommended:
 #'       the moderated t-statistic from \code{limma::eBayes()} or
 #'       \code{-log10(p) * sign(logFC)}. When present, suppresses the
-#'       directionality warning.}
+#'       directionality warning. A \code{stat} column whose values all
+#'       lie in [0, 1] raises a warning, because p-values put there would
+#'       rank the least significant genes first.}
 #'   }
 #'
 #' @param ... Additional arguments forwarded to
 #'   \code{\link[fgsea]{fgseaMultilevel}} (e.g. \code{nproc} to set the
-#'   number of parallel workers, \code{eps} for p-value precision).
+#'   number of parallel workers, \code{eps} for p-value precision). With
+#'   the \code{-log10(p)} fallback every value is positive, so
+#'   \code{scoreType} defaults to \code{"pos"} unless given here.
 #'
 #' @return A data frame with \code{fgsea::fgseaMultilevel}'s native columns
 #'   (\code{pathway}, \code{pval}, \code{ES}, \code{NES}, \code{size},
@@ -42,25 +48,50 @@
 #'
 #' @keywords internal
 gsea <- function(ChemicalName_GeneEntrezIds, gene_table, ...) {
+    fgsea_args <- list(...)
     if ("stat" %in% colnames(gene_table)) {
         stats <- gene_table$stat
+        if (.looks_like_pvalues(stats))
+            warning(
+                "GSEA: every value in the 'stat' column lies in [0, 1], ",
+                "as p-values do. fgsea ranks the highest value first, so ",
+                "p-values there put the least significant genes at the top. ",
+                "Use -log10(p), -log10(p) * sign(logFC) or a t-statistic.",
+                call. = FALSE
+            )
     } else {
+        if (!.looks_like_pvalues(gene_table[, 2]))
+            stop(
+                "GSEA: without a 'stat' column the second column must hold ",
+                "p-values in [0, 1], ranked as -log10(p). Column '",
+                colnames(gene_table)[2], "' has values outside [0, 1]: ",
+                "a fold change there would be ranked upside down and its ",
+                "negative values dropped. Add a 'stat' column with the ",
+                "ranking statistic, or put the p-values second.",
+                call. = FALSE
+            )
         warning(
-            "GSEA: no 'stat' column found in input. ",
-            "Falling back to -log10(second column) for ranking, which loses ",
-            "directionality and may produce ties at non-significant genes. ",
-            "Add a signed ranking statistic (e.g. the moderated t-statistic ",
-            "from limma::eBayes()) as a column named 'stat' to suppress this warning.",
+            "GSEA: no 'stat' column found in input. Genes are ranked by ",
+            "-log10(second column), without sign, and scored one-sided: the ",
+            "test asks whether a chemical's genes change more than the ",
+            "others, in either direction. To ask about one direction, add a ",
+            "signed statistic (e.g. the moderated t-statistic from ",
+            "limma::eBayes()) as a column named 'stat'.",
             call. = FALSE
         )
         stats <- -log10(gene_table[, 2] + 1e-10)
+        # Every -log10(p) is positive: the genes at the bottom of the list
+        # are the unchanged ones, not the opposite tail, so only the top
+        # can carry an enrichment and the test is one-sided.
+        if (is.null(fgsea_args$scoreType)) fgsea_args$scoreType <- "pos"
     }
     names(stats) <- gene_table$EntrezID
     stats <- sort(stats, decreasing = TRUE)
 
-    fgsea_results <- fgsea::fgseaMultilevel(
-        pathways = ChemicalName_GeneEntrezIds, stats = stats, ...
-    )
+    fgsea_results <- do.call(fgsea::fgseaMultilevel, c(
+        list(pathways = ChemicalName_GeneEntrezIds, stats = stats),
+        fgsea_args
+    ))
     fgsea_results <- as.data.frame(fgsea_results)
 
     # fgsea calls its primary key "pathway" (its API targets biological
@@ -74,6 +105,21 @@ gsea <- function(ChemicalName_GeneEntrezIds, gene_table, ...) {
         fgsea_results, gene_table, ChemicalName_GeneEntrezIds
     )
     fgsea_results
+}
+
+#' Do these values look like p-values?
+#'
+#' GSEA ranks the highest value first, so a p-value column used as is
+#' turns the ranking upside down. Checking the range is the one test that
+#' needs no knowledge of where the column came from.
+#' @param values Numeric vector; \code{NA} values are ignored.
+#' @return \code{TRUE} when \code{values} is numeric and every non-missing
+#'   value lies in [0, 1], \code{FALSE} otherwise.
+#' @keywords internal
+.looks_like_pvalues <- function(values) {
+    observed <- values[!is.na(values)]
+    is.numeric(values) && length(observed) > 0 &&
+        all(observed >= 0 & observed <= 1)
 }
 
 #' Annotate GSEA results with enriched gene symbols

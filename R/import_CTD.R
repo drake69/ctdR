@@ -21,8 +21,10 @@
 #' @details
 #' Processing steps performed by \code{import_CTD}:
 #' \enumerate{
-#'   \item Reads the CSV, skipping the 27 CTD header lines.
-#'   \item Filters interactions to \strong{Homo sapiens} only (OrganismID 9606).
+#'   \item Reads the file (plain or gzip-compressed), taking the column
+#'     names from its commented header.
+#'   \item Keeps the interactions of the species named in \code{organism},
+#'     \strong{Homo sapiens} only (OrganismID 9606) by default.
 #'   \item For each chemical, collects the associated Entrez gene IDs.
 #'   \item Maps Entrez IDs to HGNC gene symbols via \pkg{org.Hs.eg.db}.
 #'   \item Saves four cached objects via \pkg{BiocFileCache}:
@@ -43,12 +45,38 @@
 #' not here — so a single import supports any combination of filters without
 #' re-running this step.
 #'
+#' @section Species:
+#' By default only human interactions are kept, as in every earlier
+#' version. \code{organism} accepts other NCBI Taxonomy IDs (for example
+#' \code{10090} for mouse, \code{10116} for rat), several at once, or
+#' \code{"all"} for every species in the file, including the interactions
+#' CTD records without a species.
+#'
+#' When species other than human are imported, and always with
+#' \code{organism = "all"}, the symbol-keyed gene sets are \strong{forced}
+#' to pool genes across species \strong{by gene symbol} (orthology by
+#' homonymy); there is no option to turn it off: a mouse \emph{Esr1}
+#' interaction counts as \emph{ESR1}. This is how the CTD website
+#' aggregates genes, and what published analyses based on it did; it is a
+#' match by name, not an orthology mapping. Human genes take their symbol
+#' from \pkg{org.Hs.eg.db} as before; genes of other species take the
+#' symbol CTD gives them, in upper case. The Entrez-keyed gene sets are not
+#' pooled: each interaction keeps the Entrez ID of the gene CTD curated it
+#' on, so analyses on Entrez IDs (\code{gene_id_type = "entrez"}, and GSEA)
+#' match a non-human gene only to an input in the same species.
+#'
 #' @param file_path Character. A local path \strong{or} a URL to the CTD
 #'   chemical-gene interactions file (\code{CTD_chem_gene_ixns.csv} or
 #'   \code{CTD_chem_gene_ixns.csv.gz}). Remote URLs are downloaded and cached
 #'   with \pkg{BiocFileCache}; the package assumes no default URL, so you supply
 #'   the source and a one-time CTD data-licensing reminder is shown on first
 #'   remote fetch.
+#' @param organism NCBI Taxonomy IDs of the species to keep, as numbers or
+#'   character strings. Defaults to \code{9606} (\emph{Homo sapiens}).
+#'   \code{"all"} keeps every species and forces symbol-keyed gene sets
+#'   to pool species by gene symbol (see the Species section). The choice
+#'   is recorded in the
+#'   provenance of the import (see \code{\link{ctd_provenance}}).
 #'
 #' @return Invisible \code{NULL}. Called for its side effect of caching the
 #'   processed data.
@@ -70,17 +98,21 @@
 #'
 #' @importFrom BiocFileCache bfccache
 #' @export
-import_CTD <- function(file_path) {
+import_CTD <- function(file_path, organism = 9606) {
+    organism <- .check_organism(organism)
     src <- .resolve_ctd_source(file_path)
 
     bfc <- .ctd_bfc()
 
     t0 <- proc.time()[["elapsed"]]
 
-    CTD_chem_gene_ixns <- .read_and_validate_ctd(src)
+    CTD_chem_gene_ixns <- .read_and_validate_ctd(src, organism)
 
     chemicals_ids <- unique(CTD_chem_gene_ixns$ChemicalID)
-    gene_maps <- .map_chemical_genes(CTD_chem_gene_ixns, chemicals_ids)
+    symbol_map <- .gene_symbol_map(CTD_chem_gene_ixns,
+        pool_species = !identical(organism, "9606"))
+    gene_maps <- .map_chemical_genes(CTD_chem_gene_ixns, chemicals_ids,
+        symbol_map)
     chemicals  <- .deduplicate_chemicals(
         CTD_chem_gene_ixns[, c("ChemicalID", "ChemicalName")]
     )
@@ -94,12 +126,13 @@ import_CTD <- function(file_path) {
         # the resolved path is a cache filename that names nothing.
         source = file_path,
         n_chemicals = nrow(chemicals),
-        n_interactions = nrow(interactions)
+        n_interactions = nrow(interactions),
+        organism = organism
     )
 
     .save_ctd_cache(bfc, chemicals,
                     gene_maps$entrez, gene_maps$symbols, interactions,
-                    provenance)
+                    provenance, symbol_map)
 
     elapsed <- proc.time()[["elapsed"]] - t0
     release <- if (is.na(provenance$report_created))
@@ -126,6 +159,11 @@ import_CTD <- function(file_path) {
 #' @return A data frame with one row per unique \code{ChemicalID}.
 #' @keywords internal
 .deduplicate_chemicals <- function(chem_df) {
+    # The caller passes one row per interaction, so the same (ID, name)
+    # pair repeats for every chemical with more than one interaction.
+    # Collapse those first: only an ID left with two different names is
+    # the data-quality problem the warning below reports.
+    chem_df <- unique(chem_df)
     dup_id <- duplicated(chem_df$ChemicalID)
     if (any(dup_id)) {
         ambiguous <- unique(chem_df$ChemicalID[dup_id])
@@ -190,10 +228,13 @@ import_CTD <- function(file_path) {
 #' Map chemicals to gene IDs and symbols
 #' @param ctd_data Filtered CTD interaction data frame.
 #' @param chemicals_ids Character vector of chemical IDs.
+#' @param symbol_map Named character vector, Entrez ID to symbol, as built
+#'   by \code{.gene_symbol_map()}.
 #' @return A list with \code{entrez} (named list) and
 #'   \code{symbols} (data frame).
 #' @keywords internal
-.map_chemical_genes <- function(ctd_data, chemicals_ids) {
+.map_chemical_genes <- function(ctd_data, chemicals_ids,
+    symbol_map = .gene_symbol_map(ctd_data)) {
     message("Mapping genes for ", length(chemicals_ids), " chemicals...")
 
     entrez_map <- lapply(chemicals_ids, function(chem) {
@@ -203,18 +244,10 @@ import_CTD <- function(file_path) {
     })
     names(entrez_map) <- chemicals_ids
 
-    all_entrez <- unique(unlist(entrez_map, use.names = FALSE))
-    sym_vec <- suppressMessages(AnnotationDbi::mapIds(
-        org.Hs.eg.db::org.Hs.eg.db,
-        keys      = all_entrez,
-        column    = "SYMBOL",
-        keytype   = "ENTREZID",
-        multiVals = "first"
-    ))
-
     symbols_df <- do.call(rbind, lapply(chemicals_ids, function(chem) {
-        syms <- sym_vec[entrez_map[[chem]]]
-        syms <- syms[!is.na(syms)]
+        syms <- symbol_map[entrez_map[[chem]]]
+        # unique(): genes of several species can share one symbol
+        syms <- unique(syms[!is.na(syms)])
         if (length(syms) == 0L) return(NULL)
         data.frame(term = chem, gene = unname(syms),
                    stringsAsFactors = FALSE)
@@ -322,10 +355,12 @@ import_CTD <- function(file_path) {
 
 #' Read and validate a CTD CSV file
 #' @param file_path Path to the CTD CSV file.
-#' @return A filtered data frame of human CTD interactions, carrying the
+#' @param organism Character vector of NCBI Taxonomy IDs to keep, or
+#'   \code{"all"} for every species (as returned by \code{.check_organism()}).
+#' @return A filtered data frame of CTD interactions, carrying the
 #'   parsed header in its \code{"ctd_header"} attribute.
 #' @keywords internal
-.read_and_validate_ctd <- function(file_path) {
+.read_and_validate_ctd <- function(file_path, organism = "9606") {
     message("Reading CTD chemical-gene interactions from: ", file_path)
     hdr <- .parse_ctd_header(file_path)
     # comment = "#" rather than a hard-coded skip, as requested in review.
@@ -355,8 +390,7 @@ import_CTD <- function(file_path) {
             call. = FALSE
         )
     }
-    ctd <- subset(ctd, ctd$OrganismID == 9606)
-    message("Filtered to ", nrow(ctd), " human interactions")
+    ctd <- .filter_organism(ctd, organism)
     attr(ctd, "ctd_header") <- hdr
     ctd
 }
@@ -368,17 +402,120 @@ import_CTD <- function(file_path) {
 #' @param symbols Data frame of term-gene symbol mappings.
 #' @param interactions Long-format data frame (ChemicalID, EntrezID,
 #'   InteractionActions).
+#' @param symbol_map Named character vector, Entrez ID to symbol, or
+#'   \code{NULL} to skip writing it.
 #' @param provenance A \code{ctd_provenance} record, or \code{NULL} to skip
 #'   writing one (which is what a caller that has none should pass).
 #' @return Invisible \code{NULL}.
 #' @keywords internal
 .save_ctd_cache <- function(bfc, chemicals, entrez, symbols, interactions,
-    provenance = NULL) {
+    provenance = NULL, symbol_map = NULL) {
     .ctd_cache_save(bfc, "chemicals", chemicals)
     .ctd_cache_save(bfc, "ChemicalName_GeneEntrezIds", entrez)
     .ctd_cache_save(bfc, "ChemicalName_GeneSymbols", symbols)
     .ctd_cache_save(bfc, "ctd_interactions", interactions)
+    if (!is.null(symbol_map))
+        .ctd_cache_save(bfc, "gene_symbol_map", symbol_map)
     if (!is.null(provenance))
         .ctd_cache_save(bfc, "ctd_provenance", provenance)
     invisible(NULL)
+}
+
+#' Validate the organism argument of import_CTD()
+#'
+#' @param organism \code{"all"}, or NCBI Taxonomy IDs as numbers or strings.
+#' @return \code{"all"}, or a character vector of unique taxonomy IDs.
+#' @keywords internal
+.check_organism <- function(organism) {
+    if (is.character(organism) && length(organism) == 1L &&
+        !is.na(organism) && tolower(organism) == "all") return("all")
+    if (!(is.numeric(organism) || is.character(organism)) ||
+        !length(organism) || anyNA(organism))
+        stop("'organism' must be \"all\" or a vector of NCBI Taxonomy IDs, ",
+            "for example 9606 (Homo sapiens) or c(9606, 10090).",
+            call. = FALSE)
+    ids <- trimws(format(organism, scientific = FALSE, trim = TRUE))
+    bad <- ids[!grepl("^[0-9]+$", ids)]
+    if (length(bad))
+        stop("'organism' must hold NCBI Taxonomy IDs (whole numbers); ",
+            "not valid: ", paste(unique(bad), collapse = ", "), ".",
+            call. = FALSE)
+    unique(ids)
+}
+
+#' Keep the interactions of the requested species
+#'
+#' Reports how many interactions each retained species contributes, so a
+#' multi-species import shows its composition, and stops when the request
+#' matches nothing rather than caching empty gene sets.
+#'
+#' @param ctd CTD interaction data frame (all columns character).
+#' @param organism Character vector of taxonomy IDs, or \code{"all"}.
+#' @return The filtered data frame.
+#' @keywords internal
+.filter_organism <- function(ctd, organism) {
+    if (identical(organism, "9606")) {
+        ctd <- ctd[ctd$OrganismID %in% "9606", , drop = FALSE]
+        message("Filtered to ", nrow(ctd), " human interactions")
+        return(ctd)
+    }
+    if (!identical(organism, "all")) {
+        absent <- setdiff(organism, ctd$OrganismID)
+        ctd <- ctd[ctd$OrganismID %in% organism, , drop = FALSE]
+        if (!nrow(ctd))
+            stop("No interactions in the file for organism ",
+                paste(organism, collapse = ", "), ".", call. = FALSE)
+        if (length(absent))
+            warning("No interactions in the file for organism ",
+                paste(absent, collapse = ", "), ".", call. = FALSE)
+    }
+    species <- ifelse(is.na(ctd$Organism) | !nzchar(ctd$Organism),
+        "species not recorded", ctd$Organism)
+    counts <- sort(table(species), decreasing = TRUE)
+    shown <- utils::head(counts, 10L)
+    message("Kept ", nrow(ctd), " interactions from ", length(counts),
+        " species: ", paste(sprintf("%s %d", names(shown),
+            as.integer(shown)), collapse = ", "),
+        if (length(counts) > 10L)
+            sprintf(", and %d more", length(counts) - 10L) else "")
+    message("Symbol-keyed gene sets are forced to pool species by gene ",
+        "symbol, orthology by homonymy (a mouse ",
+        "Esr1 interaction counts as ESR1), as the CTD website does; this is ",
+        "a match by name, not an orthology mapping. Entrez-keyed sets keep ",
+        "each species' own genes.")
+    ctd
+}
+
+#' Symbol for every gene in a CTD extract
+#'
+#' Without pooling (a human-only import) every gene takes its current HGNC
+#' symbol from \pkg{org.Hs.eg.db}, and a gene it does not know is dropped:
+#' the behaviour of every earlier version. With pooling, a gene known to
+#' \pkg{org.Hs.eg.db} still takes its HGNC symbol, and any other gene takes
+#' the symbol CTD gives it, upper-cased, so that genes of different species
+#' sharing a name pool into one symbol, as on the CTD website. The test is on
+#' the Entrez ID, not on the organism of the interaction: CTD records some
+#' interactions on a gene of another species than the experiment's.
+#'
+#' @param ctd_data CTD interaction data frame with \code{GeneID} and
+#'   \code{GeneSymbol}.
+#' @param pool_species Logical. \code{TRUE} when species other than human
+#'   were imported.
+#' @return Named character vector: names are Entrez IDs, values symbols.
+#' @keywords internal
+.gene_symbol_map <- function(ctd_data, pool_species = FALSE) {
+    ids <- as.character(ctd_data$GeneID)
+    keep <- !is.na(ids) & nzchar(ids)
+    first <- !duplicated(ids[keep])
+    ids <- ids[keep][first]
+    ctd_sym <- as.character(ctd_data$GeneSymbol)[keep][first]
+    hs <- suppressMessages(AnnotationDbi::mapIds(
+        org.Hs.eg.db::org.Hs.eg.db, keys = ids, column = "SYMBOL",
+        keytype = "ENTREZID", multiVals = "first"))
+    if (!pool_species) return(stats::setNames(unname(hs), ids))
+    is_hs <- ids %in% AnnotationDbi::keys(org.Hs.eg.db::org.Hs.eg.db,
+        keytype = "ENTREZID")
+    sym <- ifelse(is_hs, unname(hs), toupper(ctd_sym))
+    sym[!nzchar(sym)] <- NA_character_
+    stats::setNames(sym, ids)
 }

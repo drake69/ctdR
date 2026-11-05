@@ -16,6 +16,8 @@ ctdR.Rcheck/
 
 # vignette HTML è artefatto di rmarkdown::render(), non sorgente
 vignettes/*.html
+# figure folders rmarkdown leaves next to a vignette when a render stops
+vignettes/*_files/
 
 # testthat CheckReporter failure snapshots
 tests/testthat/_problems/
@@ -26,6 +28,10 @@ tests/testthat/_problems/
 # Output of inst/scripts/example_gse311566_full_pipeline.R, produced by
 # whoever runs it. Generated, not authored.
 example_outputs/
+# Output of inst/scripts/replicate_yang2024.R: the tables of the Yang
+# replication vignette, to compare with inst/extdata/yang2024/ before
+# replacing them. Generated, not authored.
+yang2024_outputs/
 
 # pkgdown site: built on the docs-site branch, never committed here
 docs/

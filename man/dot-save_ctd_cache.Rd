@@ -10,7 +10,8 @@
   entrez,
   symbols,
   interactions,
-  provenance = NULL
+  provenance = NULL,
+  symbol_map = NULL
 )
 }
 \arguments{
@@ -27,6 +28,9 @@ InteractionActions).}
 
 \item{provenance}{A \code{ctd_provenance} record, or \code{NULL} to skip
 writing one (which is what a caller that has none should pass).}
+
+\item{symbol_map}{Named character vector, Entrez ID to symbol, or
+\code{NULL} to skip writing it.}
 }
 \value{
 Invisible \code{NULL}.

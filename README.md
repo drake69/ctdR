@@ -38,13 +38,13 @@ Additional features:
 - **Provenance tracking**: `ctd_provenance()` reports which CTD release an analysis ran on, read from the `Report created` line of the file's own header. CTD re-releases continuously and does not version its filenames, so this is what lets a result name the data behind it. Attached to every result, and readable from the cache before any analysis
 - **Size thresholds chosen for CTD**, not inherited: `minGSSize` defaults to 2 because the median chemical has 4 target genes, and there is no upper limit because no CTD gene set is large enough to be untestable. Chemicals the filter does leave out are reported rather than dropped in silence
 - **Automatic caching** — CTD data is parsed once and cached locally for fast repeated analyses
-- **Human-only filtering** — automatically restricts interactions to *Homo sapiens* (OrganismID 9606)
+- **Species**: human interactions by default; other species, several at once, or `"all"` with `import_CTD(organism = )`. With species other than human, symbol-keyed gene sets pool genes by symbol (orthology by homonymy, as on the CTD website)
 - **Auto-detected gene identifiers**: Entrez vs HGNC SYMBOL detected from `rownames()` of the input matrix or `SummarizedExperiment` (CAMERA / GSVA); override via `id_type`
 - **Visualization** — `plot_CTD()` auto-dispatches to bar/dot plot (ORA/GSEA/CAMERA) or heatmap (GSVA)
 
 ## Data Licensing Disclaimer
 
-> **This package does NOT bundle, redistribute, or embed any data from the Comparative Toxicogenomics Database.**
+> **This package does NOT bundle, redistribute, or embed any data from the Comparative Toxicogenomics Database.** The example interaction file it ships is synthetic, and the tables of the replication vignette hold counts and p-values only, no CTD records.
 >
 > CTD data are created and maintained by [NC State University](https://ncsu.edu/) and are subject to specific licensing terms and conditions. Users are solely responsible for:
 >
@@ -100,23 +100,19 @@ devtools::install_github("drake69/ctdR")
 
 ### Step 1 — Download CTD data (once)
 
-Download **`CTD_chem_gene_ixns.csv.gz`** from the CTD website:
+Download **`CTD_chem_gene_ixns.csv.gz`** from the CTD downloads page in a browser (the site asks for a short check before serving the file):
 
-<https://ctdbase.org/reports/CTD_chem_gene_ixns.csv.gz>
+<https://ctdbase.org/downloads/>
 
-Decompress the file:
-
-```bash
-gunzip CTD_chem_gene_ixns.csv.gz
-```
+There is no need to decompress it: `import_CTD()` reads the `.gz` file directly.
 
 ### Step 2 — Import into ctdR (once)
 
 ```r
 library(ctdR)
 
-import_CTD("~/Downloads/CTD_chem_gene_ixns.csv")
-#> Reading CTD chemical-gene interactions from: ~/Downloads/CTD_chem_gene_ixns.csv
+import_CTD("~/Downloads/CTD_chem_gene_ixns.csv.gz")
+#> Reading CTD chemical-gene interactions from: ~/Downloads/CTD_chem_gene_ixns.csv.gz
 #> Filtered to 1234567 human interactions
 #> Mapping genes for 12345 chemicals (this may take a while)...
 #> CTD data cached successfully in: /Users/you/Library/Caches/ctdR

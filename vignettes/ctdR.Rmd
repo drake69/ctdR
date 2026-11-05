@@ -1,5 +1,5 @@
 ---
-title: "Introduction to ctdR"
+title: "ctdR: an application example"
 author:
   - name: Luigi Corsaro
     affiliation: ""
@@ -10,7 +10,7 @@ output:
     toc: true
     toc_depth: 3
 vignette: >
-  %\VignetteIndexEntry{Introduction to ctdR}
+  %\VignetteIndexEntry{ctdR: an application example}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -28,9 +28,21 @@ options(ctdR.cache = tempfile())
 
 # Overview
 
+This vignette is an **application example**: it shows how
+to use the package, step by step, on bundled data. How
+`ctdR` was validated, by repeating a published CTD
+analysis on the CTD release its authors used, is in the
+vignette "Replicating a published CTD analysis"
+(`vignette("replication_yang2024", package = "ctdR")`).
+
 **ctdR** identifies chemicals significantly associated
 with a set of genes using data from the
 [Comparative Toxicogenomics Database (CTD)](https://ctdbase.org).
+It asks **which** chemicals, among all those in CTD, are
+enriched in your data. That is a different question from
+whether chemicals chosen in advance are enriched, which is
+what the CTD Batch Query and `CTDquerier` answer: `ctdR`
+generates the hypotheses that a targeted study then tests.
 
 Four enrichment methods are supported through a single
 `enrichment_CTD()` interface; the input shape depends on
@@ -54,6 +66,9 @@ the method:
 
 > **This package does NOT bundle, redistribute, or embed
 > any data from the Comparative Toxicogenomics Database.**
+> The example interaction file it ships is synthetic, and
+> the tables of the replication vignette hold counts and
+> p-values only, no CTD records.
 > CTD data are created and maintained by NC State
 > University and are subject to specific licensing terms.
 > Users must download the data directly from
@@ -92,17 +107,12 @@ The ctdR workflow has three steps:
 
 ## Step 1 -- Download CTD data
 
-Download **`CTD_chem_gene_ixns.csv.gz`** from
-<https://ctdbase.org/reports/CTD_chem_gene_ixns.csv.gz>.
-
-Then decompress it:
-
-```bash
-gunzip CTD_chem_gene_ixns.csv.gz
-```
-
-This produces `CTD_chem_gene_ixns.csv` (several GB
-uncompressed).
+Download **`CTD_chem_gene_ixns.csv.gz`** from the CTD
+downloads page (<https://ctdbase.org/downloads/>) in a
+browser: the site asks for a short check before serving
+the file. It is about 40 MB compressed (the release of
+May 2026); `import_CTD()` reads it as it is, there is no
+need to decompress it.
 
 ## Step 2 -- Import into ctdR
 
@@ -110,7 +120,7 @@ In production you would run:
 
 ```{r import-real, eval=FALSE}
 library(ctdR)
-import_CTD("~/Downloads/CTD_chem_gene_ixns.csv")
+import_CTD("~/Downloads/CTD_chem_gene_ixns.csv.gz")
 ```
 
 For this vignette we use a small **synthetic** dataset
@@ -127,18 +137,45 @@ import_CTD(sample_file)
 
 `import_CTD()` performs the following:
 
-1. Reads the CSV (skipping the 27 CTD header lines).
-2. Filters interactions to **Homo sapiens** only
-    (OrganismID 9606).
+1. Reads the file, taking the column names from its
+    commented header.
+2. Keeps the interactions of **Homo sapiens**
+    (OrganismID 9606), unless `organism` says otherwise
+    (see below).
 3. Collects Entrez gene IDs for each chemical.
 4. Maps Entrez IDs to HGNC gene symbols via
-    `org.Hs.eg.db`.
+    `org.Hs.eg.db` (for other species, see below).
 5. Caches the processed data locally via `BiocFileCache`
     (under `tools::R_user_dir("ctdR", "cache")`).
 
 This step takes several minutes with the full CTD file.
 You only need to run it once -- or again when you
 download a newer CTD release.
+
+### Other species
+
+By default only human interactions are imported. The
+`organism` argument takes other NCBI Taxonomy IDs, several
+at once, or `"all"` for every species in the file:
+
+```{r import-organism, eval = FALSE}
+import_CTD("~/Downloads/CTD_chem_gene_ixns.csv.gz",
+    organism = c(9606, 10090, 10116))   # human, mouse, rat
+import_CTD("~/Downloads/CTD_chem_gene_ixns.csv.gz",
+    organism = "all")                    # every species
+```
+
+With species other than human, and always with
+`organism = "all"`, the symbol-keyed sets are **forced** to
+pool genes across species **by symbol** (orthology by
+homonymy, which cannot be turned off): a mouse *Esr1*
+interaction counts as *ESR1*. This is how the CTD website
+aggregates genes, and what analyses built on it did; it is a
+match by name, not an orthology mapping. The Entrez-keyed
+sets are not pooled, so analyses on Entrez IDs
+(`gene_id_type = "entrez"`, and GSEA) match a non-human gene
+only to an input in the same species. The species imported
+is recorded by `ctd_provenance()`.
 
 ### Which CTD release did I use?
 
@@ -166,7 +203,7 @@ ask an object you are about to report on:
 
 The record holds the CTD release date, where the file
 came from, when you imported it, how much of it was
-kept, and the ctdR version. Release date and import
+kept, the species imported, and the ctdR version. Release date and import
 date answer different questions and are both recorded:
 the first says which data, the second says when you
 took it.
@@ -259,15 +296,29 @@ shared schema above):
 
 GSEA uses the full ranked gene list to detect chemicals
 whose targets cluster toward the top or bottom of the
-ranking. For best results, supply a signed ranking
-statistic (e.g. the moderated t-statistic from
-`limma::eBayes()`) as a column named `stat`. When `stat`
-is absent, ctdR falls back to `-log10(pvalue)`, which
-loses directionality and may produce ties.
+ranking, and the ranking decides the question it answers.
+A signed statistic in a column named `stat`, such as the
+moderated t-statistic from `limma::eBayes()`, asks whether
+a chemical's genes move together in one direction. Without
+`stat`, ctdR ranks by `-log10(pvalue)`: the ranking has no
+sign, so the test asks whether the genes change more than
+the others in either direction, and ctdR scores it
+one-sided (`scoreType = "pos"`). The second column must
+then hold p-values; ctdR stops if its values fall outside
+[0, 1], because a fold change there would be ranked upside
+down. A CTD gene set mixes genes a chemical increases with
+genes it decreases, and a signed ranking lets the two
+halves cancel, so the unsigned ranking is often the more
+useful question: the reference pipeline in
+`inst/scripts/example_gse311566_full_pipeline.R` uses it
+and compares the two.
 
 ```{r gsea}
 # Quick-start: no signed statistic available in this
 # toy gene list, so the pvalue fallback is used.
+# fgsea estimates p-values by sampling: fix the seed so
+# the results are the same on every build.
+set.seed(20261027L)
 gsea_results <- enrichment_CTD(genes, method = "GSEA")
 head(gsea_results)
 ```
@@ -342,12 +393,16 @@ c(padj_lt_05 = sum(de$padj < 0.05),
 
 #### Real-data GSEA
 
-GSEA uses the full ranked gene list and tends to surface the
-expected chemical (Dexamethasone) near the top even with this
-small DE. We supply `log2FC` as the `stat` column so that
-direction (up/down) is preserved in the ranking.
+Here we supply `log2FC` as the `stat` column, a signed ranking:
+the test asks whether a chemical's genes move together in one
+direction. A t-statistic would be a better choice, because it also
+weighs the variance. On this subset and the synthetic CTD file no
+chemical is significant after correction, so the chunk shows the
+call, not a result: the gene sets of the sample file are not CTD
+curation.
 
 ```{r gsea-real}
+set.seed(20261027L)
 gsea_real <- enrichment_CTD(
     data.frame(EntrezID = de$EntrezID,
                pvalue   = de$pvalue,
@@ -373,7 +428,7 @@ with the bundled data.
 
 ```{r ora-is-subset}
 ## Set is_subset <- FALSE to run ORA on the full CTD download.
-## Requires CTD_chem_gene_ixns.csv.gz from ctdbase.org, decompressed locally.
+## Requires CTD_chem_gene_ixns.csv.gz from ctdbase.org.
 is_subset <- TRUE
 ```
 
@@ -388,16 +443,15 @@ if (is_subset) {
     } else {
         message(
             "ORA returned 0 results on the toy CTD sample (expected).\n",
-            "Set is_subset <- FALSE and provide CTD_chem_gene_ixns.csv",
+            "Set is_subset <- FALSE and provide CTD_chem_gene_ixns.csv.gz",
             " for a powered analysis."
         )
     }
 } else {
     ## Full CTD path -----------------------------------------------------------
-    ## 1. Download https://ctdbase.org/reports/CTD_chem_gene_ixns.csv.gz
-    ## 2. gunzip CTD_chem_gene_ixns.csv.gz
-    ## 3. Set ctd_path to the decompressed file location
-    ctd_path <- "~/Downloads/CTD_chem_gene_ixns.csv"  # adjust to your path
+    ## 1. Download CTD_chem_gene_ixns.csv.gz from https://ctdbase.org/downloads/
+    ## 2. Set ctd_path to where you saved it (no need to decompress)
+    ctd_path <- "~/Downloads/CTD_chem_gene_ixns.csv.gz"  # adjust to your path
     import_CTD(ctd_path)
     ora_full <- enrichment_CTD(sig, method = "ORA")
     if (nrow(ora_full)) {
@@ -555,10 +609,10 @@ universe, but the degree of user control differs:
 
 | Method | Size filter | Configurable | Background universe | Configurable |
 |--------|-------------|:---:|---------------------|:---:|
-| ORA | `minGSSize` (default 2) / `maxGSSize` (default `Inf`) | ✓ | All genes in TERM2GENE (default) or user-supplied `universe` | ✓ |
-| GSEA | `minSize` / `maxSize` | ✓ | No universe concept — uses the full ranked list | — |
-| CAMERA | ≥ 2 genes (hard-coded) | ✗ | `rownames(x)` | implicit |
-| GSVA | `minSize` / `maxSize` | ✓ | `rownames(x)` | implicit |
+| ORA | `minGSSize` (default 2) / `maxGSSize` (default `Inf`) | Yes | All genes in TERM2GENE (default) or user-supplied `universe` | Yes |
+| GSEA | `minSize` / `maxSize` | Yes | No universe concept: uses the full ranked list | n/a |
+| CAMERA | at least 2 genes (hard-coded) | No | `rownames(x)` | implicit |
+| GSVA | `minSize` / `maxSize` | Yes | `rownames(x)` | implicit |
 
 ORA, GSEA, and GSVA accept size-filter arguments via `...`, which are
 forwarded to the underlying engine. CAMERA's minimum of 2 genes is
@@ -640,8 +694,9 @@ raises a warning rather than being silently dropped.
 ### Why the size thresholds are what they are
 
 In `ctdR` every chemical *is* a gene set, and CTD gene sets are small:
-the median chemical has **4** target genes, against 72 for KEGG and 11
-for GO. Size thresholds tuned for those collections do not transfer.
+the median chemical has **4** target genes, against 79 for KEGG
+pathways and 8 for GO biological process terms (whole human
+collections, Bioconductor 3.23). Size thresholds tuned for those collections do not transfer.
 Measured on the full CTD chemical-gene file, of 11,067 chemicals:
 
 | `minGSSize` | Chemicals tested | % |
@@ -793,6 +848,7 @@ ora_expressed <- enrichment_CTD(
 )
 
 # GSEA: filter gene sets by size
+set.seed(20261027L)
 gsea_filtered <- enrichment_CTD(
     genes, method = "GSEA",
     minSize = 3,
@@ -817,9 +873,8 @@ arise when the background is larger than the actual measurement space.
 Use **ORA** when you have a well-defined gene list above a
 significance threshold; **GSEA** to leverage the full
 ranking without a cutoff; **CAMERA** when you have a
-proper multi-sample design and want to control the
-inflated false-positive rate that ORA/GSEA exhibit on
-strongly co-regulated gene sets; **GSVA** when you want a
+proper multi-sample design and want to account for
+inter-gene correlation, which ORA ignores; **GSVA** when you want a
 per-sample score to feed into downstream analyses
 (clustering, survival, correlation with phenotypes).
 
@@ -888,13 +943,21 @@ Bioconductor at release 3.12.
 CTD releases updated data periodically. To update:
 
 1. Download the latest `CTD_chem_gene_ixns.csv.gz` from
-    <https://ctdbase.org/reports/CTD_chem_gene_ixns.csv.gz>.
-2. Decompress and re-run `import_CTD()` -- existing
-    cache files are overwritten.
+    <https://ctdbase.org/downloads/>.
+2. Re-run `import_CTD()` -- existing cache files are
+    overwritten.
 
 ```{r reimport, eval=FALSE}
-import_CTD("~/Downloads/CTD_chem_gene_ixns.csv")
+import_CTD("~/Downloads/CTD_chem_gene_ixns.csv.gz")
 ```
+
+CTD does not keep its past releases: each one replaces
+the file at the same address. To be able to repeat an
+analysis, keep the file you used; `ctd_provenance()`
+names the release behind every result. Some past
+releases survive in the Internet Archive; the vignette
+"Replicating a published CTD analysis" shows how to
+retrieve one and check it against the archive's digest.
 
 # References
 

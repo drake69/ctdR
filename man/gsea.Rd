@@ -14,19 +14,25 @@ chemical. Names are CTD chemical IDs.}
 \item{gene_table}{A data frame with at least two columns:
 \describe{
   \item{\code{EntrezID}}{Entrez gene IDs (character).}
-  \item{(second column)}{Numeric values (e.g. p-values), used as
+  \item{(second column)}{P-values, used as the
     \code{-log10(value)} fallback ranking when no \code{stat} column
-    is present.}
-  \item{\code{stat} (optional)}{Signed numeric ranking statistic used
+    is present. Values outside [0, 1] stop the run: a fold change
+    there would be ranked upside down, and its negative values
+    dropped.}
+  \item{\code{stat} (optional)}{Numeric ranking statistic used
     directly by \code{fgsea} (higher = ranked first). Recommended:
     the moderated t-statistic from \code{limma::eBayes()} or
     \code{-log10(p) * sign(logFC)}. When present, suppresses the
-    directionality warning.}
+    directionality warning. A \code{stat} column whose values all
+    lie in [0, 1] raises a warning, because p-values put there would
+    rank the least significant genes first.}
 }}
 
 \item{...}{Additional arguments forwarded to
 \code{\link[fgsea]{fgseaMultilevel}} (e.g. \code{nproc} to set the
-number of parallel workers, \code{eps} for p-value precision).}
+number of parallel workers, \code{eps} for p-value precision). With
+the \code{-log10(p)} fallback every value is positive, so
+\code{scoreType} defaults to \code{"pos"} unless given here.}
 }
 \value{
 A data frame with \code{fgsea::fgseaMultilevel}'s native columns

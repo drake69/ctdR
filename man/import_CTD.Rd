@@ -4,7 +4,7 @@
 \alias{import_CTD}
 \title{Import CTD Chemical-Gene Interaction Data}
 \usage{
-import_CTD(file_path)
+import_CTD(file_path, organism = 9606)
 }
 \arguments{
 \item{file_path}{Character. A local path \strong{or} a URL to the CTD
@@ -13,6 +13,13 @@ chemical-gene interactions file (\code{CTD_chem_gene_ixns.csv} or
 with \pkg{BiocFileCache}; the package assumes no default URL, so you supply
 the source and a one-time CTD data-licensing reminder is shown on first
 remote fetch.}
+
+\item{organism}{NCBI Taxonomy IDs of the species to keep, as numbers or
+character strings. Defaults to \code{9606} (\emph{Homo sapiens}).
+\code{"all"} keeps every species and forces symbol-keyed gene sets
+to pool species by gene symbol (see the Species section). The choice
+is recorded in the
+provenance of the import (see \code{\link{ctd_provenance}}).}
 }
 \value{
 Invisible \code{NULL}. Called for its side effect of caching the
@@ -30,8 +37,10 @@ required file is \strong{CTD_chem_gene_ixns.csv.gz}, available at
 \details{
 Processing steps performed by \code{import_CTD}:
 \enumerate{
-  \item Reads the CSV, skipping the 27 CTD header lines.
-  \item Filters interactions to \strong{Homo sapiens} only (OrganismID 9606).
+  \item Reads the file (plain or gzip-compressed), taking the column
+    names from its commented header.
+  \item Keeps the interactions of the species named in \code{organism},
+    \strong{Homo sapiens} only (OrganismID 9606) by default.
   \item For each chemical, collects the associated Entrez gene IDs.
   \item Maps Entrez IDs to HGNC gene symbols via \pkg{org.Hs.eg.db}.
   \item Saves four cached objects via \pkg{BiocFileCache}:
@@ -61,6 +70,28 @@ downloading the data directly from \url{https://ctdbase.org} and for
 complying with the CTD Terms of Service
 (\url{https://ctdbase.org/about/legal.jsp}). By using this function you
 acknowledge that you have read and accepted those terms.
+}
+
+\section{Species}{
+
+By default only human interactions are kept, as in every earlier
+version. \code{organism} accepts other NCBI Taxonomy IDs (for example
+\code{10090} for mouse, \code{10116} for rat), several at once, or
+\code{"all"} for every species in the file, including the interactions
+CTD records without a species.
+
+When species other than human are imported, and always with
+\code{organism = "all"}, the symbol-keyed gene sets are \strong{forced}
+to pool genes across species \strong{by gene symbol} (orthology by
+homonymy); there is no option to turn it off: a mouse \emph{Esr1}
+interaction counts as \emph{ESR1}. This is how the CTD website
+aggregates genes, and what published analyses based on it did; it is a
+match by name, not an orthology mapping. Human genes take their symbol
+from \pkg{org.Hs.eg.db} as before; genes of other species take the
+symbol CTD gives them, in upper case. The Entrez-keyed gene sets are not
+pooled: each interaction keeps the Entrez ID of the gene CTD curated it
+on, so analyses on Entrez IDs (\code{gene_id_type = "entrez"}, and GSEA)
+match a non-human gene only to an input in the same species.
 }
 
 \examples{

@@ -1,0 +1,96 @@
+Class	Chemical	ChemicalID	k_paper	N_paper	PValue_paper	PValueFDR_paper	PValue_sameTest_ctdR	Rank_discovery	Tested_discovery	PValue_discovery	PValueAdjusted_discovery	Outcome_unadjusted	Outcome_adjusted
+Herbicides	Cyanazine	C007168	4	12	1.48e-07	1.18e-06	9.927e-07	25	10776	6.015e-07	0.0002593	significant in both	significant in both
+Insecticides	Permethrin	D026023	27	1318	1.76e-07	1.58e-06	4.173e-06	13	10776	2.668e-07	0.0001821	significant in both	significant in both
+POPs	Dieldrin	D004026	25	1494	2.1e-05	0.000202	2.434e-05	51	10776	1.815e-06	0.0003835	significant in both	significant in both
+POPs	Dichlorodiphenyl trichloroethane	D003634	21	1160	3.36e-05	0.000202	6.639e-05	53	10776	2.295e-06	0.0004628	significant in both	significant in both
+Insecticides	Lambda-cyhalothrin	C037304	8	210	8.04e-05	0.000241	9.99e-05	90	10776	1.505e-05	0.001798	significant in both	significant in both
+Metals	Lead	D007854	42	3271	1.73e-05	0.000276	0.0001625	125	10776	3.912e-05	0.00292	significant in both	significant in both
+Insecticides	Chlorpyrifos	D004390	41	3349	7.14e-05	0.000541	0.05693	578	10776	0.002121	0.03943	significant in both	significant in both
+PAHs	Phenanthrene	C031181	7	154	7.21e-05	0.001	9.588e-05	127	10776	4.104e-05	0.00292	significant in both	significant in both
+Herbicides	Glyphosate	C010974	25	1831	0.001	0.002	0.0006551	185	10776	7.487e-05	0.00434	significant in both	significant in both
+Metals	Mercury	D008628	13	635	0.00037	0.002	0.0004057	207	10776	0.0001164	0.005923	significant in both	significant in both
+Metals	Manganese	D008345	12	558	0.000401	0.002	0.0003675	250	10776	0.0001589	0.006847	significant in both	significant in both
+PAHs	Anthracene	C034020	3	21	0.000242	0.002	0.0003804	315	10776	0.0003533	0.0119	significant in both	significant in both
+Fungicides	Cycloheximide	D003513	11	501	0.001	0.003	0.0006861	324	10776	0.0003961	0.01317	significant in both	significant in both
+Herbicides	Metolachlor	C051786	4	72	0.001	0.003	0.001503	377	10776	0.0006477	0.01745	significant in both	significant in both
+Fungicides	Maneb	D008344	11	459	0	0.003	0.001181	409	10776	0.0007013	0.01848	significant in both	significant in both
+POPs	Heptachlor	D006533	7	229	0.001	0.004	2.986e-05	96	10776	1.769e-05	0.001951	significant in both	significant in both
+Rodenticides	Brodifacoum	C013418	12	660	0.002	0.005	0.001925	494	10776	0.001264	0.02758	significant in both	significant in both
+Rodenticides	Cholecalciferol	D002762	32	2830	0.002	0.005	0.1077	2419	10776	0.09141	0.4072	significant only in Yang et al.	significant only in Yang et al.
+POPs	Toxaphene	D014112	4	80	0.002	0.006	0.002215	505	10776	0.001516	0.03183	significant in both	significant in both
+Metals	Copper	D003300	58	6193	0.003	0.008	0.001929	107	10776	2.354e-05	0.002361	significant in both	significant in both
+Metals	Zinc	D015032	30	2678	0.004	0.008	0.003841	277	10776	0.0002574	0.00953	significant in both	significant in both
+Metals	Selenium	D012643	24	1978	0.004	0.008	0.007756	680	10776	0.003658	0.05796	significant in both	significant only in Yang et al.
+Metals	Cobalt	D003035	48	4849	0.003	0.008	0.03222	1345	10776	0.02496	0.195	significant in both	significant only in Yang et al.
+Herbicides	Atrazine	D001280	72	8397	0.007	0.01	0.01168	74	10776	6.921e-06	0.001008	significant in both	significant in both
+Herbicides	Trifluralin	D014274	2	18	0.005	0.01	0.006616	566	10776	0.001919	0.03639	significant in both	significant in both
+Herbicides	Pendimethalin	C030856	2	21	0.007	0.01	0.00896	756	10776	0.004985	0.0705	significant in both	significant only in Yang et al.
+Metals	Chromium	D002857	26	2352	0.008	0.017	0.1012	2293	10776	0.07802	0.3667	significant only in Yang et al.	significant only in Yang et al.
+Insecticides	Dimethoate	D004117	3	62	0.008	0.018	0.005417	685	10776	0.003797	0.05837	significant in both	significant only in Yang et al.
+Metals	Arsenic	D001151	46	4977	0.012	0.022	0.01269	532	10776	0.001688	0.0342	significant in both	significant in both
+Metals	Barium	D001464	3	81	0.017	0.027	0.01813	1122	10776	0.01534	0.1474	significant in both	significant only in Yang et al.
+Fungicides	Benomyl	D001542	3	62	0.008	0.029	0.008823	775	10776	0.005328	0.07409	significant in both	significant only in Yang et al.
+POPs	Chlordane	D002706	5	215	0.015	0.037	0.01593	895	10776	0.008972	0.108	significant in both	significant only in Yang et al.
+PAHs	Dibenzo(a, h)pyrene	C031195	1	2	0.007	0.037	0.01364		10776			not tested by ctdR	not tested by ctdR
+Insecticides	Cyfluthrin	C052570	3	88	0.021	0.038	0.02746	1179	10776	0.01987	0.1671	significant in both	significant only in Yang et al.
+Fungicides	Ferbam	C011251	1	3	0.014	0.038	0.02039	1197	10776	0.01988	0.1671	significant in both	significant only in Yang et al.
+Metals	Iron	D007501	7	458	0.037	0.054	0.03816	1309	10776	0.02163	0.1781	significant in both	significant in neither
+Fungicides	Thiabendazole	D013827	6	337	0.027	0.06	0.02815	1104	10776	0.01474	0.1438	significant in both	significant in neither
+Metals	Cadmium	D002104	45	5266	0.05	0.063	0.01326	376	10776	0.000643	0.01745	significant only in ctdR	significant only in ctdR
+PAHs	7,12-Dimethylbenz(a)anthracene	D015127	16	1304	0.016	0.063	0.01655	857	10776	0.007299	0.09175	significant in both	significant in neither
+Metals	Nickel	D009532	62	7653	0.051	0.063	0.5464	3149	10776	0.2529	0.8656	significant in neither	significant in neither
+Fungicides	Triadimefon	C032910	7	492	0.051	0.072	0.07321	1290	10776	0.02054	0.1716	significant only in ctdR	significant in neither
+Fungicides	Mancozeb	C013099	3	121	0.048	0.072	0.05035	1628	10776	0.03569	0.2361	significant in both	significant in neither
+Fungicides	Zineb	D015038	3	125	0.052	0.072		10453	10776	1	1	significant in neither	significant in neither
+Metals	Thallium	D013793	2	62	0.064	0.074		10355	10776	1	1	significant in neither	significant in neither
+PAHs	Benzo(j, k)fluorene	C007738	12	956	0.03	0.08	0.03095	914	10776	0.009666	0.114	significant in both	significant in neither
+PAHs	Indeno(1,2,3-cd)pyrene	C041508	5	255	0.03	0.08	0.03101	1169	10776	0.01911	0.1671	significant in both	significant in neither
+Fungicides	Hexachlorobenzene	D006581	4	224	0.066	0.081	0.07248	1844	10776	0.04579	0.2676	significant only in ctdR	significant in neither
+Herbicides	2,4-D	D015084	3	153	0.085	0.086	0.08643	1988	10776	0.05637	0.3056	significant in neither	significant in neither
+Herbicides	Dicamba	D003996	1	14	0.086	0.086	0.09167	2220	10776	0.07101	0.3439	significant in neither	significant in neither
+POPs	Mirex	D008917	2	53	0.048	0.097	0.04764	1744	10776	0.04081	0.2521	significant in both	significant in neither
+POPs	Polychlorinated biphenyls	D011078	72	9137	0.057	0.098	0.06217	1613	10776	0.03394	0.2268	significant only in ctdR	significant in neither
+POPs	Hexachlorobenzene	D006581	4	224	0.066	0.099	0.07248	1844	10776	0.04579	0.2676	significant only in ctdR	significant in neither
+PAHs	Pyrene	C030984	5	300	0.054	0.107	0.05479	897	10776	0.009165	0.1101	significant only in ctdR	significant in neither
+PAHs	Benzo(g, h,i)perylene	C006718	5	290	0.048	0.107	0.04925	1491	10776	0.02949	0.2131	significant in both	significant in neither
+Rodenticides	Bromadiolone	C021636	1	14	0.086	0.115	0.09167	1901	10776	0.05215	0.2876	significant in neither	significant in neither
+POPs	Polychlorinated dibenzofurans	D000072338	2	75	0.09	0.121	0.0934	1875	10776	0.05046	0.2876	significant in neither	significant in neither
+POPs	Endrin	D004732	2	86	0.114	0.137	0.1173	2081	10776	0.06263	0.3243	significant in neither	significant in neither
+POPs	Aldrin	D000452	3	225	0.198	0.216	0.2	2823	10776	0.1622	0.6192	significant in neither	significant in neither
+Metals	Aluminum	D000535	16	1937	0.249	0.266	0.2465	2826	10776	0.1631	0.622	significant in neither	significant in neither
+Insecticides	Carbofuran	D002235	2	120	0.196	0.293	0.1984	2848	10776	0.1694	0.6411	significant in neither	significant in neither
+PAHs	Benzo(a)anthracene	C030935	12	1413	0.259	0.411	0.2598	2477	10776	0.1004	0.435	significant in neither	significant in neither
+PAHs	Benzo(k)fluoranthene	C022921	7	753	0.256	0.411	0.2562	2573	10776	0.1104	0.4625	significant in neither	significant in neither
+PAHs	Dibenzo(a, l)pyrene	C041517	4	394	0.282	0.411	0.2825	3114	10776	0.2399	0.8279	significant in neither	significant in neither
+PAHs	Benzo(a)phenanthrene	C031180	8	954	0.328	0.438	0.3281	2982	10776	0.1955	0.7065	significant in neither	significant in neither
+Fungicides	Chlorothalonil	C005806	1	93	0.472	0.519	0.4691	3411	10776	0.4192	1	significant in neither	significant in neither
+Rodenticides	Warfarin	D014859	5	748	0.585	0.585	0.5844	2798	10776	0.1573	0.6058	significant in neither	significant in neither
+PAHs	Benzo(b)fluoranthene	C006703	12	1684	0.487	0.599	0.485	3247	10776	0.2997	0.9945	significant in neither	significant in neither
+Fungicides	Ziram	D015039	1	157	0.662	0.662	0.6612	3523	10776	0.5563	1	significant in neither	significant in neither
+PAHs	Dibenzo(a, h)anthracene	C026486	6	916	0.603	0.689	0.6017	3444	10776	0.4657	1	significant in neither	significant in neither
+Metals	Vanadium	D014639	1	182	0.716	0.716	0.7151	3587	10776	0.6979	1	significant in neither	significant in neither
+PAHs	3-Methylcholanthrene	D008748	8	1305	0.678	0.724	0.6759	3485	10776	0.5107	1	significant in neither	significant in neither
+PAHs	1-Nitropyrene	C032668	1	263	0.839	0.839	0.8388	3614	10776	0.8231	1	significant in neither	significant in neither
+POPs	Polychlorinated dibenzo-p-dioxins	D000072317	109	17068	0.988	0.988	0.09551	1879	10776	0.05214	0.2876	significant in neither	significant in neither
+Insecticides	Methyl parathion	D008743	5	101	0.8	0.997	0.0006504	253	10776	0.0001644	0.007002	significant only in ctdR	significant only in ctdR
+Insecticides	Aldicarb	D000448	1	810	0.997	0.997	0.9966	2460	10776	0.09557	0.4173	significant in neither	significant in neither
+Insecticides	Terbufos	C012568	1	733	0.994	0.997	0.9941	3637	10776	0.9927	1	significant in neither	significant in neither
+Fungicides	Pentachloronitrobenzene	C005805	0	8				4151	10776	1	1	significant in neither	significant in neither
+PAHs	5-Methylchrysene	C008422	0	4				4294	10776	1	1	significant in neither	significant in neither
+PAHs	7 H-Dibenzo(c, g)carbazole	C013478	0	2				4539	10776	1	1	significant in neither	significant in neither
+PAHs	Dibenzacridine	C022289	0	4				4844	10776	1	1	significant in neither	significant in neither
+PAHs	Benzo(j)fluoranthene	C027704	0	5				5031	10776	1	1	significant in neither	significant in neither
+Fungicides	Metalaxyl	C028175	0	3				5059	10776	1	1	significant in neither	significant in neither
+PAHs	Fluorene	C041509	0	16				5570	10776	1	1	significant in neither	significant in neither
+PAHs	Dibenzo(a, e)pyrene	C041516	0	3				5573	10776	1	1	significant in neither	significant in neither
+PAHs	Acenaphthene	C042552	0	9				5600	10776	1	1	significant in neither	significant in neither
+Rodenticides	Difethialone	C060340	0	4				6120	10776	1	1	significant in neither	significant in neither
+Insecticides	Tefluthrin	C489827	0	10				7909	10776	1	1	significant in neither	significant in neither
+Metals	Cesium	D002586	0	29				9579	10776	1	1	significant in neither	significant in neither
+Metals	Rubidium	D012413	0	15				10261	10776	1	1	significant in neither	significant in neither
+Fungicides	Sodium	D012964	0	89				10285	10776	1	1	significant in neither	significant in neither
+Metals	Strontium	D013324	0	21				10308	10776	1	1	significant in neither	significant in neither
+Rodenticides	Strychnine	D013331	0	37				10311	10776	1	1	significant in neither	significant in neither
+Fungicides	Metam		0	105					10776			not tested by ctdR	not tested by ctdR
+Herbicides	Imazethapyr	C093630	0	1					10776			not tested by ctdR	not tested by ctdR
+Rodenticides	Diphacinone	C100262	0	1					10776			not tested by ctdR	not tested by ctdR

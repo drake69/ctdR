@@ -1,3 +1,70 @@
+# Changes in version 0.99.12
+
+## New features
+
+* `import_CTD()` gains an `organism` argument. It defaults to `9606`, so
+  an import with no further argument keeps only human interactions,
+  exactly as before. It also accepts other NCBI Taxonomy IDs, several at
+  once, or `"all"` for every species in the file, which is what a
+  published analysis that pooled species needs in order to be repeated.
+  When species other than human are imported, and always with `"all"`,
+  the symbol-keyed gene sets are forced to pool them by gene symbol
+  (orthology by homonymy, with no option to turn it off) (a mouse *Esr1* interaction counts as *ESR1*),
+  as the CTD website does. This is a match by name, not an orthology
+  mapping. The Entrez-keyed sets are not pooled: each interaction keeps the
+  gene CTD curated it on. The import reports how many interactions each
+  species contributes.
+* The provenance record (`ctd_provenance()`) now states which species
+  were imported. Records written by earlier versions print as human,
+  which is the only thing those versions could import.
+
+## Documentation
+
+* New vignette, "Replicating a published CTD analysis". It repeats the
+  analysis of Yang et al. (2024, BMC Psychiatry) on the CTD release closest
+  to the one the authors used, recovered from the Internet Archive and
+  checked against the archive's digest: `ctdR` builds the same gene sets and,
+  with the authors' own test, reaches the same call at p < 0.05 for 49 of
+  the 51 chemicals whose sets agree. It then screens the whole catalogue with
+  the same genes, reporting unadjusted and adjusted p-values. Precomputed
+  tables are in `inst/extdata/yang2024/` (counts and p-values, no CTD
+  records) and the full script is `inst/scripts/replicate_yang2024.R`.
+* The introductory vignette is now titled "ctdR: an application example",
+  says so at the top, and points to the replication vignette for how the
+  package was validated. It states the question `ctdR` answers (which
+  chemicals, among all those in CTD) as distinct from verifying chemicals
+  chosen in advance.
+* Download instructions no longer tell users to decompress the CTD file:
+  `import_CTD()` reads the `.gz` directly. They point to the CTD downloads
+  page, which now serves the file through a browser check, and give its
+  real size (about 40 MB compressed, not "several GB"). The same correction
+  applies to the error raised when no CTD data have been imported.
+* The vignette no longer says the import skips 27 header lines; the column
+  names are read from the commented header. The README no longer describes
+  the import as human-only.
+* "Updating the CTD data" now explains that CTD keeps no past releases, so
+  the file used must be kept for an analysis to be repeated.
+
+## Bug fixes
+
+* GSEA checks the direction of the ranking it receives. Without a `stat`
+  column it ranks the second column as `-log10(value)`: a fold change
+  there, as `limma::topTable()` puts it, was ranked upside down and its
+  negative values were dropped without a message. The run now stops when
+  that column has values outside [0, 1], and warns when a `stat` column
+  looks like p-values. The `-log10(p)` ranking has no sign, so it is now
+  scored one-sided (`scoreType = "pos"`, unless the caller passes
+  another): with fgsea's two-sided default a chemical whose genes sit
+  among the unchanged ones could reach a small p-value with a negative
+  enrichment score. Results with an explicit `stat` column are unchanged.
+* `import_CTD()` no longer warns that thousands of chemicals "appear with
+  more than one ChemicalName". The check counted every chemical with more
+  than one interaction, because it received one row per interaction; on
+  the May 2026 release it flagged 8,914 of 11,067 human chemicals, none of
+  which actually has two names. The names kept were already correct, so
+  results are unchanged. The warning now fires only for an ID that really
+  carries two different names.
+
 # Changes in version 0.99.11
 
 ## Documentation

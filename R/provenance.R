@@ -37,7 +37,8 @@
 #' @return An object of class \code{ctd_provenance}: a list with
 #'   \code{report_created} (the CTD release string, \code{NA} if the file
 #'   carried none), \code{source}, \code{accessed}, \code{n_chemicals},
-#'   \code{n_interactions} and \code{ctdR_version}. Returns \code{NULL},
+#'   \code{n_interactions}, \code{organism} (the NCBI Taxonomy IDs kept,
+#'   or \code{"all"}) and \code{ctdR_version}. Returns \code{NULL},
 #'   with a warning, when \code{x} carries no record.
 #'
 #' @seealso \code{\link{import_CTD}}, which reads the record, and
@@ -98,10 +99,12 @@ ctd_provenance <- function(x) {
 #' @param source The path or URL the user supplied, before resolution.
 #' @param n_chemicals Number of chemicals retained after filtering.
 #' @param n_interactions Number of chemical-gene pairs retained.
+#' @param organism Character vector of the NCBI Taxonomy IDs kept, or
+#'   \code{"all"} when every species was kept.
 #' @return An object of class \code{ctd_provenance}.
 #' @keywords internal
 .ctd_provenance_new <- function(report_created, source,
-    n_chemicals, n_interactions) {
+    n_chemicals, n_interactions, organism = "9606") {
     structure(
         list(
             report_created = report_created,
@@ -109,6 +112,7 @@ ctd_provenance <- function(x) {
             accessed = format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z"),
             n_chemicals = as.integer(n_chemicals),
             n_interactions = as.integer(n_interactions),
+            organism = organism,
             ctdR_version = as.character(utils::packageVersion("ctdR"))
         ),
         class = "ctd_provenance"
@@ -172,6 +176,20 @@ print.ctd_provenance <- function(x, ...) {
     cat("  Retained:       ", format(x$n_chemicals, big.mark = ","),
         " chemicals, ", format(x$n_interactions, big.mark = ","),
         " chemical-gene pairs\n", sep = "")
+    cat("  Organism:       ", .format_organism(x$organism), "\n", sep = "")
     cat("  ctdR version:   ", x$ctdR_version, "\n", sep = "")
     invisible(x)
+}
+
+#' Describe the species recorded in a provenance record
+#'
+#' @param organism The \code{organism} field: taxonomy IDs, \code{"all"}
+#'   for every species, or \code{NULL} for a record written before the field
+#'   existed, when only human interactions could be imported.
+#' @return A single string.
+#' @keywords internal
+.format_organism <- function(organism) {
+    if (is.null(organism)) return("9606 (Homo sapiens; not recorded)")
+    if (identical(organism, "all")) return("all species")
+    paste(organism, collapse = ", ")
 }

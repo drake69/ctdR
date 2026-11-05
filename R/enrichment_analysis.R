@@ -54,8 +54,10 @@
 #'       column named \code{stat} can be added with a signed ranking statistic
 #'       (e.g. the moderated t-statistic from \code{limma::eBayes()});
 #'       when present it is used directly for ranking, preserving directionality
-#'       and avoiding ties. When absent, the second column is transformed via
-#'       \code{-log10()} with a warning. The second column is ignored by ORA.
+#'       and avoiding ties. When absent, the second column must hold p-values:
+#'       it is transformed via \code{-log10()} with a warning, scored
+#'       one-sided (\code{scoreType = "pos"}), and values outside [0, 1]
+#'       stop the run. The second column is ignored by ORA.
 #'     \item For \code{"CAMERA"} and \code{"GSVA"}: either a numeric
 #'       expression matrix with genes in rows and samples in columns, or a
 #'       \code{\link[SummarizedExperiment]{SummarizedExperiment}} whose
@@ -334,10 +336,8 @@ enrichment_CTD <- function(x,
         stop(
             "CTD data not found. Please:\n",
             "  1. Download CTD_chem_gene_ixns.csv.gz from\n",
-            "     https://ctdbase.org/reports/",
-            "CTD_chem_gene_ixns.csv.gz\n",
-            "  2. Decompress: gunzip CTD_chem_gene_ixns.csv.gz\n",
-            "  3. Run import_CTD(\"path/to/file.csv\")",
+            "     https://ctdbase.org/downloads/ (in a browser)\n",
+            "  2. Run import_CTD(\"path/to/CTD_chem_gene_ixns.csv.gz\")",
             call. = FALSE
         )
     }
@@ -654,14 +654,20 @@ enrichment_CTD <- function(x,
     entrez <- lapply(entrez, unique)
 
     all_entrez <- unique(unlist(entrez, use.names = FALSE))
-    sym_vec <- suppressMessages(AnnotationDbi::mapIds(
+    # The import's own Entrez-to-symbol map, so that a multi-species cache
+    # pools symbols here exactly as it did in ChemicalName_GeneSymbols.
+    # Caches written before the map existed hold human genes only, for
+    # which org.Hs.eg.db gives the same answer.
+    sym_vec <- if (.ctd_cache_has(bfc, "gene_symbol_map"))
+        .ctd_cache_load(bfc, "gene_symbol_map")[all_entrez]
+    else suppressMessages(AnnotationDbi::mapIds(
         org.Hs.eg.db::org.Hs.eg.db,
         keys = all_entrez, column = "SYMBOL",
         keytype = "ENTREZID", multiVals = "first"
     ))
     symbols <- do.call(rbind, lapply(names(entrez), function(chem) {
         syms <- sym_vec[entrez[[chem]]]
-        syms <- syms[!is.na(syms)]
+        syms <- unique(syms[!is.na(syms)])
         if (!length(syms)) return(NULL)
         data.frame(term = chem, gene = unname(syms),
                    stringsAsFactors = FALSE)
