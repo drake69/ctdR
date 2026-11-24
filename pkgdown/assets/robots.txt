@@ -1,5 +1,8 @@
-# ctdR — https://drake69.github.io/ctdR/
-# Traditional search crawlers: allow full indexing.
+# ctdR - https://luigicorsaro.com/ctdR/
+# Crawlers read robots.txt only at the host root, so this file is not the one
+# that counts: the live rules and the Sitemap line for this site are in
+# https://luigicorsaro.com/robots.txt. It is kept so that the published
+# /ctdR/robots.txt does not contradict the root one.
 User-agent: *
 Allow: /
 
@@ -18,4 +21,4 @@ Allow: /
 User-agent: Google-Extended
 Allow: /
 
-Sitemap: https://drake69.github.io/ctdR/sitemap.xml
+Sitemap: https://luigicorsaro.com/ctdR/sitemap.xml

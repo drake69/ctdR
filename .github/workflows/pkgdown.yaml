@@ -36,7 +36,11 @@ jobs:
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     steps:
+      # Full history: tools/seo_postprocess.R dates each sitemap entry with
+      # the last commit that touched the page source.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: r-lib/actions/setup-pandoc@v2
 
@@ -65,6 +69,12 @@ jobs:
       - name: Build pkgdown site
         run: pkgdown::build_site(new_process = FALSE, install = FALSE)
         shell: Rscript {0}
+
+      # pkgdown emits no canonical or og:url, indexes internal helpers and
+      # writes an undated sitemap; none of it is configurable, so it is
+      # fixed on the built site. See the header of the script.
+      - name: SEO post-processing
+        run: Rscript tools/seo_postprocess.R docs
 
       - name: Configure Pages
         if: github.event_name != 'pull_request'

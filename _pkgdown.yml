@@ -16,14 +16,13 @@ template:
         window.vmtrc = window.vmtrc || function (){window.vmtrcq.push(Array.prototype.slice.call(arguments))};
       </script>
       <script defer src="https://cdn.vemetric.com/main.js" id="vmtrc-scr" data-token="n1JaK1HVym6HnGg6"></script>
-      <!-- SEO / GEO: site-wide, page-independent tags (canonical & og:url are emitted per-page by pkgdown) -->
+      <!-- SEO / GEO: site-wide, page-independent tags. canonical, og:url and noindex are per-page, added by tools/seo_postprocess.R -->
       <meta property="og:type" content="website">
       <meta property="og:locale" content="en_US">
       <meta property="og:site_name" content="ctdR">
       <meta name="twitter:card" content="summary">
       <meta name="author" content="Luigi Corsaro">
-      <meta name="robots" content="index, follow">
-      <meta name="keywords" content="hypothesis discovery, hypothesis generation, candidate chemical discovery, chemical–gene associations, exploratory analysis, Comparative Toxicogenomics Database, CTD, toxicogenomics, chemical enrichment analysis, gene set enrichment, ORA, GSEA, CAMERA, GSVA, R package, Bioconductor">
+      <meta name="keywords" content="hypothesis discovery, hypothesis generation, candidate chemical discovery, chemical-gene associations, exploratory analysis, Comparative Toxicogenomics Database, CTD, toxicogenomics, chemical enrichment analysis, gene set enrichment, ORA, GSEA, CAMERA, GSVA, R package, Bioconductor">
       <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -53,7 +52,7 @@ template:
           "https://doi.org/10.5281/zenodo.19344200"
         ],
         "isBasedOn": "https://ctdbase.org",
-        "keywords": "hypothesis discovery, hypothesis generation, candidate chemical discovery, chemical–gene associations, exploratory analysis, Comparative Toxicogenomics Database, CTD, toxicogenomics, chemical enrichment analysis, gene set enrichment, ORA, GSEA, CAMERA, GSVA, Bioconductor"
+        "keywords": "hypothesis discovery, hypothesis generation, candidate chemical discovery, chemical-gene associations, exploratory analysis, Comparative Toxicogenomics Database, CTD, toxicogenomics, chemical enrichment analysis, gene set enrichment, ORA, GSEA, CAMERA, GSVA, Bioconductor"
       }
       </script>
 
