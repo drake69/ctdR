@@ -13,7 +13,7 @@
 [![GitHub issues](https://img.shields.io/github/issues/drake69/ctdR)](https://github.com/drake69/ctdR/issues)
 [![GitHub stars](https://img.shields.io/github/stars/drake69/ctdR)](https://github.com/drake69/ctdR/stargazers)
 [![GitHub last commit](https://img.shields.io/github/last-commit/drake69/ctdR)](https://github.com/drake69/ctdR/commits/main)
-[![R version](https://img.shields.io/badge/R-%3E%3D%204.5-blue.svg)](https://www.r-project.org/)
+[![R version](https://img.shields.io/badge/R-%3E%3D%204.6-blue.svg)](https://www.r-project.org/)
 [![Bioconductor dependencies](https://img.shields.io/badge/Bioconductor-dependencies-green.svg)](https://www.bioconductor.org/)
 [![Documentation](https://img.shields.io/badge/docs-pkgdown-blue.svg)](https://luigicorsaro.com/ctdR/)
 <!-- badges: end -->
@@ -24,7 +24,7 @@
 
 > ⭐ **Find ctdR useful?** [**Star it on GitHub**](https://github.com/drake69/ctdR/stargazers) — it takes one second and helps other researchers discover the package.
 
-> ✅ **Bioconductor status**: accepted into [Bioconductor](https://bioconductor.org/packages/devel/bioc/html/ctdR.html), currently available in **Bioconductor devel (3.24)**. From the next Bioconductor release it will install from the standard repository (instructions below).
+> ✅ **Bioconductor status**: part of **[Bioconductor 3.24](https://bioconductor.org/packages/ctdR/)** since its release, installable with `BiocManager::install("ctdR")` (instructions below).
 
 ## Features
 
@@ -58,15 +58,26 @@ Additional features:
 
 ## Installation
 
-> **Status**: ctdR has been accepted into Bioconductor
-> ([package page](https://bioconductor.org/packages/devel/bioc/html/ctdR.html)).
-> For now it is available only in **Bioconductor devel (3.24)**: install it
-> from the devel repository as shown below. After the next Bioconductor
-> release it will be installable from the standard (release) repository.
+### From Bioconductor (recommended)
 
-### From Bioconductor devel (current installation method)
+ctdR is part of Bioconductor since release 3.24 and requires R 4.6 or later.
+Start R and enter:
 
-Start R (version "4.6") and enter:
+```r
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("ctdR")
+```
+
+Bioconductor dependencies are installed automatically. See the
+[package page](https://bioconductor.org/packages/ctdR/) for the current
+release version and build status.
+
+### From Bioconductor devel
+
+The development version of Bioconductor carries the changes made after the
+release. It requires the R version that the current devel cycle targets:
 
 ```r
 if (!require("BiocManager", quietly = TRUE))
@@ -74,20 +85,6 @@ if (!require("BiocManager", quietly = TRUE))
 
 ## The following initializes the development version of Bioconductor
 BiocManager::install(version = "devel")
-BiocManager::install("ctdR")
-```
-
-Bioconductor dependencies are installed automatically.
-
-### From Bioconductor release (after the next Bioconductor release)
-
-Once ctdR is part of a Bioconductor release, the standard installation is
-enough, with no need to switch to devel:
-
-```r
-if (!require("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-
 BiocManager::install("ctdR")
 ```
 

@@ -1,3 +1,18 @@
+# Changes in version 1.1.1
+
+## Documentation
+
+* The installation instructions in the README and in the vignette now
+  install ctdR from the Bioconductor release (3.24 onwards) and keep the
+  devel repository as the alternative for post-release changes. The R
+  version badge now matches `Depends: R (>= 4.6.0)`.
+* The `enrichment_CTD()` help page states that GSEA p-values depend on
+  the random seed.
+
+# Changes in version 1.0.0
+
+* First Bioconductor release, in Bioconductor 3.24.
+
 # Changes in version 0.99.12
 
 ## New features
