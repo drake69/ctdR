@@ -16,7 +16,12 @@
 #'   \item{\strong{GSEA}}{Gene Set Enrichment Analysis. Uses a ranked gene list
 #'     (ranked by the numeric column in the input, e.g. p-values or fold
 #'     changes) to detect chemicals whose targets cluster toward the top or
-#'     bottom of the ranking. Uses \code{\link[fgsea]{fgsea}}.}
+#'     bottom of the ranking. Uses \code{\link[fgsea]{fgsea}}.
+#'     fgsea estimates p-values by sampling: two runs on the same input
+#'     can return different p-values and a different number of
+#'     significant chemicals, while enrichment scores and leading edges
+#'     do not change. Call \code{\link[base]{set.seed}} before the
+#'     analysis to make the result reproducible.}
 #'   \item{\strong{CAMERA}}{Competitive gene-set test accounting for
 #'     inter-gene correlation. Uses \code{\link[limma]{camera}}.
 #'     Input: a numeric expression matrix (genes x samples) or a
@@ -203,6 +208,7 @@
 #'     pvalue = c(0.001, 0.003, 0.01, 0.02, 0.05)
 #' )
 #' ora_results <- enrichment_CTD(genes, method = "ORA")
+#' set.seed(20261027L) # GSEA p-values depend on the random number generator
 #' gsea_results <- enrichment_CTD(genes, method = "GSEA")
 #'
 #' # CAMERA / GSVA: expression data plus, for CAMERA, design + contrast.

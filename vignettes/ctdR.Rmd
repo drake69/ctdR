@@ -77,19 +77,19 @@ the method:
 
 # Installation
 
-ctdR has been accepted into Bioconductor. For now it is available only in
-Bioconductor devel (3.24); after the next Bioconductor release it will be
-installable from the standard (release) repository.
+ctdR is part of Bioconductor since release 3.24 and requires R 4.6 or later.
 
-## From Bioconductor devel (current installation method)
+## From Bioconductor (recommended)
+
+    if (!require("BiocManager", quietly = TRUE))
+        install.packages("BiocManager")
+    BiocManager::install("ctdR")
+
+## From Bioconductor devel
 
     if (!require("BiocManager", quietly = TRUE))
         install.packages("BiocManager")
     BiocManager::install(version = "devel")
-    BiocManager::install("ctdR")
-
-## From Bioconductor release (after the next Bioconductor release)
-
     BiocManager::install("ctdR")
 
 ## From GitHub (latest development version)
